@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<head>
+<style>
+* {
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+-webkit-app-region: drag;
+overflow: hidden;
+}
+body{margin: 0;}
+img{
+margin-left: calc(100vw / 2 - 100px);
+margin-top: calc(100vh / 2 - 100px);
+}
+.spinner {
+    margin: 5vh auto;
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+.spinner::before,
+.spinner:after{
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+}
+.spinner:before {
+    width: 100%;
+    height: 100%;
+    background-image:linear-gradient(
+        0deg, #f26f23 0%,
+        #343f50 100%);
+    animation: spin 1s infinite linear;
+}
+.spinner:after {
+    width: 85%;
+    height: 85%;
+    background-color: #151515;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.parent{
+    width: 100vw;
+    height: 100vh;
+}
+</style>
+<script>
+document.ondragstart = () => {return false};
+document.oncontextmenu = () => {return false};
+document.oncut = () => {return false};
+document.ondrop = () => {return false};
+</script>
+</head>
+<body>
+<div class="parent">
+<img src="../../icons/logo.webp" width="200px">
+<div class="spinner"></div>
+</div>
+</body>

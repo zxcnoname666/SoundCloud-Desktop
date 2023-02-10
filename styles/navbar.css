@@ -1,0 +1,52 @@
+@font-face{
+    font-family: 'NeonOL';
+    src: url('../fonts/NeonOL.eot');
+    src: url('../fonts/NeonOL.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/NeonOL.woff') format('woff'),
+         url('../fonts/NeonOL.ttf') format('truetype'),
+         url('../fonts/NeonOL.svg#NeonOL') format('svg');
+    font-style: normal;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+}
+*{
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+body{
+    margin: 0;
+}
+#AppNavbarSystem{
+    margin: 0;
+    font-family: Roboto,sans-serif;
+    background-color: #282e38;
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 25px;
+    z-index: 999;
+    -webkit-app-region: drag;
+}
+#AppNavbarSystem .LogoText{
+    display: inline-flex;
+    font-family: NeonOL;
+    color: orange;
+    margin: 3px 5px;
+    font-size: 16px;
+}
+#AppNavbarSystem .ButtonsSelector{
+    -webkit-app-region: no-drag;
+    position: absolute;
+    display: inline-flex;
+    right: 0;
+    top: 6px
+}
+#AppNavbarSystem .AppButon{
+    display: inline-flex;
+    cursor: pointer;
+    margin-right: 10px;
+}
