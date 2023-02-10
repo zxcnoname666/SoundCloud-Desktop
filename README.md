@@ -45,3 +45,8 @@ Modify the `config.js` file.
 Names and images own by [SoundCloud](https://soundcloud.com)
 
 This app was created out of personal necessity.
+
+<p align="center">
+<a href="javascript:void(0)">
+<img src="https://profile-counter.glitch.me/scda/count.svg" width="200px" />
+</a>
