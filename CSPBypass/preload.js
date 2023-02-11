@@ -130,3 +130,9 @@ window.addEventListener('DOMContentLoaded', () => {
         console.log(`${type}-version`, process.versions[type]);
     }
 });
+
+(() => {
+    ipcRenderer.on('log', (_, log) => {
+        console.log(log);
+    })
+})()

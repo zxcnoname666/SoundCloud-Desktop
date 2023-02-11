@@ -229,3 +229,22 @@ display: none !important;
 .sc-classic .uploadTarget__frame{
 background: #212121 !important;
 }
+.Layout_MainSection__3PvQn{
+    background: #212121 !important;
+}
+body{
+    color: #fff !important;
+}
+:root{
+    --font-primary-color: #fff !important;
+    --surface-color: #212121 !important;
+    --highlight-color: #313131 !important;
+    --datalist-hover-background: #313131 !important;
+}
+li[class*='List_Blur']{
+    pointer-events: auto !important;
+}
+li[class*='List_Blur']::before{
+    -webkit-backdrop-filter: unset !important;
+    backdrop-filter: unset !important;
+}

@@ -1,6 +1,6 @@
 {
 	"name": "soundcloud-app",
-	"version": "0.9.1",
+	"version": "0.9.2",
 	"description": "soundcloud desktop app",
 	"main": "soundcloud.js",
 	"scripts": {
@@ -25,7 +25,7 @@
 		}
 	},
 	"devDependencies": {
-		"electron": "^22.2.0"
+		"electron": "^23.0.0"
 	},
 	"dependencies": {
 		"@electron/get": "^2.0.2",

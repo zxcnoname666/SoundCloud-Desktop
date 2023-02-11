@@ -1,4 +1,6 @@
 const { app, ipcMain } = require('electron');
+const { exec } = require('child_process');
+const path = require('path');
 
 module.exports = {};
 
@@ -49,6 +51,25 @@ module.exports.ipcmain = (win) => {
         }
         else if (code == 3) win.hide();
     });
+};
+
+module.exports.hookNewWindow = (webContents) => {
+    webContents.setWindowOpenHandler(({ url }) => {
+        if (url === 'about:blank') {
+            return {
+                action: 'allow',
+                overrideBrowserWindowOptions: {
+                    fullscreenable: false,
+                    backgroundColor: '#0D1117',
+                    icon: path.join(__dirname, '/../icons/appLogo.png'),
+                    darkTheme: true,
+                }
+            }
+        }
+        console.log('blocked url: ' + url);
+        exec('start ' + url);
+        return { action: 'deny' }
+    })
 };
 
 module.exports.app = () => {

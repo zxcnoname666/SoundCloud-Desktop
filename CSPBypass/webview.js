@@ -82,3 +82,9 @@ document.addEventListener('mousedown', (e) => {
     if (e.button == 3) history.back();
     if (e.button == 4) history.forward();
 });
+
+(() => {
+    for (const type of ['chrome', 'node', 'electron']) {
+        console.log(`${type}-version`, process.versions[type]);
+    }
+})();

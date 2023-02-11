@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, session } = require('electron');
+const { app, BrowserWindow, globalShortcut, session, ipcMain } = require('electron');
 const remote = require("@electron/remote/main");
 const { exec } = require('child_process');
 const path = require('path');
@@ -66,6 +66,7 @@ async function createWindow() {
 
     Setuper.cors(win.webContents.session);
     Setuper.ipcmain(win);
+    Setuper.hookNewWindow(win.webContents);
     Binds(win, bypass);
 
     const _server = new Server(AppPort);
@@ -107,17 +108,9 @@ app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit()
 });
 app.on('web-contents-created', function (webContentsCreatedEvent, contents) {
+    try { win.webContents.send('log', 'window created: ' + contents.getType()); } catch { }
     if (contents.getType() === 'webview') {
-        contents.on('new-window', function (ev, url) {
-            setTimeout(() => {
-                const wins = BrowserWindow.getAllWindows();
-                wins[wins.length - 1].setBackgroundColor('#0D1117');
-            }, 100);
-            if (url == 'about:blank') return;
-            console.log('block: ' + url);
-            ev.preventDefault();
-            exec('start ' + url);
-        });
+        Setuper.hookNewWindow(contents);
     }
 });
 
@@ -146,7 +139,7 @@ function GetUrlApp() {
 
 async function UpdateLastUrl(url) {
     if (url == 'about:blank') return;
-    console.log(url)
+    console.log(url);
     if (!fs.existsSync(HrefLoc)) await fs.promises.mkdir(HrefLoc, { recursive: true });
     fs.writeFile(path.join(HrefLoc, 'LastUrl'), url, 'utf-8', () => { });
 }
