@@ -13,54 +13,54 @@ const translations = (rulang ? config.translations.ru : (config.translations[_lo
 module.exports = async () => {
     const proxyList = config.proxy.default;
 
-    if(config.proxy.usePublic){ // just hide it for eyes safety; soooo~ small, need moooooreee;
-        try{
+    if (config.proxy.usePublic) { // just hide it for eyes safety; soooo~ small, need moooooreee;
+        try {
             const spys = await GetResponce('https://spys.me/proxy.txt');
-            if(spys != null){
+            if (spys != null) {
                 const arr = spys.split('\n');
                 for (let i = 0; i < arr.length; i++) {
                     const str = arr[i];
-                    if(str.includes('CH-')){
+                    if (str.includes('CH-')) {
                         const _proxy = str.split(' ')[0];
-                        if(_proxy.includes('.') && _proxy.includes(':')){
+                        if (_proxy.includes('.') && _proxy.includes(':')) {
                             proxyList.push(_proxy);
                         }
                     }
                 }
             }
-        }catch{}
-        try{
+        } catch { }
+        try {
             const plist = await GetResponce('https://www.proxy-list.download/api/v1/get?type=http&country=CH');
-            if(plist != null){
+            if (plist != null) {
                 const arr = plist.split('\n');
                 for (let i = 0; i < arr.length; i++) {
                     const _proxy = arr[i];
-                    if(_proxy.includes('.') && _proxy.includes(':')){
+                    if (_proxy.includes('.') && _proxy.includes(':')) {
                         proxyList.push(_proxy);
                     }
                 }
             }
-        }catch{}
-        try{
-            const pscan = await GetResponce('https://www.proxyscan.io/home/filterresult?selectedCountry=CH&status=1&'+
-            'ping=&selectedType=HTTP&selectedType=HTTPS&selectedType=SOCKS4&selectedType=SOCKS5');
-            if(pscan != null){
+        } catch { }
+        try {
+            const pscan = await GetResponce('https://www.proxyscan.io/home/filterresult?selectedCountry=CH&status=1&' +
+                'ping=&selectedType=HTTP&selectedType=HTTPS&selectedType=SOCKS4&selectedType=SOCKS5');
+            if (pscan != null) {
                 const arr = pscan.split('\n');
                 for (let i = 0; i < arr.length; i++) {
                     const str = arr[i];
                     const _proxy = str.split('>')[1]?.split('<')[0];
-                    if(_proxy != null && _proxy != undefined && _proxy.split('.').length == 4){
+                    if (_proxy != null && _proxy != undefined && _proxy.split('.').length == 4) {
                         const port = arr[i + 1].split('>')[1]?.split('<')[0];
-                        if(port != null && port != undefined){
+                        if (port != null && port != undefined) {
                             proxyList.push(_proxy + ':' + port);
                         }
                     }
                 }
             }
-        }catch{}
+        } catch { }
     }
 
-    if(proxyList.length == 0){
+    if (proxyList.length == 0) {
         new electron.Notification({
             title: 'SoundCloud',
             subtitle: 'SoundCloud',
@@ -77,11 +77,11 @@ module.exports = async () => {
         if (_check) proxy = _proxy;
     }
 
-    if (proxy.length > 0){
+    if (proxy.length > 0) {
         electron.app.commandLine.appendSwitch('proxy-server', proxy);
 
         let _notifyProxy = proxy;
-        if(config.proxy.default.includes(proxy)) _notifyProxy = '[HIDDEN]';
+        if (config.proxy.default.includes(proxy)) _notifyProxy = '[HIDDEN]';
 
         new electron.Notification({
             title: 'SoundCloud',
@@ -92,7 +92,7 @@ module.exports = async () => {
         }).show();
         return;
     }
-    
+
     new electron.Notification({
         title: 'SoundCloud',
         subtitle: 'SoundCloud',
@@ -129,7 +129,7 @@ function GetResponce(url) {
             resolve(null);
             _sended = true;
         }, 10000);
-        request.get({url}, (err, res, body) => {
+        request.get({ url }, (err, res, body) => {
             if (_sended) return;
             if (err) resolve(null);
             else resolve(body);

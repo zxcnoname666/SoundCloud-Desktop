@@ -2,6 +2,44 @@ const { app, ipcMain } = require('electron');
 
 module.exports = {};
 
+module.exports.cors = (session) => {
+    session.webRequest.onBeforeSendHeaders({ urls: ["https://raw.githubusercontent.com/fydne/*"] },
+        (details, callback) => {
+            const { requestHeaders } = details;
+            UpsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', '*');
+            UpsertKeyValue(requestHeaders, 'Sec-Fetch-Mode', 'no-cors');
+            UpsertKeyValue(requestHeaders, 'Sec-Fetch-Site', 'none');
+            callback({ requestHeaders });
+        },
+    );
+
+    session.webRequest.onHeadersReceived({ urls: ["*://raw.githubusercontent.com/fydne/*"] },
+        (details, callback) => {
+            const { responseHeaders } = details;
+            if (details.url.endsWith('.css')) {
+                UpsertKeyValue(responseHeaders, 'content-type', ['text/css; charset=UTF-8']);
+            }
+            else if (details.url.endsWith('.js')) {
+                UpsertKeyValue(responseHeaders, 'content-type', ['application/javascript; charset=UTF-8']);
+            }
+            callback({
+                responseHeaders,
+            });
+        }
+    );
+
+    function UpsertKeyValue(obj, keyToChange, value) {
+        const keyToChangeLower = keyToChange.toLowerCase();
+        for (const key of Object.keys(obj)) {
+            if (key.toLowerCase() == keyToChangeLower) {
+                obj[key] = value;
+                return;
+            }
+        }
+        obj[keyToChange] = value;
+    }
+};
+
 module.exports.ipcmain = (win) => {
     ipcMain.on('navbarEvent', (event, code) => {
         if (code == 1) win.minimize();

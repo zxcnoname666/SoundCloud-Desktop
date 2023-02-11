@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut } = require('electron');
+const { app, BrowserWindow, globalShortcut, session } = require('electron');
 const remote = require("@electron/remote/main");
 const { exec } = require('child_process');
 const path = require('path');
@@ -12,7 +12,7 @@ const AutoUpdater = require('./modules/AutoUpdater');
 const Setuper = require('./modules/win-setup');
 
 let win;
-const dev = true;
+const dev = false;
 const AppPort = dev ? 3535 : 45828;
 
 Setuper.app();
@@ -64,6 +64,7 @@ async function createWindow() {
         win?.hide();
     });
 
+    Setuper.cors(win.webContents.session);
     Setuper.ipcmain(win);
     Binds(win, bypass);
 
@@ -91,8 +92,10 @@ async function createWindow() {
     }
 
     const _lastUrl = await GetLastUrl();
-    bypass.loadUrl('https://soundcloud.com/' + _lastUrl);
-}
+    bypass.loadUrl('https://soundcloud.com/' + _lastUrl, () => {
+        try { Setuper.cors(session.fromPartition('persist:webviewsession')); } catch { }
+    });
+};
 
 app.whenReady().then(() => {
     createWindow()

@@ -37,6 +37,8 @@ electron.ipcRenderer.on('load-url', function (event, url) {
     })
     CreateBar();
 
+    electron.ipcRenderer.send('webview-invoke');
+
     let findInPage = null;
     webview.addEventListener('dom-ready', () => {
         //webview.openDevTools();

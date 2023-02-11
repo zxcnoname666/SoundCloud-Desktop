@@ -8,7 +8,7 @@ module.exports = class CSPBypass {
     }
     loadUrl(url, cb) {
         this.window.send('load-url', url)
-        if (cb) electron.ipcMain.once('webview-did-finish-load', (event, error) => cb(error));
+        if (cb) electron.ipcMain.once('webview-invoke', cb);
     }
     static Create(win) {
         return new Promise(resolve => {
