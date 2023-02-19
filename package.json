@@ -1,6 +1,6 @@
 {
 	"name": "soundcloud-app",
-	"version": "0.9.2",
+	"version": "0.9.3",
 	"description": "soundcloud desktop app",
 	"main": "soundcloud.js",
 	"scripts": {
@@ -34,6 +34,7 @@
 		"domify": "^1.4.1",
 		"electron-find": "^1.0.7",
 		"nodejs-file-downloader": "^4.10.6",
+		"notify-manager-electron": "^1.0.0",
 		"qurre-socket": "^1.0.5",
 		"request": "^2.88.2",
 		"winreg": "^1.2.4"

@@ -73,8 +73,7 @@ module.exports.hookNewWindow = (webContents) => {
 };
 
 module.exports.app = () => {
-    try { app.commandLine.appendArgument("--disable-site-isolation-trials"); } catch { }
-    try { app.commandLine.appendSwitch('disable-site-isolation-trials', true); } catch { }
+    app.commandLine.appendSwitch('disable-site-isolation-trials');
     app.commandLine.appendSwitch('proxy-bypass-list', '<local>;*.scpsl.store;*.fydne.dev;*.githubusercontent.com;' +
         '*.google.com;*.gstatic.com;' +//google
         //'www.google.com;accounts.google.com;ssl.gstatic.com;'+//google

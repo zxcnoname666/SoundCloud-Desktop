@@ -1,4 +1,5 @@
 const electron = require('electron');
+const { Notify } = require('notify-manager-electron');
 const request = require('request');
 const config = require('../config');
 
@@ -10,7 +11,7 @@ const translations = (rulang ? config.translations.ru : (config.translations[_lo
     proxy_connected: 'Connected to proxy server - ',
 };
 
-module.exports = async () => {
+module.exports = async (nmanager) => {
     const proxyList = config.proxy.default;
 
     if (config.proxy.usePublic) { // just hide it for eyes safety; soooo~ small, need moooooreee;
@@ -61,13 +62,8 @@ module.exports = async () => {
     }
 
     if (proxyList.length == 0) {
-        new electron.Notification({
-            title: 'SoundCloud',
-            subtitle: 'SoundCloud',
-            body: translations.proxy_available_not_found,
-            icon: electron.nativeImage.createFromPath(__dirname + '/../icons/appLogo.png'),
-            silent: true,
-        }).show();
+        nmanager.show(new Notify('SoundCloud', translations.proxy_available_not_found, 10, __dirname + '/../icons/appLogo.png'));
+        return;
     }
 
     let proxy = '';
@@ -80,25 +76,23 @@ module.exports = async () => {
     if (proxy.length > 0) {
         electron.app.commandLine.appendSwitch('proxy-server', proxy);
 
+        if(proxy.includes('@')){
+            const auth = proxy.split('@')[0]?.split(':') ?? ['', ''];
+            electron.app.on('login', async (event, webContents, request, authInfo, callback) => {
+                if(authInfo.isProxy){
+                    callback(auth[0], auth[1]); // login, password
+                }
+            });
+        }
+
         let _notifyProxy = proxy;
         if (config.proxy.default.includes(proxy)) _notifyProxy = '[HIDDEN]';
 
-        new electron.Notification({
-            title: 'SoundCloud',
-            subtitle: 'SoundCloud',
-            body: translations.proxy_connected + _notifyProxy,
-            icon: electron.nativeImage.createFromPath(__dirname + '/../icons/data-server.png'),
-            silent: true,
-        }).show();
+        nmanager.show(new Notify('SoundCloud', translations.proxy_connected + _notifyProxy, 10, __dirname + '/../icons/data-server.png'));
         return;
     }
 
-    new electron.Notification({
-        title: 'SoundCloud',
-        subtitle: 'SoundCloud',
-        body: translations.proxy_work_not_found,
-        silent: true,
-    }).show();
+    nmanager.show(new Notify('SoundCloud', translations.proxy_work_not_found, 10));
 };
 
 function ProxyCheck(proxy) {

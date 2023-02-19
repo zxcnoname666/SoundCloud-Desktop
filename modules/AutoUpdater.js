@@ -8,6 +8,7 @@ module.exports = async () => {
         height: 400,
         icon: __dirname + "/../icons/appLogo.ico",
         webPreferences: { devTools: false },
+        skipTaskbar: true,
         frame: false,
         titleBarStyle: 'hidden',
         backgroundColor: '#0D1117',

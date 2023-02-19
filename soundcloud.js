@@ -1,6 +1,6 @@
-const { app, BrowserWindow, globalShortcut, session, ipcMain } = require('electron');
+const { app, BrowserWindow, globalShortcut, session } = require('electron');
+const { NotifyManager } = require('notify-manager-electron');
 const remote = require("@electron/remote/main");
-const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const CSPBypass = require('./CSPBypass/CSPBypass');
@@ -23,7 +23,7 @@ async function createWindow() {
     const updater = await AutoUpdater();
     await require('./modules/ProtocolInjector')();
 
-    remote.initialize();
+    try{remote.initialize();}catch{}
     win = new BrowserWindow({
         show: false,
         width: 1280,
@@ -50,8 +50,10 @@ async function createWindow() {
     });
     remote.enable(win.webContents);
 
+    const nmanager = new NotifyManager();
+
     require('./modules/startupMenu')(win);
-    await require('./modules/ProxyManager')(win);
+    await require('./modules/ProxyManager')(nmanager);
 
     const bypass = await CSPBypass.Create(win);
     win.once('ready-to-show', () => {
