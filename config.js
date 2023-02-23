@@ -8,12 +8,12 @@ module.exports = {
         ru: { // ru, kk, ky, be
             proxy_available_not_found: 'Доступные прокси-сервера не найдены',
             proxy_work_not_found: 'Работающие прокси-сервера не найдены',
-            proxy_connected: 'Подключен к прокси-серверу - ',
+            proxy_connected: 'Подключен к прокси-серверу - {ip}',
         },
         en: {
             proxy_available_not_found: 'Available proxy servers not found',
             proxy_work_not_found: 'No working proxy servers found',
-            proxy_connected: 'Connected to proxy server - ',
+            proxy_connected: 'Connected to proxy server - {ip}',
         },
         /*
         'iso code': {...},

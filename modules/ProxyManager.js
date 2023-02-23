@@ -8,7 +8,7 @@ const rulang = _localize.includes('ru') || _localize.includes('kk') || _localize
 const translations = (rulang ? config.translations.ru : (config.translations[_localize] ?? config.translations.en)) ?? {
     proxy_available_not_found: 'Available proxy servers not found',
     proxy_work_not_found: 'No working proxy servers found',
-    proxy_connected: 'Connected to proxy server - ',
+    proxy_connected: 'Connected to proxy server - {ip}',
 };
 
 module.exports = async (nmanager) => {
@@ -85,10 +85,7 @@ module.exports = async (nmanager) => {
             });
         }
 
-        let _notifyProxy = proxy;
-        if (config.proxy.default.includes(proxy)) _notifyProxy = '[HIDDEN]';
-
-        nmanager.show(new Notify('SoundCloud', translations.proxy_connected + _notifyProxy, 10, __dirname + '/../icons/data-server.png'));
+        nmanager.show(new Notify('SoundCloud', translations.proxy_connected.replaceAll('{ip}', proxy), 10, __dirname + '/../icons/data-server.png'));
         return;
     }
 
