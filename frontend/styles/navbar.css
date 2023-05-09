@@ -3,8 +3,7 @@
     src: url('../fonts/NeonOL.eot');
     src: url('../fonts/NeonOL.eot?#iefix') format('embedded-opentype'),
          url('../fonts/NeonOL.woff') format('woff'),
-         url('../fonts/NeonOL.ttf') format('truetype'),
-         url('../fonts/NeonOL.svg#NeonOL') format('svg');
+         url('../fonts/NeonOL.ttf') format('truetype');
     font-style: normal;
     font-weight: normal;
     text-rendering: optimizeLegibility;

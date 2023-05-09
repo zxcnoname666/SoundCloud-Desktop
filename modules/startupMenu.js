@@ -2,7 +2,7 @@ const electron = require('electron');
 
 const menu = [{
     label: '&SoundCloud',
-    icon: electron.nativeImage.createFromPath(__dirname + '/../icons/soundcloud.ico').resize({width:16}),
+    icon: electron.nativeImage.createFromPath(__dirname + '/../icons/appLogo.ico').resize({width:16}),
     enabled: false
 },{
     label: '&Quit',
@@ -10,7 +10,7 @@ const menu = [{
 }];
 
 module.exports = async (win) => {
-    const tray = new electron.Tray(__dirname + "/../icons/soundcloud.ico")
+    const tray = new electron.Tray(__dirname + "/../icons/appLogo.ico")
     tray.setToolTip('SoundCloud');
     tray.setIgnoreDoubleClickEvents(true);
     tray.on('click', () => win.show());

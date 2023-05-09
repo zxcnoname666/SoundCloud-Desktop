@@ -30,11 +30,12 @@ The unofficial SoundCloud desktop app for Windows
 
 Modify the `config.js` file.
 
-`proxy.default` - an array with links to connect to a proxy (like `1.1.1.1:80` or `user:password@ip:port`)
-
-`proxy.usePublic` - finds public proxies to connect. It's better to disable this for data security purposes. Disabled by default.
+`proxy` - an array with links to connect to a proxy (like `1.1.1.1:80` or `user:password@ip:port`)
 
 > Security Recommendation: Better use `user:password` access or only allow connections to the following servers: `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com`
+
+**! Warning**
+Proxy will not help, in case of blocking by ISP/gov. As an example: Russian Computer Oversight (RKN) decrypts http(s) connections and checks for blacklisted domains. To bypass such blocking, recommended to use a VPN on your personal hosting.
 
 # Build
 1. `npm i` - Install required dependencies

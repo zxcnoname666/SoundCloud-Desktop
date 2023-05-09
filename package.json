@@ -1,41 +1,46 @@
 {
-	"name": "soundcloud-app",
-	"version": "0.9.4",
-	"description": "soundcloud desktop app",
-	"main": "soundcloud.js",
-	"scripts": {
-		"build": " electron-builder "
-	},
-	"author": "fydne",
-	"license": "MIT",
-	"productName": "SoundCloud",
-	"build": {
-		"appId": "SoundCloud",
-		"win": {
-			"target": [
-				{
-					"target": "nsis",
-					"arch": [
-						"x64",
-						"ia32"
-					]
-				}
-			],
-			"icon": "icons/appLogo.ico"
-		}
-	},
-	"devDependencies": {
-		"electron": "^23.1.1"
-	},
-	"dependencies": {
-		"@electron/get": "^2.0.2",
-		"@electron/remote": "^2.0.9",
-		"appdata-path": "^1.0.0",
-		"domify": "^1.4.1",
-		"electron-find": "^1.0.7",
-		"notify-manager-electron": "^1.0.1",
-		"qurre-socket": "^1.0.5",
-		"request": "^2.88.2",
-		"winreg": "^1.2.4"
-	}
+  "name": "soundcloud",
+  "version": "1.0.0",
+  "description": "SoundCloud Desktop App",
+  "main": "init.js",
+  "scripts": {
+    "build": "electron-builder",
+    "build-soon": "node .build/init.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fydne/SoundCloud-Desktop.git"
+  },
+  "author": "fydne",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fydne/SoundCloud-Desktop/issues"
+  },
+  "homepage": "https://github.com/fydne/SoundCloud-Desktop#readme",
+  "devDependencies": {
+    "electron": "^24.1.2"
+  },
+  "dependencies": {
+    "appdata-path": "^1.0.0",
+    "https-proxy-agent": "^5.0.1",
+    "node-fetch": "^2.6.9",
+    "notify-manager-electron": "^1.1.3",
+    "qurre-socket": "^1.1.0",
+    "winreg": "^1.2.4"
+  },
+  "build": {
+    "appId": "SoundCloud",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "icons/appLogo.ico"
+    }
+  }
 }

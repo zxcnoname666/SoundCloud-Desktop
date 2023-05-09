@@ -77,6 +77,6 @@ module.exports = async () => {
 
         console.log('\x1b[32m%s\x1b[0m', 'Protocol injected');
     } catch (e) {
-        console.log('Protocol errored:\n' + e);
+        console.log('ProtocolInjector error:\n' + e);
     }
 };
