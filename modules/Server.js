@@ -1,6 +1,6 @@
 const { app, ipcMain } = require('electron');
 const { Server } = require('qurre-socket');
-const Setuper = require('./win-setup');
+const Setuper = require('./Setuper');
 
 module.exports = (port, win) => {
     const server = new Server(port);

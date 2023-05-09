@@ -52,7 +52,7 @@ const addStyle = () => {
 
     function _add() {
         const cssLink = document.createElement("link");
-        cssLink.href = "https://raw.githubusercontent.com/fydne/SoundCloud-Desktop/frontend/styles/black-mode.css";
+        cssLink.href = "https://raw.githubusercontent.com/fydne/SoundCloud-Desktop/main/frontend/styles/black-mode.css";
         cssLink.rel = "stylesheet";
         cssLink.type = "text/css";
         cssLink.id = StyleId;
