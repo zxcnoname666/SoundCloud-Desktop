@@ -1,19 +1,52 @@
 const { BrowserWindow, app, ipcMain, shell, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('original-fs');
-const appdata = require('appdata-path');
 
-const LocalDBDir = appdata.getAppDataPath('SoundCloud/AppBD');
+const LocalDBDir = path.join(app.getPath('appData'), 'SoundCloud', 'AppDB');
 
 module.exports = class Setuper {
     static cors(session) {
-        session.webRequest.onBeforeSendHeaders({ urls: ["https://raw.githubusercontent.com/fydne/*"] },
+        session.webRequest.onBeforeSendHeaders({ urls: ["*://*/*"] },
             (details, callback) => {
-                const { requestHeaders } = details;
-                UpsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', '*');
-                UpsertKeyValue(requestHeaders, 'Sec-Fetch-Mode', 'no-cors');
-                UpsertKeyValue(requestHeaders, 'Sec-Fetch-Site', 'none');
-                callback({ requestHeaders });
+
+                // ----- adblock -----
+                const parsedUrl = new URL(details.url);
+
+                if(parsedUrl.host == 'promoted.soundcloud.com'
+                || parsedUrl.host.endsWith('.adswizz.com')
+                || parsedUrl.host.endsWith('.adsrvr.org')
+                || parsedUrl.host.endsWith('.doubleclick.net')
+                || details.url.includes('audio-ads')){
+                    callback({ cancel: true });
+                    return;
+                }
+
+                if(parsedUrl.host != 'soundcloud-upload.s3.amazonaws.com'
+                && !parsedUrl.host.endsWith('soundcloud.com')
+                && !parsedUrl.host.endsWith('sndcdn.com')
+
+                && !parsedUrl.host.endsWith('githubusercontent.com')
+
+                && !parsedUrl.host.endsWith('google.com')
+                && !parsedUrl.host.endsWith('gstatic.com')
+
+                && !parsedUrl.host.endsWith('apple.com')
+                && parsedUrl.host != 'is4-ssl.mzstatic.com'){
+                    callback({ cancel: true });
+                    return;
+                }
+                // ----- adblock -----
+
+                if(details.url.includes('raw.githubusercontent.com/fydne')){
+                    const { requestHeaders } = details;
+                    UpsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', '*');
+                    UpsertKeyValue(requestHeaders, 'Sec-Fetch-Mode', 'no-cors');
+                    UpsertKeyValue(requestHeaders, 'Sec-Fetch-Site', 'none');
+                    callback({ requestHeaders });
+                    return;
+                }
+
+                callback({ });
             },
         );
     
@@ -95,7 +128,7 @@ module.exports = class Setuper {
             console.log('blocked url: ' + url);
             shell.openExternal(url);
             return { action: 'deny' }
-        })
+        });
     };
 
     static app() {

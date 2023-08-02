@@ -18,6 +18,7 @@ app.on('web-contents-created', (ev, contents) => {
     try { console.log('window created: ' + contents.getType()); } catch { }
     Setuper.hookNewWindow(contents);
     Setuper.cors(contents.session);
+    //contents.openDevTools({mode: 'detach'});
 });
 app.whenReady().then(() => {
     startup();

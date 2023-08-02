@@ -181,6 +181,7 @@ textarea, select, input{background: #000 !important}
 .featuredProfiles__list .sc-status-icon{filter: invert(100) !important;} /* Fix featured profiles text 2/2 */
 .sc-button-delete::before{filter: invert(100%) !important;} /* Fix delete playlist button */
 .sc-button-small.sc-button-lightfg:before{filter: unset !important;} /* Fix playlist preview song buttons */
+.sc-classic .insightsSidebarModule__title {color:#fff !important;}
 .sc-classic .trackManager__upsellWrapper{
 background-color: #00000000 !important;
 }
