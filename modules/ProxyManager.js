@@ -16,8 +16,7 @@ module.exports = async (nmanager) => {
     const proxyList = config.proxy;
 
     if (proxyList.length == 0) {
-        nmanager.show(new Notify('SoundCloud', translations.proxy_available_not_found, 10, __dirname + '/../icons/appLogo.png'));
-        return;
+        return new Notify('SoundCloud', translations.proxy_available_not_found, 10, __dirname + '/../icons/appLogo.png');
     }
 
     let proxy = '';
@@ -39,11 +38,10 @@ module.exports = async (nmanager) => {
             });
         }
 
-        nmanager.show(new Notify('SoundCloud', translations.proxy_connected.replaceAll('{ip}', proxy), 10, __dirname + '/../icons/data-server.png'));
-        return;
+        return new Notify('SoundCloud', translations.proxy_connected.replaceAll('{ip}', proxy), 10, __dirname + '/../icons/data-server.png');
     }
 
-    nmanager.show(new Notify('SoundCloud', translations.proxy_work_not_found, 10));
+    return new Notify('SoundCloud', translations.proxy_work_not_found, 10);
 };
 
 function ProxyCheck(proxy) {

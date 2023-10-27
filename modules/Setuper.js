@@ -8,6 +8,9 @@ module.exports = class Setuper {
     static cors(session) {
         session.webRequest.onBeforeSendHeaders({ urls: ["*://*/*"] },
             (details, callback) => {
+                // ----- set user agent to legit browser -----
+                details.requestHeaders['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.89 Safari/537.36';
+                // ----- end -----
 
                 // ----- adblock -----
                 const parsedUrl = new URL(details.url);
@@ -24,6 +27,9 @@ module.exports = class Setuper {
                 if(parsedUrl.host != 'soundcloud-upload.s3.amazonaws.com'
                 && !parsedUrl.host.endsWith('soundcloud.com')
                 && !parsedUrl.host.endsWith('sndcdn.com')
+
+                && !parsedUrl.host.endsWith('.captcha-delivery.com')
+                && !parsedUrl.host.endsWith('js.datadome.co')
 
                 && !parsedUrl.host.endsWith('githubusercontent.com')
 
@@ -46,7 +52,7 @@ module.exports = class Setuper {
                     return;
                 }
 
-                callback({ });
+                callback({ requestHeaders: details.requestHeaders });
             },
         );
     
@@ -133,6 +139,7 @@ module.exports = class Setuper {
 
     static app() {
         app.commandLine.appendSwitch('proxy-bypass-list', '<local>;*.githubusercontent.com;' +
+            '*.captcha-delivery.com', // captcha
             '*.google.com;*.gstatic.com;' +//google
             //'www.google.com;accounts.google.com;ssl.gstatic.com;'+//google
             'appleid.apple.com;iforgot.apple.com;www.apple.com;appleid.cdn-apple.com;is4-ssl.mzstatic.com');//apple

@@ -32,8 +32,16 @@ app.whenReady().then(() => {
 async function startup() {
     let _portUse = await PortUsing();
     if (_portUse) return;
+    
+    const _notify = await require('./modules/ProxyManager')();
 
     const loaderWin = await Setuper.loaderWin();
+
+    const nmanager = new NotifyManager();
+    nmanager.show(_notify);
+    setTimeout(() => {try{nmanager.getWindow().destroy()}catch{}}, (_notify.time + 5) * 1000);
+
+    require('./modules/ProtocolInjector')();
 
     win = Setuper.create();
     
@@ -46,11 +54,7 @@ async function startup() {
         win?.hide();
     });
 
-    const nmanager = new NotifyManager();
-
     require('./modules/startupMenu')(win);
-    await require('./modules/ProxyManager')(nmanager);
-    require('./modules/ProtocolInjector')();
     
     Setuper.cors(win.webContents.session);
     Setuper.binds(win);
