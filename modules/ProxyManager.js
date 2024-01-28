@@ -23,16 +23,18 @@ module.exports = async (nmanager) => {
     for (let i = 0; proxy == '' && i < proxyList.length; i++) {
         const _proxy = proxyList[i];
         const _check = await ProxyCheck(_proxy);
-        if (_check) proxy = _proxy;
+        if (_check) {
+            proxy = _proxy;
+        }
     }
 
     if (proxy.length > 0) {
         electron.app.commandLine.appendSwitch('proxy-server', proxy);
 
-        if(proxy.includes('@')){
+        if (proxy.includes('@')) {
             const auth = proxy.split('@')[0]?.split(':') ?? ['', ''];
             electron.app.on('login', async (ev, webContents, req, authInfo, callback) => {
-                if(authInfo.isProxy){
+                if (authInfo.isProxy) {
                     callback(auth[0], auth[1]); // login, password
                 }
             });
@@ -47,19 +49,24 @@ module.exports = async (nmanager) => {
 function ProxyCheck(proxy) {
     return new Promise(async resolve => {
         let _sended = false;
+
         setTimeout(() => {
-            if (_sended) return;
+            if (_sended) {
+                return;
+            }
+
             resolve(false);
             _sended = true;
         }, 10000);
+
         const proxyAgent = new HttpsProxyAgent('http://' + proxy);
-        nfetch('https://soundcloud.com', {agent: proxyAgent})
-        .then(() => {
-            resolve(true);
-            _sended = true;
-        }).catch(() => {
-            resolve(false);
-            _sended = true;
-        });
+        nfetch('https://soundcloud.com', { agent: proxyAgent })
+            .then(() => {
+                resolve(true);
+                _sended = true;
+            }).catch(() => {
+                resolve(false);
+                _sended = true;
+            });
     });
 }

@@ -12,7 +12,9 @@ module.exports = async () => {
 
         const exist = await new Promise((resolve, reject) => {
             registry.keyExists((err, exist) => {
-                if (err) return reject(err);
+                if (err) {
+                    return reject(err);
+                }
                 resolve(exist);
             });
         });
@@ -20,7 +22,9 @@ module.exports = async () => {
         if (exist) {
             await new Promise((resolve, reject) =>
                 registry.destroy((err) => {
-                    if (err) return reject(err);
+                    if (err) {
+                        return reject(err);
+                    }
                     return resolve(true);
                 })
             );
@@ -28,7 +32,9 @@ module.exports = async () => {
 
         await new Promise((resolve, reject) =>
             registry.create((err) => {
-                if (err) return reject(err);
+                if (err) {
+                    return reject(err);
+                }
                 return resolve(true);
             })
         );
@@ -40,7 +46,9 @@ module.exports = async () => {
                 Registry.REG_SZ,
                 Registry.DEFAULT_VALUE,
                 (err) => {
-                    if (err) return reject(err);
+                    if (err) {
+                        return reject(err);
+                    }
                     return resolve(true);
                 }
             )
@@ -52,7 +60,9 @@ module.exports = async () => {
                 Registry.REG_SZ,
                 'URL:sc',
                 (err) => {
-                    if (err) return reject(err);
+                    if (err) {
+                        return reject(err);
+                    }
                     return resolve(true);
                 }
             )
@@ -69,7 +79,9 @@ module.exports = async () => {
                 Registry.REG_SZ,
                 app.getPath('exe') + ' %1',
                 (err) => {
-                    if (err) return reject(err);
+                    if (err) {
+                        return reject(err);
+                    }
                     return resolve(true);
                 }
             )

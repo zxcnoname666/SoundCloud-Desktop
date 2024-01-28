@@ -1,10 +1,13 @@
-const { BrowserWindow, app, ipcMain, shell, globalShortcut } = require('electron');
+const { BrowserWindow, app, ipcMain, shell, globalShortcut, protocol, net } = require('electron');
 const path = require('path');
 const fs = require('original-fs');
+const url = require('url');
 
 const LocalDBDir = path.join(app.getPath('appData'), 'SoundCloud', 'AppDB');
 
 module.exports = class Setuper {
+    static allWebContents = [];
+
     static cors(session) {
         session.webRequest.onBeforeSendHeaders({ urls: ["*://*/*"] },
             (details, callback) => {
@@ -15,72 +18,35 @@ module.exports = class Setuper {
                 // ----- adblock -----
                 const parsedUrl = new URL(details.url);
 
-                if(parsedUrl.host == 'promoted.soundcloud.com'
-                || parsedUrl.host.endsWith('.adswizz.com')
-                || parsedUrl.host.endsWith('.adsrvr.org')
-                || parsedUrl.host.endsWith('.doubleclick.net')
-                || details.url.includes('audio-ads')){
+                if (parsedUrl.host == 'promoted.soundcloud.com'
+                    || parsedUrl.host.endsWith('.adswizz.com')
+                    || parsedUrl.host.endsWith('.adsrvr.org')
+                    || parsedUrl.host.endsWith('.doubleclick.net')
+                    || details.url.includes('audio-ads')) {
                     callback({ cancel: true });
                     return;
                 }
 
-                if(parsedUrl.host != 'soundcloud-upload.s3.amazonaws.com'
-                && !parsedUrl.host.endsWith('soundcloud.com')
-                && !parsedUrl.host.endsWith('sndcdn.com')
+                if (parsedUrl.host != 'soundcloud-upload.s3.amazonaws.com'
+                    && !parsedUrl.host.endsWith('soundcloud.com')
+                    && !parsedUrl.host.endsWith('sndcdn.com')
 
-                && !parsedUrl.host.endsWith('.captcha-delivery.com')
-                && !parsedUrl.host.endsWith('js.datadome.co')
+                    && !parsedUrl.host.endsWith('.captcha-delivery.com')
+                    && !parsedUrl.host.endsWith('js.datadome.co')
 
-                && !parsedUrl.host.endsWith('githubusercontent.com')
+                    && !parsedUrl.host.endsWith('google.com')
+                    && !parsedUrl.host.endsWith('gstatic.com')
 
-                && !parsedUrl.host.endsWith('google.com')
-                && !parsedUrl.host.endsWith('gstatic.com')
-
-                && !parsedUrl.host.endsWith('apple.com')
-                && parsedUrl.host != 'is4-ssl.mzstatic.com'){
+                    && !parsedUrl.host.endsWith('apple.com')
+                    && parsedUrl.host != 'is4-ssl.mzstatic.com') {
                     callback({ cancel: true });
                     return;
                 }
                 // ----- adblock -----
 
-                if(details.url.includes('raw.githubusercontent.com/fydne')){
-                    const { requestHeaders } = details;
-                    UpsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', '*');
-                    UpsertKeyValue(requestHeaders, 'Sec-Fetch-Mode', 'no-cors');
-                    UpsertKeyValue(requestHeaders, 'Sec-Fetch-Site', 'none');
-                    callback({ requestHeaders });
-                    return;
-                }
-
                 callback({ requestHeaders: details.requestHeaders });
             },
         );
-    
-        session.webRequest.onHeadersReceived({ urls: ["*://raw.githubusercontent.com/fydne/*"] },
-            (details, callback) => {
-                const { responseHeaders } = details;
-                if (details.url.endsWith('.css')) {
-                    UpsertKeyValue(responseHeaders, 'content-type', ['text/css; charset=UTF-8']);
-                }
-                else if (details.url.endsWith('.js')) {
-                    UpsertKeyValue(responseHeaders, 'content-type', ['application/javascript; charset=UTF-8']);
-                }
-                callback({
-                    responseHeaders,
-                });
-            }
-        );
-    
-        function UpsertKeyValue(obj, keyToChange, value) {
-            const keyToChangeLower = keyToChange.toLowerCase();
-            for (const key of Object.keys(obj)) {
-                if (key.toLowerCase() == keyToChangeLower) {
-                    obj[key] = value;
-                    return;
-                }
-            }
-            obj[keyToChange] = value;
-        }
     };
 
     static create() {
@@ -92,7 +58,6 @@ module.exports = class Setuper {
             webPreferences: {
                 devTools: false,
                 webviewTag: true,
-                contextIsolation: false,//*
                 preload: path.join(__dirname, '../frontend/preload.js')
             },
             frame: false,
@@ -101,24 +66,76 @@ module.exports = class Setuper {
             title: 'SoundCloud',
             darkTheme: true,
         });
-    
+
         ipcMain.on('navbarEvent', (ev, code) => {
-            if (code == 1) win.minimize();
-            else if (code == 2) {
-                if (win.isMaximized()) win.unmaximize();
-                else win.maximize();
+            switch (code) {
+                case 1: {
+                    win.minimize();
+                    break;
+                }
+                case 2: {
+                    if (win.isMaximized()) {
+                        win.unmaximize();
+                    } else {
+                        win.maximize();
+                    }
+                    break;
+                }
+                case 3: {
+                    win.hide();
+                    break;
+                }
+                default: {
+                    break;
+                }
             }
-            else if (code == 3) win.hide();
         });
-    
+
         ipcMain.on('UpdateLastUrl', (ev, url) => {
             this.UpdateLastUrl(url);
+            win.send('update-url', url.replace('https://soundcloud.com/', ''));
         });
-    
+
+        ipcMain.on('UpdateCanBack', (ev, bool) => {
+            win.send('update-can-back', bool);
+        });
+
+        ipcMain.on('call-update-url', (ev, url) => {
+            this.UpdateLastUrl('https://soundcloud.com/' + url);
+
+            this.EmitGlobalEvent('update-url', url);
+        });
+
+        ipcMain.on('call-wv', (ev, type) => {
+            this.EmitGlobalEvent('call-wv-event', type);
+        });
+
+        protocol.handle('scinner', (request) => {
+            switch (request.url.slice('scinner://'.length)) {
+                case 'styles/black-mode.css':
+                    return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'frontend', 'styles', 'black-mode.css')).toString());
+
+                default:
+                    break;
+            }
+        });
+
         return win;
     };
 
+    static EmitGlobalEvent(event, ...args) {
+        this.allWebContents.forEach(content => {
+            if (content.isDestroyed()) {
+                return;
+            }
+
+            content.send(event, ...args);
+        });
+    }
+
     static hookNewWindow(webContents) {
+        this.allWebContents.push(webContents);
+
         webContents.setWindowOpenHandler(({ url }) => {
             if (url === 'about:blank') {
                 return {
@@ -138,24 +155,25 @@ module.exports = class Setuper {
     };
 
     static app() {
-        app.commandLine.appendSwitch('proxy-bypass-list', '<local>;*.githubusercontent.com;' +
-            '*.captcha-delivery.com', // captcha
-            '*.google.com;*.gstatic.com;' +//google
-            //'www.google.com;accounts.google.com;ssl.gstatic.com;'+//google
-            'appleid.apple.com;iforgot.apple.com;www.apple.com;appleid.cdn-apple.com;is4-ssl.mzstatic.com');//apple
+        app.commandLine.appendSwitch('proxy-bypass-list',
+            '<local>;*.githubusercontent.com;' +
+            '*.captcha-delivery.com' + // captcha
+            '*.google.com;*.gstatic.com;' + //google
+            //'www.google.com;accounts.google.com;ssl.gstatic.com;' + //google
+            'appleid.apple.com;iforgot.apple.com;www.apple.com;appleid.cdn-apple.com;is4-ssl.mzstatic.com' //apple
+        );
     };
 
     static binds(win) {
         win.on('focus', () => {
             globalShortcut.register('CommandOrControl+R', async () => {
-                const __lastUrl = await this.GetLastUrl();
-                win.send('load-url', __lastUrl);
+                win.send('load-url', await this.GetLastUrl());
             });
             globalShortcut.register('CommandOrControl+Shift+R', async () => {
-                const __lastUrl = await this.GetLastUrl();
-                win.send('load-url', __lastUrl);
+                win.send('load-url', await this.GetLastUrl());
             });
         });
+
         win.on('blur', () => {
             globalShortcut.unregister('CommandOrControl+R');
             globalShortcut.unregister('CommandOrControl+Shift+R');
@@ -176,18 +194,22 @@ module.exports = class Setuper {
             title: 'SoundCloud Loader',
             darkTheme: true,
         });
-        
+
         win.setResizable(false);
         await win.loadFile(path.join(__dirname, '..', 'frontend', 'AppLoader', 'render.html'));
-    
+
         return win;
     };
 
     static getStartArgsUrl() {
         try {
             let url = process.argv[1];
-            if (url == '.') url = process.argv[2];
-            if (!url) url = '';
+            if (url == '.') {
+                url = process.argv[2];
+            }
+            if (!url) {
+                url = '';
+            }
             return url;
         } catch {
             return '';
@@ -205,17 +227,29 @@ module.exports = class Setuper {
     };
 
     static async UpdateLastUrl(url) {
-        if (url == 'about:blank') return;
-        if (!fs.existsSync(LocalDBDir)) await fs.promises.mkdir(LocalDBDir, {recursive: true});
+        if (url == 'about:blank') {
+            return;
+        }
+        if (!fs.existsSync(LocalDBDir)) {
+            await fs.promises.mkdir(LocalDBDir, { recursive: true });
+        }
         await fs.promises.writeFile(path.join(LocalDBDir, 'LastUrl'), url, 'utf-8');
     };
 
     static GetLastUrl() {
         return new Promise(async resolve => {
-            if (!fs.existsSync(LocalDBDir)) await fs.promises.mkdir(LocalDBDir, {recursive: true});
-            if (!fs.existsSync(path.join(LocalDBDir, 'LastUrl'))) return resolve('');
+            if (!fs.existsSync(LocalDBDir)) {
+                await fs.promises.mkdir(LocalDBDir, { recursive: true });
+            }
+            if (!fs.existsSync(path.join(LocalDBDir, 'LastUrl'))) {
+                return resolve('');
+            }
+
             fs.readFile(path.join(LocalDBDir, 'LastUrl'), 'utf-8', (err, _url) => {
-                if (_url == undefined || _url == null) return resolve('');
+                if (_url == undefined || _url == null) {
+                    return resolve('');
+                }
+
                 resolve(_url.replace('https://soundcloud.com/', ''))
             });
         });

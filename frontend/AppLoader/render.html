@@ -2,19 +2,17 @@
 <head>
 <style>
 * {
--webkit-touch-callout: none;
--webkit-user-select: none;
--khtml-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
--webkit-app-region: drag;
-overflow: hidden;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-app-region: drag;
+    overflow: hidden;
 }
-body{margin: 0;}
-img{
-margin-left: calc(100vw / 2 - 100px);
-margin-top: calc(100vh / 2 - 100px);
+body {
+    margin: 0;
+}
+img {
+    margin-left: calc(100vw / 2 - 100px);
+    margin-top: calc(100vh / 2 - 100px);
 }
 .spinner {
     margin: 5vh auto;
@@ -24,7 +22,7 @@ margin-top: calc(100vh / 2 - 100px);
     border-radius: 50%;
 }
 .spinner::before,
-.spinner:after{
+.spinner:after {
     content: "";
     position: absolute;
     border-radius: inherit;
@@ -50,16 +48,16 @@ margin-top: calc(100vh / 2 - 100px);
         transform: rotate(360deg);
     }
 }
-.parent{
+.parent {
     width: 100vw;
     height: 100vh;
 }
 </style>
 <script>
-document.ondragstart = () => {return false};
-document.oncontextmenu = () => {return false};
-document.oncut = () => {return false};
-document.ondrop = () => {return false};
+document.ondragstart = () => false;
+document.oncontextmenu = () => false;
+document.oncut = () => false;
+document.ondrop = () => false;
 </script>
 </head>
 <body>

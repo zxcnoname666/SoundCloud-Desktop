@@ -1,6 +1,6 @@
 {
   "name": "soundcloud",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "SoundCloud Desktop App",
   "main": "init.js",
   "scripts": {
@@ -9,21 +9,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fydne/SoundCloud-Desktop.git"
+    "url": "git+https://github.com/zxcnoname666/SoundCloud-Desktop.git"
   },
-  "author": "fydne",
+  "author": "zxcnoname666",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fydne/SoundCloud-Desktop/issues"
+    "url": "https://github.com/zxcnoname666/SoundCloud-Desktop/issues"
   },
-  "homepage": "https://github.com/fydne/SoundCloud-Desktop#readme",
+  "homepage": "https://github.com/zxcnoname666/SoundCloud-Desktop#readme",
   "devDependencies": {
-    "electron": "^27.0.2"
+    "electron": "^28.2.0"
   },
   "dependencies": {
     "https-proxy-agent": "^5.0.1",
     "node-fetch": "^2.6.12",
-    "notify-manager-electron": "^1.3.0",
+    "notify-manager-electron": "^1.3.1",
     "qurre-socket": "^1.1.0",
     "winreg": "^1.2.4"
   },

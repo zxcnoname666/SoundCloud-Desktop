@@ -1,51 +1,112 @@
-@font-face{
+@font-face {
     font-family: 'NeonOL';
-    src: url('../fonts/NeonOL.eot');
-    src: url('../fonts/NeonOL.eot?#iefix') format('embedded-opentype'),
-         url('../fonts/NeonOL.woff') format('woff'),
-         url('../fonts/NeonOL.ttf') format('truetype');
+    src: url('../fonts/NeonOL.ttf');
     font-style: normal;
     font-weight: normal;
-    text-rendering: optimizeLegibility;
 }
-*{
-  -webkit-touch-callout: none;
-    -webkit-user-select: none;
-     -khtml-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
+@font-face {
+    font-family: 'Nunito';
+    src: url('../fonts/Nunito.ttf');
+    font-style: normal;
+    font-weight: normal;
 }
-body{
+
+* {
+    user-select: none;
+}
+body {
     margin: 0;
 }
-#AppNavbarSystem{
+
+#AppNavbarSystem {
     margin: 0;
     font-family: Roboto,sans-serif;
     background-color: #282e38;
     position: fixed;
     left: 0;
     right: 0;
-    height: 25px;
+    height: 40px;
     z-index: 999;
     -webkit-app-region: drag;
+
+    display: grid;
+    justify-content: space-between;
+    align-items: center;
+    grid-template-columns: 0.6fr 1fr 0.6fr;
 }
-#AppNavbarSystem .LogoText{
+
+#AppNavbarSystem .LogoText {
     display: inline-flex;
+    align-items: center;
     font-family: NeonOL;
     color: orange;
     margin: 3px 5px;
-    font-size: 16px;
+    font-size: 22px;
 }
-#AppNavbarSystem .ButtonsSelector{
+
+#AppNavbarSystem .Locator {
+    height: 20px;
+    border-radius: 8px;
+    background: #83602c33;
+    padding: 5px;
+    display: grid;
+    grid-template-columns: 1fr 20px 20px 20px; /* url | left | right | reload */
     -webkit-app-region: no-drag;
-    position: absolute;
-    display: inline-flex;
-    right: 0;
-    top: 6px
 }
-#AppNavbarSystem .AppButon{
-    display: inline-flex;
+#AppNavbarSystem .Locator .Path {
+    margin-right: 5px;
+    border-right: 1px solid gray;
+    display: flex;
+    font-family: Nunito;
+    font-size: 15px;
+}
+#AppNavbarSystem .Locator .Path span {
+    color: aliceblue;
+}
+#AppNavbarSystem .Locator .Path l {
+    color: #9b9fa7;
+}
+#AppNavbarSystem .Locator .Path input {
+    margin-right: 2px;
+    background: #0000;
+    outline: 0;
+    border: 0;
+    padding: 0;
+    color: #9b9fa7;
+    width: 100%;
+}
+
+#AppNavbarSystem .Locator .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3px;
+    height: 20px;
     cursor: pointer;
+}
+#AppNavbarSystem .Locator .button:hover {
+    background: #68686879;
+}
+#AppNavbarSystem .Locator .button.block {
+    background: #2c2c2cd5;
+    cursor: not-allowed;
+}
+
+#AppNavbarSystem .ButtonsSelector {
+    display: flex;
+    flex-direction: row-reverse;
+    -webkit-app-region: drag;
+    user-select: none;
+}
+#AppNavbarSystem .ButtonsSelector i {
+    display: flex;
+    height: 17px;
+    width: 17px;
+    border-radius: 50%;
     margin-right: 10px;
+    -webkit-app-region: no-drag;
+    cursor: pointer;
+}
+#AppNavbarSystem .ButtonsSelector i:hover {
+    border-radius: 35%;
 }

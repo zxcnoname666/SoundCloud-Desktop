@@ -250,3 +250,16 @@ li[class*='List_Blur']::before{
     -webkit-backdrop-filter: unset !important;
     backdrop-filter: unset !important;
 }
+.commentItem__body,
+.commentItem__creatorLink, .commentItem__creatorLink:hover, .commentItem__creatorLink:visited, .commentItem__username, .commentItem__usernameLink, .commentItem__usernameLink:hover, .commentItem__usernameLink:visited {
+    color: #d6dce2 !important;
+}
+.commentItem__replyButton, .commentItem__replyButton:hover, .commentItem__replyButton:visited {
+    color: #9a9fa3 !important;
+}
+.sc-classic .listenArtistInfo__report .reportCopyright {
+    background-color: #ffffff3b !important;
+    color: black !important;
+    display: flex !important;
+    align-items: center !important;
+}

@@ -12,14 +12,22 @@ const AppPort = dev ? 3535 : 45828;
 Setuper.app();
 
 app.on('window-all-closed', () => {
-    if (process.platform != 'darwin') app.quit();
+    if (process.platform != 'darwin') {
+        app.quit();
+    }
 });
+
 app.on('web-contents-created', (ev, contents) => {
     try { console.log('window created: ' + contents.getType()); } catch { }
+
     Setuper.hookNewWindow(contents);
     Setuper.cors(contents.session);
-    //contents.openDevTools({mode: 'detach'});
+
+    if (dev) {
+        contents.openDevTools({ mode: 'detach' });
+    }
 });
+
 app.whenReady().then(() => {
     startup();
     app.on('activate', () => {
@@ -32,22 +40,24 @@ app.whenReady().then(() => {
 async function startup() {
     let _portUse = await PortUsing();
     if (_portUse) return;
-    
+
     const _notify = await require('./modules/ProxyManager')();
 
     const loaderWin = await Setuper.loaderWin();
 
     const nmanager = new NotifyManager();
     nmanager.show(_notify);
-    setTimeout(() => {try{nmanager.getWindow().destroy()}catch{}}, (_notify.time + 5) * 1000);
+    setTimeout(() => { try { nmanager.getWindow().destroy() } catch { } }, (_notify.time + 5) * 1000);
 
     require('./modules/ProtocolInjector')();
 
     win = Setuper.create();
-    
+
     win.once('ready-to-show', () => {
-        win.show();
-        try { loaderWin.close(); } catch { }
+        setTimeout(() => {
+            win.show();
+            try { loaderWin.close(); } catch { }
+        }, 1000); // safe eyes from blink by chromium
     });
     win.on('close', (e) => {
         e.preventDefault();
@@ -55,7 +65,7 @@ async function startup() {
     });
 
     require('./modules/startupMenu')(win);
-    
+
     Setuper.cors(win.webContents.session);
     Setuper.binds(win);
 
@@ -66,8 +76,8 @@ async function startup() {
 
     await win.loadFile(__dirname + '/frontend/main.html');
     win.send('load-url', await Setuper.getStartUrl());
-    
-    dontSleep.enable();//*
+
+    dontSleep.enable();
 }
 
 async function PortUsing() {
