@@ -12,17 +12,17 @@ const SetupHeader = () => {
 
     input.addEventListener('keydown', (ev) => {
         if (ev.key == 'Enter') {
-            ipcRenderer.send('call-update-url', ev.target.value);
+            ipcRenderer.send('call-update-url', encodeURI(ev.target.value));
         }
     });
 
     input.addEventListener('input', (ev) => {
-        ev.target.value = ev.target.value
+        ev.target.value = decodeURI(ev.target.value
             .replace('https://soundcloud.com/', '')
             .replace('http://soundcloud.com/', '')
             .replace('https://soundcloud.com', '')
             .replace('http://soundcloud.com', '')
-            .split('?')[0];
+            .split('?')[0]);
     });
 }
 
@@ -47,15 +47,28 @@ const Init = () => {
         UpdateUrlInPanel(url);
     });
 
-    ipcRenderer.on('update-can-back', (ev, bool) => {
-        const button = document.querySelector('#AppNavbarSystem .Locator .Back.button');
-        if (bool) {
-            if (button.classList.contains('block')) {
-                button.classList.remove('block');
+    ipcRenderer.on('update-can-back', (ev, canBack, canForward) => {
+        const buttons = document.querySelector('#AppNavbarSystem .Locator');
+        const backButton = buttons.querySelector('.Back.button');
+        const forwardButton = buttons.querySelector('.Forward.button');
+
+        if (canBack) {
+            if (backButton.classList.contains('block')) {
+                backButton.classList.remove('block');
             }
         } else {
-            if (!button.classList.contains('block')) {
-                button.classList.add('block');
+            if (!backButton.classList.contains('block')) {
+                backButton.classList.add('block');
+            }
+        }
+
+        if (canForward) {
+            if (forwardButton.classList.contains('block')) {
+                forwardButton.classList.remove('block');
+            }
+        } else {
+            if (!forwardButton.classList.contains('block')) {
+                forwardButton.classList.add('block');
             }
         }
     });
@@ -64,6 +77,7 @@ const Init = () => {
 window.addEventListener('DOMContentLoaded', () => {
     Init();
     SetupHeader();
+    
     for (const type of ['chrome', 'node', 'electron']) {
         console.log(`${type}-version`, process.versions[type]);
     }
@@ -74,6 +88,6 @@ function UpdateUrlInPanel(url) {
         url = url.slice(1);
     }
     try {
-        document.querySelector('#AppNavbarSystem .Locator .Path input').value = url;
+        document.querySelector('#AppNavbarSystem .Locator .Path input').value = decodeURI(url);
     } catch { }
 }

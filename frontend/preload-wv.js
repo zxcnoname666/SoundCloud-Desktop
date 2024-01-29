@@ -13,7 +13,6 @@ const updateUrl = () => {
     });
 
     ipcRenderer.on('call-wv-event', (ev, type) => {
-        console.log(type)
         switch (type) {
             case 1: {
                 history.back();
@@ -57,6 +56,7 @@ const removeBanners = () => {
 
 const sendUpdatedUrl = () => {
     let lastUrlCache = '';
+
     setInterval(() => {
         const href = window.location.href;
 
@@ -72,8 +72,10 @@ const sendUpdatedUrl = () => {
 
         lastUrlCache = href;
         ipcRenderer.send('UpdateLastUrl', href);
-        ipcRenderer.send('UpdateCanBack', (document.referrer != '' || history.length > 1));
+        ipcRenderer.send('UpdateCanBack');
     }, 200);
+    
+    ipcRenderer.send('UpdateCanBack');
 };
 
 const addStyle = () => {

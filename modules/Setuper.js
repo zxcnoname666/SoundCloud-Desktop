@@ -96,8 +96,9 @@ module.exports = class Setuper {
             win.send('update-url', url.replace('https://soundcloud.com/', ''));
         });
 
-        ipcMain.on('UpdateCanBack', (ev, bool) => {
-            win.send('update-can-back', bool);
+        ipcMain.on('UpdateCanBack', (ev) => {
+            const contents = ev.sender;
+            win.send('update-can-back', contents.canGoBack(), contents.canGoForward());
         });
 
         ipcMain.on('call-update-url', (ev, url) => {
@@ -156,7 +157,7 @@ module.exports = class Setuper {
 
     static app() {
         app.commandLine.appendSwitch('proxy-bypass-list',
-            '<local>;*.githubusercontent.com;' +
+            '<local>;' +
             '*.captcha-delivery.com' + // captcha
             '*.google.com;*.gstatic.com;' + //google
             //'www.google.com;accounts.google.com;ssl.gstatic.com;' + //google
