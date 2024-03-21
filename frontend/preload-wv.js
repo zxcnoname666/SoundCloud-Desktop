@@ -130,8 +130,8 @@ document.addEventListener('mousedown', (e) => {
 (async () => {
     while (!loadedCheck) {
         try { document.body.style.display = 'none !important'; } catch { }
-        await new Promise(resolve, setTimeout(() => resolve(), 100));
+        await new Promise(res => setTimeout(() => res(), 100));
     }
-    await new Promise(resolve, setTimeout(() => resolve(), 2000));
+    await new Promise(res => setTimeout(() => res(), 2000));
     try { document.body.style.display = ''; } catch { }
 })();

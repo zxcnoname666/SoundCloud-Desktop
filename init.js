@@ -9,8 +9,6 @@ let win;
 const dev = false;
 const AppPort = dev ? 3535 : 45828;
 
-Setuper.app();
-
 app.on('window-all-closed', () => {
     if (process.platform != 'darwin') {
         app.quit();
@@ -41,13 +39,14 @@ async function startup() {
     let _portUse = await PortUsing();
     if (_portUse) return;
 
-    const _notify = await require('./modules/ProxyManager')();
-
     const loaderWin = await Setuper.loaderWin();
-
     const nmanager = new NotifyManager();
-    nmanager.show(_notify);
-    setTimeout(() => { try { nmanager.getWindow().destroy() } catch { } }, (_notify.time + 5) * 1000);
+
+    await require('./modules/ProxyManager')(nmanager);
+
+    setTimeout(() => { try { nmanager.getWindow().destroy() } catch { } }, 15000);
+
+    Setuper.setupTasks();
 
     require('./modules/ProtocolInjector')();
 
@@ -82,12 +81,20 @@ async function startup() {
 
 async function PortUsing() {
     const _portUse = await tpu(AppPort, '127.0.0.1');
-    if (_portUse) {
-        setTimeout(() => app.quit(), 1000);
-        const _client = new Client(AppPort);
-        _client.emit('OpenApp');
-        const url = Setuper.getStartArgsUrl();
-        if (url.length > 1) _client.emit('SetUrl', url);
+
+    if (!_portUse) {
+        return false;
     }
-    return _portUse;
+
+    setTimeout(() => app.quit(), 1000);
+
+    const _client = new Client(AppPort);
+    _client.emit('OpenApp');
+
+    const url = Setuper.getStartArgsUrl();
+    if (url.length > 1) {
+        _client.emit('SetUrl', url);
+    }
+
+    return true;
 }

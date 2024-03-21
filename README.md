@@ -13,15 +13,26 @@
 The unofficial SoundCloud desktop app for Windows
 </p>
 
+# Select language
+### EN [RU](https://github.com/zxcnoname666/SoundCloud-Desktop/blob/main/README-RU.md)
+
 # Features
 - Dark theme
 - Bypass the blocking of most tracks
+- AdBlock
 
 # App Protocol
 > You can use the `sc://` protocol to follow a url within an application
 
 > You need to replace `https://soundcloud.com/...` to `sc://...` like `https://soundcloud.com/discover` => `sc://discover`
 
+> You also can navigate in app by url-navbar (like in browsers)
+
+# Install
+1. Go to [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+2. Download `SoundCloud_Setup_x.x.x.exe`
+3. If desired, check the sig hash via programs like gpgex4
+4. Run `SoundCloud_Setup_x.x.x.exe`
 
 # Configs
 > You can use your own proxy when connecting to SoundCloud
@@ -33,9 +44,6 @@ Modify the `config.js` file.
 `proxy` - an array with links to connect to a proxy (like `1.1.1.1:80` or `user:password@ip:port`)
 
 > Security Recommendation: Better use `user:password` access or only allow connections to the following servers: `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co`
-
-**! Warning**
-Proxy will not help, in occasion of blocking by ISP/gov. As an example: Russian Computer Oversight (RKN) decrypts http(s) connections and checks for blacklisted domains. To bypass such blocking, recommended to use a VPN on your personal hosting.
 
 # Build
 1. `npm i` - Install required dependencies

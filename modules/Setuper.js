@@ -1,4 +1,4 @@
-const { BrowserWindow, app, ipcMain, shell, globalShortcut, protocol, net } = require('electron');
+const { BrowserWindow, Menu, app, ipcMain, shell, globalShortcut, protocol, net } = require('electron');
 const path = require('path');
 const fs = require('original-fs');
 const url = require('url');
@@ -36,9 +36,11 @@ module.exports = class Setuper {
 
                     && !parsedUrl.host.endsWith('google.com')
                     && !parsedUrl.host.endsWith('gstatic.com')
+                    && parsedUrl.host != 'lh3.googleusercontent.com'
 
                     && !parsedUrl.host.endsWith('apple.com')
-                    && parsedUrl.host != 'is4-ssl.mzstatic.com') {
+                    && !parsedUrl.host.endsWith('-ssl.mzstatic.com')
+                ) {
                     callback({ cancel: true });
                     return;
                 }
@@ -146,6 +148,12 @@ module.exports = class Setuper {
                         backgroundColor: '#0D1117',
                         icon: path.join(__dirname, '/../icons/appLogo.ico'),
                         darkTheme: true,
+                        titleBarStyle: 'hidden',
+                        titleBarOverlay: {
+                            color: '#162a4c',
+                            symbolColor: '#d17900',
+                            height: 30
+                        }
                     }
                 }
             }
@@ -153,16 +161,6 @@ module.exports = class Setuper {
             shell.openExternal(url);
             return { action: 'deny' }
         });
-    };
-
-    static app() {
-        app.commandLine.appendSwitch('proxy-bypass-list',
-            '<local>;' +
-            '*.captcha-delivery.com' + // captcha
-            '*.google.com;*.gstatic.com;' + //google
-            //'www.google.com;accounts.google.com;ssl.gstatic.com;' + //google
-            'appleid.apple.com;iforgot.apple.com;www.apple.com;appleid.cdn-apple.com;is4-ssl.mzstatic.com' //apple
-        );
     };
 
     static binds(win) {
@@ -180,6 +178,47 @@ module.exports = class Setuper {
             globalShortcut.unregister('CommandOrControl+Shift+R');
         });
     };
+
+    static setupTasks() {
+        const icoPath = path.join(app.getPath('temp'), 'sc-exit-view.ico');
+
+        if (fs.existsSync(icoPath)) {
+            fs.rmSync(icoPath, { recursive: true });
+        }
+
+        require('fs').copyFileSync(path.join(__dirname, '..', 'icons', 'exit.ico'), icoPath);
+
+        if (process.platform == 'darwin') {
+            const dockMenu = Menu.buildFromTemplate([
+                {
+                    label: 'Quit',
+                    toolTip: 'Close the app',
+                    icon: icoPath,
+                    click() { app.exit(); }
+                }
+            ]);
+            app.dock.setMenu(dockMenu);
+            return;
+        }
+
+        if (process.platform == 'linux') {
+            return;
+        }
+
+        if (process.platform.startsWith('win')) {
+            app.setUserTasks([
+                {
+                    program: process.execPath,
+                    arguments: '--close-all',
+                    iconPath: icoPath,
+                    iconIndex: 0,
+                    title: 'Quit',
+                    description: 'Close the app'
+                }
+            ]);
+            return;
+        }
+    }
 
     static async loaderWin() {
         const win = new BrowserWindow({
