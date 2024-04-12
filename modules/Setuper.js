@@ -1,6 +1,7 @@
 const { BrowserWindow, Menu, app, ipcMain, shell, globalShortcut, protocol, net, nativeTheme, dialog } = require('electron');
 const path = require('path');
 const fs = require('original-fs');
+const fs_electron = require('fs');
 const url = require('url');
 const os = require('os');
 const crypto = require("crypto");
@@ -429,7 +430,7 @@ module.exports = class Setuper {
             fs.rmSync(icoPath, { recursive: true });
         }
 
-        require('fs').copyFileSync(path.join(__dirname, '..', 'icons', 'exit.ico'), icoPath);
+        fs_electron.copyFileSync(path.join(__dirname, '..', 'icons', 'exit.ico'), icoPath);
 
         if (process.platform == 'darwin') {
             const dockMenu = Menu.buildFromTemplate([
@@ -589,13 +590,14 @@ module.exports = class Setuper {
                 return;
             }
 
-            const asarPath = app.getAppPath();
+            const temp_renamer = path.join(temp_dir, 'sc-rename.exe');
+            fs_electron.copyFileSync(path.join(__dirname, '..', 'bins', 'sc-rename.exe'), temp_renamer)
 
-            if (fs.existsSync(asarPath)) {
-                fs.rmSync(asarPath, { recursive: true, force: true });
-            }
-
-            fs.renameSync(temp_file, asarPath);
+            app.relaunch({
+                execPath: temp_renamer,
+                args: [app.getAppPath(), temp_file, app.getPath('exe')]
+            });
+            app.exit(0);
         }
     }
 

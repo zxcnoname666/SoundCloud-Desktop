@@ -1,3 +1,5 @@
-/.build//bin/*
+/.build/bin/*
+/.build/sc-rename/target/*
 /node_modules/*
 /dist/*
+/bins/*

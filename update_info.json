@@ -1,13 +1,13 @@
 {
-    "details": "1. Improved proxy system. 2. Created Auto Updater. 3. Fixed removal of search arguments in navbar. 4. Added \"bestBypass\" argument in proxy configurations.",
-    "version": "1.5.0",
-    "electron": "29",
+    "details": "1. Fixed auto updater (asar packed).\n2. Written a small build script.",
+    "version": "1.5.1",
+    "electron": "29.3",
     "hashes": {
-        "asar": "53eeb38bb7bb5286e12513c331df42793853ab54b4a70ec0474ee06e349e8280",
-        "installer": "106fc6b771bdf2e164b78e37d25c8eeba9cbfcc0217e774c5364139ab9e08a11"
+        "asar": "f78a8e86ef9e624af04bd734b965ca9e85c0b34973a2643db4c52710b7cb5dbe",
+        "installer": "2f59dac427a66cf336df753f089b424c8f65f5815094c288acbee2b418f4f13d"
     },
     "names": {
         "asar": "packed.asar",
-        "installer": "Soundcloud_Setup_1.5.0.exe"
+        "installer": "Soundcloud_Setup_1.5.1.exe"
     }
 }
