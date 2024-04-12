@@ -1,28 +1,90 @@
-const { BrowserWindow, Menu, app, ipcMain, shell, globalShortcut, protocol, net } = require('electron');
+const { BrowserWindow, Menu, app, ipcMain, shell, globalShortcut, protocol, net, nativeTheme, dialog } = require('electron');
 const path = require('path');
 const fs = require('original-fs');
 const url = require('url');
+const os = require('os');
+const crypto = require("crypto");
+const { pipeline } = require('node:stream');
+const { promisify } = require('node:util');
 
 const LocalDBDir = path.join(app.getPath('appData'), 'SoundCloud', 'AppDB');
+
+const ProxyManager = require('./ProxyManager');
+const Extensions = require('./Extensions');
+const Version = require('./Version');
 
 module.exports = class Setuper {
     static allWebContents = [];
 
+    static urlReplaceSymbols = {
+        '?': '𖥍',
+        '&': '𖠚',
+    }
+
     static cors(session) {
+        session.webRequest.onBeforeRequest({ urls: ["*://*/*"] },
+            (details, callback) => {
+                const proxyUrl = details.url.replaceAll('?', this.urlReplaceSymbols['?']).replaceAll('&', this.urlReplaceSymbols['&']);
+                const parsedUrl = (() => {
+                    let parsed = new URL(details.url);
+                    if (parsed.search.includes('app_locale=pt_BR')) {
+                        parsed = new URL(details.url.replaceAll('app_locale=pt_BR', 'app_locale=ru'));
+                    }
+                    return parsed;
+                })();
+
+                if (CheckAdBlock(parsedUrl)) {
+                    callback({ cancel: true });
+                    return;
+                }
+
+                if (parsedUrl.pathname.startsWith('/assets/locales/locale-pt-br')) {
+                    callback({ redirectURL: 'scinner://lang/ru.js' });
+                    return;
+                }
+
+                if (parsedUrl.host == 'api-v2.soundcloud.com') {
+                    /* try to bypass captcha
+                    if (details.method == 'PUT') {
+                        callback({ redirectURL: 'scinner://without-proxy?url=' + encodeURI(proxyUrl) });
+                        return;
+                    }
+                    */
+
+                    if (parsedUrl.pathname.startsWith('/tracks') // [internal]
+                        || parsedUrl.pathname.startsWith('/media/soundcloud:tracks') // [internal]
+                        || parsedUrl.pathname.startsWith('/search') // search page
+                        || parsedUrl.pathname.startsWith('/resolve') // track page
+                        || parsedUrl.pathname.startsWith('/playlists') // playlist page
+                        || (parsedUrl.pathname.startsWith('/users/') && parsedUrl.pathname.includes('/tracks')) // user page
+                    ) {
+                        callback({ redirectURL: 'scinner://proxy-tracks?url=' + encodeURI(proxyUrl) });
+                        return;
+                    }
+
+                    callback({ redirectURL: 'scinner://proxy-basic?url=' + encodeURI(proxyUrl) });
+                    return;
+                }
+
+                if (details.resourceType == 'script') {
+                    callback({ redirectURL: 'scinner://scripts/load?url=' + encodeURI(proxyUrl) });
+                    return;
+                }
+
+                callback({});
+            },
+        );
+
         session.webRequest.onBeforeSendHeaders({ urls: ["*://*/*"] },
             (details, callback) => {
                 // ----- set user agent to legit browser -----
-                details.requestHeaders['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.89 Safari/537.36';
+                details.requestHeaders['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
                 // ----- end -----
 
                 // ----- adblock -----
                 const parsedUrl = new URL(details.url);
 
-                if (parsedUrl.host == 'promoted.soundcloud.com'
-                    || parsedUrl.host.endsWith('.adswizz.com')
-                    || parsedUrl.host.endsWith('.adsrvr.org')
-                    || parsedUrl.host.endsWith('.doubleclick.net')
-                    || details.url.includes('audio-ads')) {
+                if (CheckAdBlock(parsedUrl)) {
                     callback({ cancel: true });
                     return;
                 }
@@ -49,7 +111,18 @@ module.exports = class Setuper {
                 callback({ requestHeaders: details.requestHeaders });
             },
         );
-    };
+
+        function CheckAdBlock(parsedUrl) {
+            if (parsedUrl.host == 'promoted.soundcloud.com'
+                || parsedUrl.host.endsWith('.adswizz.com')
+                || parsedUrl.host.endsWith('.adsrvr.org')
+                || parsedUrl.host.endsWith('.doubleclick.net')
+                || parsedUrl.href.includes('audio-ads')) {
+                return true;
+            }
+            return false;
+        }
+    }
 
     static create() {
         let win = new BrowserWindow({
@@ -68,6 +141,8 @@ module.exports = class Setuper {
             title: 'SoundCloud',
             darkTheme: true,
         });
+
+        nativeTheme.themeSource = 'dark';
 
         ipcMain.on('navbarEvent', (ev, code) => {
             switch (code) {
@@ -113,10 +188,178 @@ module.exports = class Setuper {
             this.EmitGlobalEvent('call-wv-event', type);
         });
 
-        protocol.handle('scinner', (request) => {
-            switch (request.url.slice('scinner://'.length)) {
+        protocol.handle('scinner', async (request) => {
+            switch (request.url.slice('scinner://'.length).split('?')[0]) {
                 case 'styles/black-mode.css':
                     return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'frontend', 'styles', 'black-mode.css')).toString());
+
+                case 'lang/ru.js':
+                    return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'langs', 'ru.js')).toString());
+
+                case 'scripts/load': {
+                    const parsedUrl = new URL(request.url);
+                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
+
+                    if (!requestedUrl) {
+                        return;
+                    }
+
+                    //const resp = await net.fetch(request, { bypassCustomProtocolHandlers: true });
+                    const resp = await ProxyManager.sendRequest(requestedUrl, {
+                        method: request.method,
+                        mode: request.mode,
+                        cache: request.cache,
+                        credentials: request.credentials,
+                        headers: request.headers,
+                        integrity: request.integrity,
+                        keepalive: request.keepalive,
+                        redirect: request.redirect,
+                        referrer: request.referrer,
+                        referrerPolicy: request.referrerPolicy,
+                        signal: request.signal,
+                    });
+                    let text = await resp.text();
+
+                    text = text.replaceAll('Português (Brasil)', 'Русский').replaceAll('Português', 'Русский');
+
+                    if (text.includes('mês')) {
+                        text = require('../langs/ru_electron')(text);
+                    }
+
+                    return new Response(text, {
+                        headers: resp.headers,
+                        status: resp.status,
+                        statusText: resp.statusText,
+                    });
+                }
+
+                case 'without-proxy': {
+                    const parsedUrl = new URL(request.url);
+                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
+
+                    if (!requestedUrl) {
+                        return;
+                    }
+
+                    const resp = await fetch(requestedUrl, {
+                        method: request.method,
+                        mode: request.mode,
+                        cache: request.cache,
+                        credentials: request.credentials,
+                        headers: request.headers,
+                        integrity: request.integrity,
+                        keepalive: request.keepalive,
+                        redirect: request.redirect,
+                        referrer: request.referrer,
+                        referrerPolicy: request.referrerPolicy,
+                        signal: request.signal,
+                    });
+                    return resp;
+                }
+
+                case 'proxy-basic': {
+                    const parsedUrl = new URL(request.url);
+                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
+
+                    if (!requestedUrl) {
+                        return;
+                    }
+
+                    const resp = await ProxyManager.sendRequest(requestedUrl, {
+                        method: request.method,
+                        mode: request.mode,
+                        cache: request.cache,
+                        credentials: request.credentials,
+                        headers: request.headers,
+                        integrity: request.integrity,
+                        keepalive: request.keepalive,
+                        redirect: request.redirect,
+                        referrer: request.referrer,
+                        referrerPolicy: request.referrerPolicy,
+                        signal: request.signal,
+                    });
+                    let text = await resp.text();
+                    return new Response(text, {
+                        headers: resp.headers,
+                        status: resp.status,
+                        statusText: resp.statusText,
+                    });
+                }
+
+                case 'proxy-tracks': {
+                    const parsedUrl = new URL(request.url);
+                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
+
+                    if (!requestedUrl) {
+                        return;
+                    }
+
+                    const resp = await ProxyManager.sendRequest(requestedUrl, {
+                        method: request.method,
+                        mode: request.mode,
+                        cache: request.cache,
+                        credentials: request.credentials,
+                        headers: request.headers,
+                        integrity: request.integrity,
+                        keepalive: request.keepalive,
+                        redirect: request.redirect,
+                        referrer: request.referrer,
+                        referrerPolicy: request.referrerPolicy,
+                        signal: request.signal,
+                    }, false, true);
+                    let tracks = await resp.json();
+
+                    if (Extensions.isArray(tracks)) {
+                        let send = [];
+
+                        tracks.forEach(track => {
+                            track.policy = 'ALLOW';
+                            send.push(track);
+                        });
+
+                        return new Response(JSON.stringify(send), {
+                            headers: resp.headers,
+                            status: resp.status,
+                            statusText: resp.statusText,
+                        });
+                    }
+
+                    if (typeof (tracks.policy) == 'string') {
+                        tracks.policy = 'ALLOW';
+                    }
+
+                    if (Extensions.isArray(tracks.collection)) {
+                        tracks.collection.forEach(collection => {
+                            if (Extensions.isArray(collection.tracks)) {
+                                collection.tracks.forEach(track => {
+                                    track.policy = 'ALLOW';
+                                    if (typeof (track.media) == 'object'
+                                        && Extensions.isArray(track.media.transcodings)
+                                        && track.media.transcodings.length == 0) {
+                                        delete track.media;
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    if (Extensions.isArray(tracks.tracks)) {
+                        tracks.tracks.forEach(track => {
+                            track.policy = 'ALLOW';
+                            if (typeof (track.media) == 'object'
+                                && Extensions.isArray(track.media.transcodings)
+                                && track.media.transcodings.length == 0) {
+                                delete track.media;
+                            }
+                        });
+                    }
+
+                    return new Response(JSON.stringify(tracks), {
+                        headers: resp.headers,
+                        status: resp.status,
+                        statusText: resp.statusText,
+                    });
+                }
 
                 default:
                     break;
@@ -124,7 +367,7 @@ module.exports = class Setuper {
         });
 
         return win;
-    };
+    }
 
     static EmitGlobalEvent(event, ...args) {
         this.allWebContents.forEach(content => {
@@ -161,7 +404,7 @@ module.exports = class Setuper {
             shell.openExternal(url);
             return { action: 'deny' }
         });
-    };
+    }
 
     static binds(win) {
         win.on('focus', () => {
@@ -177,7 +420,7 @@ module.exports = class Setuper {
             globalShortcut.unregister('CommandOrControl+R');
             globalShortcut.unregister('CommandOrControl+Shift+R');
         });
-    };
+    }
 
     static setupTasks() {
         const icoPath = path.join(app.getPath('temp'), 'sc-exit-view.ico');
@@ -239,7 +482,122 @@ module.exports = class Setuper {
         await win.loadFile(path.join(__dirname, '..', 'frontend', 'AppLoader', 'render.html'));
 
         return win;
-    };
+    }
+
+    static async autoUpdate() {
+        const responce = await fetch('https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/update_info.json');
+        if (!responce.ok) {
+            return;
+        }
+        const json = await responce.json();
+        const translation = Extensions.translationsUpdater();
+
+        const installedVersion = new Version(app.getVersion());
+        const availableVersion = new Version(json.version);
+
+        if (!availableVersion.isBiggest(installedVersion)) {
+            return;
+        }
+
+        const dialogOpts = {
+            type: 'info',
+            buttons: [translation.install, translation.later],
+            title: translation.title,
+            message: 'v' + json.version,
+            detail: translation.details
+        }
+
+        if (json.details) {
+            dialogOpts.detail += '\n';
+            dialogOpts.detail += translation.notes;
+            dialogOpts.detail += ' ';
+            dialogOpts.detail += json.details;
+        }
+
+        const returnValue = await dialog.showMessageBox(dialogOpts);
+
+        if (returnValue.response != 0) {
+            return;
+        }
+
+        const usedElectron = new Version(process.versions.electron);
+        const availableElectron = new Version(json.electron);
+
+        if (availableElectron.isBiggest(usedElectron)) {
+            const streamPipeline = promisify(pipeline);
+            const resp = await fetch('https:' + '//github.com/zxcnoname666/SoundCloud-Desktop/releases/download/' + json.version + '/' + json.names.installer);
+
+            if (!resp.ok) {
+                await dialog.showMessageBox({
+                    type: 'error',
+                    title: 'Error',
+                    message: translation.installation_error,
+                    detail: resp.status + ' | ' + resp.statusText
+                });
+                return;
+            }
+
+            const temp_dir = fs.mkdtempSync(os.tmpdir + path.sep);
+            const temp_file = path.join(temp_dir, json.names.installer);
+            await streamPipeline(resp.body, fs.createWriteStream(temp_file));
+
+            const buff = fs.readFileSync(temp_file);
+            const hash = crypto.createHash('sha256').update(buff).digest('hex');
+
+            if (hash != json.hashes.installer) {
+                await dialog.showMessageBox({
+                    type: 'warning',
+                    title: translation.missing_hash,
+                    message: translation.missing_hash,
+                    detail: translation.missing_hash_message
+                });
+                return;
+            }
+
+            shell.openExternal(temp_file);
+            return;
+        }
+
+        {
+            const streamPipeline = promisify(pipeline);
+            const resp = await fetch('https:' + '//github.com/zxcnoname666/SoundCloud-Desktop/releases/download/' + json.version + '/' + json.names.asar);
+
+            if (!resp.ok) {
+                await dialog.showMessageBox({
+                    type: 'error',
+                    title: 'Error',
+                    message: translation.installation_error,
+                    detail: resp.status + ' | ' + resp.statusText
+                });
+                return;
+            }
+
+            const temp_dir = fs.mkdtempSync(os.tmpdir + path.sep);
+            const temp_file = path.join(temp_dir, json.names.asar);
+            await streamPipeline(resp.body, fs.createWriteStream(temp_file));
+
+            const buff = fs.readFileSync(temp_file);
+            const hash = crypto.createHash('sha256').update(buff).digest('hex');
+
+            if (hash != json.hashes.asar) {
+                await dialog.showMessageBox({
+                    type: 'warning',
+                    title: translation.missing_hash,
+                    message: translation.missing_hash,
+                    detail: translation.missing_hash_message
+                });
+                return;
+            }
+
+            const asarPath = app.getAppPath();
+
+            if (fs.existsSync(asarPath)) {
+                fs.rmSync(asarPath, { recursive: true, force: true });
+            }
+
+            fs.renameSync(temp_file, asarPath);
+        }
+    }
 
     static getStartArgsUrl() {
         try {
@@ -254,7 +612,7 @@ module.exports = class Setuper {
         } catch {
             return '';
         }
-    };
+    }
 
     static async getStartUrl() {
         const _url = this.getStartArgsUrl();
@@ -264,7 +622,7 @@ module.exports = class Setuper {
             return postUrl;
         }
         return await this.GetLastUrl();
-    };
+    }
 
     static async UpdateLastUrl(url) {
         if (url == 'about:blank') {
@@ -274,7 +632,7 @@ module.exports = class Setuper {
             await fs.promises.mkdir(LocalDBDir, { recursive: true });
         }
         await fs.promises.writeFile(path.join(LocalDBDir, 'LastUrl'), url, 'utf-8');
-    };
+    }
 
     static GetLastUrl() {
         return new Promise(async resolve => {
@@ -293,5 +651,5 @@ module.exports = class Setuper {
                 resolve(_url.replace('https://soundcloud.com/', ''))
             });
         });
-    };
+    }
 }

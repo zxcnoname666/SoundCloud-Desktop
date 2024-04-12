@@ -30,7 +30,7 @@ You can also navigate in app by using url-navbar (like in browsers)
 # Install
 1. Go to [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
 2. Download `SoundCloud_Setup_x.x.x.exe`
-3. If desired, check the sig hash via programs like gpgex4
+3. If you wish, check the sig hash via programs like gpgex4
 4. Run `SoundCloud_Setup_x.x.x.exe`
 
 # Configs

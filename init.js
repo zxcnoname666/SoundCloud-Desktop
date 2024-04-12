@@ -2,6 +2,7 @@ const { app, BrowserWindow } = require('electron');
 const { NotifyManager } = require('notify-manager-electron');
 const { Client } = require('qurre-socket');
 const Setuper = require('./modules/Setuper');
+const ProxyManager = require('./modules/ProxyManager');
 const tpu = require('./modules/TCPPortUsing');
 const dontSleep = require('./modules/PreventSleep');
 
@@ -42,7 +43,9 @@ async function startup() {
     const loaderWin = await Setuper.loaderWin();
     const nmanager = new NotifyManager();
 
-    await require('./modules/ProxyManager')(nmanager);
+    await Setuper.autoUpdate();
+
+    await ProxyManager.Init(nmanager);
 
     setTimeout(() => { try { nmanager.getWindow().destroy() } catch { } }, 15000);
 

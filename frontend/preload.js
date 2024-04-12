@@ -17,12 +17,17 @@ const SetupHeader = () => {
     });
 
     input.addEventListener('input', (ev) => {
-        ev.target.value = decodeURI(ev.target.value
+        let decodeUrl = ev.target.value
             .replace('https://soundcloud.com/', '')
             .replace('http://soundcloud.com/', '')
             .replace('https://soundcloud.com', '')
-            .replace('http://soundcloud.com', '')
-            .split('?')[0]);
+            .replace('http://soundcloud.com', '');
+
+        if (!decodeUrl.includes('search')) {
+            decodeUrl = decodeUrl.split('?')[0];
+        }
+
+        ev.target.value = decodeURI(decodeUrl);
     });
 }
 

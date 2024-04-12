@@ -263,3 +263,66 @@ li[class*='List_Blur']::before{
     display: flex !important;
     align-items: center !important;
 }
+
+/*
+.localeSelectorContent li[value="sv"] button {
+    color: transparent !important;
+}
+.localeSelectorContent li[value="sv"] button::before {
+    content: 'Русский';
+    color: #fff !important;
+}
+.localeSelectorContent li[value="sv"] svg {
+    color: #fff !important;
+}
+*/
+
+.l652k20 {
+    background-color: #222 !important;
+}
+.MuiToolbar-root, ._19fpis9 {
+    background-color: #222 !important;
+}
+.MuiToolbar-root *, .MuiTypography-root, .MuiListItemIcon-root {
+    color: aliceblue !important;
+}
+.l652k2n {
+    background-color: #000 !important;
+    color: aliceblue !important;
+}
+._11yjo623, .mui-1oafegf, .icb1b96, .icb1b96 button {
+    background-color: #222 !important;
+    color: aliceblue !important;
+}
+._11yjo625 td, .icb1b90 {
+    background-color: #131313 !important;
+}
+._11yjo626 td {
+    background-color: #202122 !important;
+}
+._1oc89a50 {
+    background-color: #00000044 !important;
+}
+.mui-1dtgotl, .mui-1dtgotl *, .mui-1e1itqb {
+    background-color: #222 !important;
+    color: aliceblue !important;
+}
+.p833zi5 {
+    background-color: #1b1b1b !important;
+}
+:root {
+    --_4g70vmk: rgba(255,255,255,.15);
+}
+
+div[style="height:100vh;width:100%;position:fixed;top:0;left:0;z-index:2147483647;background-color:#ffffff;"] {
+    background-color: #1b1b1b !important;
+}
+
+.sc-classic .compactTrackListItem.clickToPlay.active, .sc-classic .compactTrackListItem.clickToPlay:focus, .sc-classic .compactTrackListItem.clickToPlay:hover {
+    background-color: #292929 !important;
+    color: #6e6e6e !important;
+}
+.sc-classic .compactTrackListItem.clickToPlay.active .compactTrackListItem__additional, .sc-classic .compactTrackListItem.clickToPlay:focus .compactTrackListItem__additional, .sc-classic .compactTrackListItem.clickToPlay:hover .compactTrackListItem__additional {
+    background: #292929 !important;
+    background: linear-gradient(90deg, #1818181a, #292929 17px) !important;
+}

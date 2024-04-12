@@ -107,11 +107,30 @@ const addStyle = () => {
     }
 };
 
+const updateTitle = () => {
+    setInterval(() => {
+        const headerButton = document.querySelector('.header__logoLink');
+        headerButton.title = '';
+    }, 1000);
+    setInterval(() => {
+        const iframes = document.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+            if (iframe.src && iframe.src.includes('geo.captcha-delivery.com')) {
+                iframe.parentElement.style.backgroundColor = '#1b1b1b !important';
+                iframe.parentElement.style.height = 'auto';
+                iframe.parentElement.style.weight = 'auto';
+                //iframe.parentElement.outerHTML = '';
+            }
+        });
+    }, 100);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     updateUrl();
     removeBanners();
     sendUpdatedUrl();
     addStyle();
+    updateTitle();
 
     setTimeout(() => {
         loadedCheck = true;
@@ -124,6 +143,18 @@ document.addEventListener('mousedown', (e) => {
     }
     if (e.button == 4) {
         history.forward();
+    }
+});
+
+window.addEventListener('load', async () => {
+    while (typeof (window.__sc_hydration) == 'undefined') {
+        await new Promise(resolve => setTimeout(() => resolve(), 100));
+    }
+
+    const index = window.__sc_hydration.findIndex(x => x.hydratable == 'sound');
+    console.log(index);
+    if (index > -1) {
+        window.__sc_hydration.splice(index, 1);
     }
 });
 
