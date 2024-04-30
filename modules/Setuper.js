@@ -47,10 +47,12 @@ module.exports = class Setuper {
                 }
 
                 if (parsedUrl.host == 'api-v2.soundcloud.com') {
+                    /*
                     if (parsedUrl.pathname == '/me') {
                         callback({ cancel: true });
                         return;
                     }
+                    */
 
                     if (parsedUrl.pathname.startsWith('/tracks') // [internal]
                         || parsedUrl.pathname.startsWith('/media/soundcloud:tracks') // [internal]

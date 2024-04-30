@@ -3,8 +3,8 @@
     "version": "1.5.3",
     "electron": "29.3",
     "hashes": {
-        "asar": "47d97f44eeb2ceb3a4bbaf9b7845a25831b935b96b61b6fec02c59fbb296ecf4",
-        "installer": "5b8280f8abfd57fc6c60b8ec122f55f7c12924905066c79d4a833d5df8490ace"
+        "asar": "26b0d877a6c052992ac39edd4479baecbd229d52a6e153bc11252061c3b539db",
+        "installer": "d2abe1fcfa478aeaeb5b8990ca34b90ab586b9380774e69c0a078d3ca561d039"
     },
     "names": {
         "asar": "packed.asar",
