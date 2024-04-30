@@ -29,9 +29,9 @@
 
 # Установка
 1. Перейдите в [последние релизы](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
-2. Скачайте `SoundCloud_Setup_x.x.x.exe`
+2. Скачайте `SoundCloudInstaller.exe`
 3. При желании, проверьте сигнатуру через программы по типу gpgex4
-4. Запустите `SoundCloud_Setup_x.x.x.exe`
+4. Запустите `SoundCloudInstaller.exe`
 
 # Конфиги
 > Вы можете использовать свой собственный прокси при подключении к SoundCloud

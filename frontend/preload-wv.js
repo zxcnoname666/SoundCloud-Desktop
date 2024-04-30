@@ -1,7 +1,5 @@
 const { ipcRenderer } = require('electron');
 
-let loadedCheck = false;
-
 const updateUrl = () => {
     ipcRenderer.on('update-url', (ev, url) => {
         url = 'https://soundcloud.com/' + url;
@@ -100,9 +98,6 @@ const addStyle = () => {
         cssLink.rel = "stylesheet";
         cssLink.type = "text/css";
         cssLink.id = StyleId;
-        cssLink.onload = () => {
-            loadedCheck = true;
-        };
         document.head.appendChild(cssLink);
     }
 };
@@ -112,6 +107,7 @@ const updateTitle = () => {
         const headerButton = document.querySelector('.header__logoLink');
         headerButton.title = '';
     }, 1000);
+    /*
     setInterval(() => {
         const iframes = document.querySelectorAll('iframe');
         iframes.forEach(iframe => {
@@ -123,6 +119,7 @@ const updateTitle = () => {
             }
         });
     }, 100);
+    */
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -131,10 +128,6 @@ window.addEventListener('DOMContentLoaded', () => {
     sendUpdatedUrl();
     addStyle();
     updateTitle();
-
-    setTimeout(() => {
-        loadedCheck = true;
-    }, 7000);
 });
 
 document.addEventListener('mousedown', (e) => {
@@ -145,24 +138,3 @@ document.addEventListener('mousedown', (e) => {
         history.forward();
     }
 });
-
-window.addEventListener('load', async () => {
-    while (typeof (window.__sc_hydration) == 'undefined') {
-        await new Promise(resolve => setTimeout(() => resolve(), 100));
-    }
-
-    const index = window.__sc_hydration.findIndex(x => x.hydratable == 'sound');
-    console.log(index);
-    if (index > -1) {
-        window.__sc_hydration.splice(index, 1);
-    }
-});
-
-(async () => {
-    while (!loadedCheck) {
-        try { document.body.style.display = 'none !important'; } catch { }
-        await new Promise(res => setTimeout(() => res(), 100));
-    }
-    await new Promise(res => setTimeout(() => res(), 2000));
-    try { document.body.style.display = ''; } catch { }
-})();

@@ -1,10 +1,10 @@
 {
-    "details": "1. Fixed auto updater (asar packed).\n2. Written a small build script.",
-    "version": "1.5.2",
+    "details": "Removed unnecessary code from the webview script, which should reduce the load on memory (presumably)",
+    "version": "1.5.3",
     "electron": "29.3",
     "hashes": {
-        "asar": "2da3949dbf937a4c1d361aaacc9ed72a55388c8a3ca07bfe21954563c78837b9",
-        "installer": "9666cefdf97ef46bb8cdc68d8581ddb28623e71264fba5cad244cf883be95ee3"
+        "asar": "47d97f44eeb2ceb3a4bbaf9b7845a25831b935b96b61b6fec02c59fbb296ecf4",
+        "installer": "5b8280f8abfd57fc6c60b8ec122f55f7c12924905066c79d4a833d5df8490ace"
     },
     "names": {
         "asar": "packed.asar",

@@ -529,7 +529,7 @@ module.exports = class Setuper {
         if (json.details) {
             dialogOpts.detail += '\n';
             dialogOpts.detail += translation.notes;
-            dialogOpts.detail += ' ';
+            dialogOpts.detail += '\n';
             dialogOpts.detail += json.details;
         }
 
@@ -543,7 +543,6 @@ module.exports = class Setuper {
         const availableElectron = new Version(json.electron);
 
         if (availableElectron.isBiggest(usedElectron)) {
-            const streamPipeline = promisify(pipeline);
             const resp = await fetch('https:' + '//github.com/zxcnoname666/SoundCloud-Desktop/releases/download/' + json.version + '/' + json.names.installer);
 
             if (!resp.ok) {
@@ -558,6 +557,8 @@ module.exports = class Setuper {
 
             const temp_dir = fs.mkdtempSync(os.tmpdir + path.sep);
             const temp_file = path.join(temp_dir, json.names.installer);
+
+            const streamPipeline = promisify(pipeline);
             await streamPipeline(resp.body, fs.createWriteStream(temp_file));
 
             const buff = fs.readFileSync(temp_file);
@@ -578,7 +579,6 @@ module.exports = class Setuper {
         }
 
         {
-            const streamPipeline = promisify(pipeline);
             const resp = await fetch('https:' + '//github.com/zxcnoname666/SoundCloud-Desktop/releases/download/' + json.version + '/' + json.names.asar);
 
             if (!resp.ok) {
@@ -593,6 +593,8 @@ module.exports = class Setuper {
 
             const temp_dir = fs.mkdtempSync(os.tmpdir + path.sep);
             const temp_file = path.join(temp_dir, json.names.asar);
+            
+            const streamPipeline = promisify(pipeline);
             await streamPipeline(resp.body, fs.createWriteStream(temp_file));
 
             const buff = fs.readFileSync(temp_file);
