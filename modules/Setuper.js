@@ -14,6 +14,8 @@ const ProxyManager = require('./ProxyManager');
 const Extensions = require('./Extensions');
 const Version = require('./Version');
 
+const GlobalUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
 module.exports = class Setuper {
     static allWebContents = [];
 
@@ -45,12 +47,10 @@ module.exports = class Setuper {
                 }
 
                 if (parsedUrl.host == 'api-v2.soundcloud.com') {
-                    /* try to bypass captcha
-                    if (details.method == 'PUT') {
-                        callback({ redirectURL: 'scinner://without-proxy?url=' + encodeURI(proxyUrl) });
+                    if (parsedUrl.pathname == '/me') {
+                        callback({ cancel: true });
                         return;
                     }
-                    */
 
                     if (parsedUrl.pathname.startsWith('/tracks') // [internal]
                         || parsedUrl.pathname.startsWith('/media/soundcloud:tracks') // [internal]
@@ -79,7 +79,7 @@ module.exports = class Setuper {
         session.webRequest.onBeforeSendHeaders({ urls: ["*://*/*"] },
             (details, callback) => {
                 // ----- set user agent to legit browser -----
-                details.requestHeaders['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
+                details.requestHeaders['User-Agent'] = GlobalUserAgent;
                 // ----- end -----
 
                 // ----- adblock -----
@@ -197,6 +197,36 @@ module.exports = class Setuper {
                 case 'lang/ru.js':
                     return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'langs', 'ru.js')).toString());
 
+                /*
+                case 'proxy-login': {
+                    const parsedUrl = new URL(request.url);
+                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
+
+                    if (!requestedUrl) {
+                        return;
+                    }
+
+                    const jsonBody = await request.json();
+                    jsonBody.vk.ag = GlobalUserAgent;
+
+                    const resp = await fetch(requestedUrl, {
+                        method: request.method,
+                        mode: request.mode,
+                        cache: request.cache,
+                        credentials: request.credentials,
+                        headers: request.headers,
+                        integrity: request.integrity,
+                        keepalive: request.keepalive,
+                        redirect: request.redirect,
+                        referrer: request.referrer,
+                        referrerPolicy: request.referrerPolicy,
+                        signal: request.signal,
+                        body: jsonBody,
+                    });
+                    return resp;
+                }
+                */
+
                 case 'scripts/load': {
                     const parsedUrl = new URL(request.url);
                     const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
@@ -234,7 +264,7 @@ module.exports = class Setuper {
                     });
                 }
 
-                case 'without-proxy': {
+                case 'proxy-basic': {
                     const parsedUrl = new URL(request.url);
                     const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
 
@@ -242,28 +272,9 @@ module.exports = class Setuper {
                         return;
                     }
 
-                    const resp = await fetch(requestedUrl, {
-                        method: request.method,
-                        mode: request.mode,
-                        cache: request.cache,
-                        credentials: request.credentials,
-                        headers: request.headers,
-                        integrity: request.integrity,
-                        keepalive: request.keepalive,
-                        redirect: request.redirect,
-                        referrer: request.referrer,
-                        referrerPolicy: request.referrerPolicy,
-                        signal: request.signal,
-                    });
-                    return resp;
-                }
-
-                case 'proxy-basic': {
-                    const parsedUrl = new URL(request.url);
-                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
-
-                    if (!requestedUrl) {
-                        return;
+                    let body = null;
+                    if (request.method != 'GET' && request.method != 'HEAD') {
+                        body = await request.text();
                     }
 
                     const resp = await ProxyManager.sendRequest(requestedUrl, {
@@ -278,6 +289,7 @@ module.exports = class Setuper {
                         referrer: request.referrer,
                         referrerPolicy: request.referrerPolicy,
                         signal: request.signal,
+                        body: body,
                     });
                     let text = await resp.text();
                     return new Response(text, {
@@ -295,6 +307,11 @@ module.exports = class Setuper {
                         return;
                     }
 
+                    let body = null;
+                    if (request.method != 'GET' && request.method != 'HEAD') {
+                        body = await request.text();
+                    }
+
                     const resp = await ProxyManager.sendRequest(requestedUrl, {
                         method: request.method,
                         mode: request.mode,
@@ -307,6 +324,7 @@ module.exports = class Setuper {
                         referrer: request.referrer,
                         referrerPolicy: request.referrerPolicy,
                         signal: request.signal,
+                        body: body,
                     }, false, true);
                     let tracks = await resp.json();
 
