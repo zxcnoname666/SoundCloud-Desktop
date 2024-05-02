@@ -1,5 +1,13 @@
 const config = require('../config');
 
+const efficiency = (() => {
+    try {
+        return require('../bins/efficiency.node').efficiency;
+    } catch {
+        return () => { console.log('efficiency module not found'); }
+    }
+})();
+
 const _localize = Intl.DateTimeFormat().resolvedOptions().locale;
 const rulang = _localize.includes('ru') || _localize.includes('kk') || _localize.includes('ky') || _localize.includes('be');
 
@@ -76,5 +84,13 @@ module.exports = class Extensions {
         }
 
         return _default;
+    }
+
+    static efficiency(pid) {
+        try {
+            efficiency(pid);
+        } catch (err) {
+            console.log(err);
+        }
     }
 }

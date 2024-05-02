@@ -1,13 +1,13 @@
 {
-    "details": "Removed unnecessary code from the webview script, which should reduce the load on memory (presumably)",
-    "version": "1.5.3",
-    "electron": "29.3",
+    "details": "1. Updated electron to v30\n2. Removed and combined some functions in preload webview\n3. Added support of \"efficiency mode\" in windows",
+    "version": "1.6.0",
+    "electron": "30",
     "hashes": {
-        "asar": "26b0d877a6c052992ac39edd4479baecbd229d52a6e153bc11252061c3b539db",
-        "installer": "d2abe1fcfa478aeaeb5b8990ca34b90ab586b9380774e69c0a078d3ca561d039"
+        "asar"      : "86ed6d747dba22c27ddf26bcc9a5fd71297070659046d56949c5309a895c335d",
+        "installer" : "0e479f182531af9536fbf9c672ef83c781f46040f8f2456d523c11515ada587f"
     },
     "names": {
-        "asar": "packed.asar",
-        "installer": "SoundCloudInstaller.exe"
+        "asar"      : "packed.asar",
+        "installer" : "SoundCloudInstaller.exe"
     }
 }

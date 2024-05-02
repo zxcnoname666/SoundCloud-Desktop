@@ -1,5 +1,8 @@
 /.build/bin/*
 /.build/sc-rename/target/*
+/.build/efficiency/target/*
+/.build/efficiency/efficiency.node
+
 /node_modules/*
 /dist/*
 /bins/*

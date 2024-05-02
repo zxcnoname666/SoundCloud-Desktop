@@ -1,4 +1,4 @@
-const { BrowserWindow, Menu, app, ipcMain, shell, globalShortcut, protocol, net, nativeTheme, dialog } = require('electron');
+const { BrowserWindow, Menu, webContents, app, ipcMain, shell, globalShortcut, protocol, net, nativeTheme, dialog } = require('electron');
 const path = require('path');
 const fs = require('original-fs');
 const fs_electron = require('fs');
@@ -17,8 +17,6 @@ const Version = require('./Version');
 const GlobalUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
 module.exports = class Setuper {
-    static allWebContents = [];
-
     static urlReplaceSymbols = {
         '?': '𖥍',
         '&': '𖠚',
@@ -47,12 +45,10 @@ module.exports = class Setuper {
                 }
 
                 if (parsedUrl.host == 'api-v2.soundcloud.com') {
-                    /*
                     if (parsedUrl.pathname == '/me') {
-                        callback({ cancel: true });
+                        callback({});
                         return;
                     }
-                    */
 
                     if (parsedUrl.pathname.startsWith('/tracks') // [internal]
                         || parsedUrl.pathname.startsWith('/media/soundcloud:tracks') // [internal]
@@ -136,6 +132,7 @@ module.exports = class Setuper {
             webPreferences: {
                 devTools: false,
                 webviewTag: true,
+                spellcheck: false,
                 preload: path.join(__dirname, '../frontend/preload.js')
             },
             frame: false,
@@ -391,7 +388,7 @@ module.exports = class Setuper {
     }
 
     static EmitGlobalEvent(event, ...args) {
-        this.allWebContents.forEach(content => {
+        webContents.getAllWebContents().forEach(content => {
             if (content.isDestroyed()) {
                 return;
             }
@@ -401,7 +398,7 @@ module.exports = class Setuper {
     }
 
     static hookNewWindow(webContents) {
-        this.allWebContents.push(webContents);
+        webContents.setUserAgent(GlobalUserAgent);
 
         webContents.setWindowOpenHandler(({ url }) => {
             if (url === 'about:blank') {
@@ -595,7 +592,7 @@ module.exports = class Setuper {
 
             const temp_dir = fs.mkdtempSync(os.tmpdir + path.sep);
             const temp_file = path.join(temp_dir, json.names.asar);
-            
+
             const streamPipeline = promisify(pipeline);
             await streamPipeline(resp.body, fs.createWriteStream(temp_file));
 

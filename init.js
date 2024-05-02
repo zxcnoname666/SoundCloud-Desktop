@@ -3,6 +3,7 @@ const { NotifyManager } = require('notify-manager-electron');
 const { Client } = require('qurre-socket');
 const Setuper = require('./modules/Setuper');
 const ProxyManager = require('./modules/ProxyManager');
+const Extensions = require('./modules/Extensions');
 const tpu = require('./modules/TCPPortUsing');
 const dontSleep = require('./modules/PreventSleep');
 
@@ -19,11 +20,35 @@ app.on('window-all-closed', () => {
 app.on('web-contents-created', (ev, contents) => {
     try { console.log('window created: ' + contents.getType()); } catch { }
 
+    setTimeout(() => {
+        setInterval(() => {
+            enableIdle();
+        }, 10000);
+        enableIdle();
+    }, 1000);
+
     Setuper.hookNewWindow(contents);
     Setuper.cors(contents.session);
 
     if (dev) {
         contents.openDevTools({ mode: 'detach' });
+    }
+
+    function enableIdle() {
+        if (contents.isDestroyed()) {
+            return;
+        }
+
+        if (contents.getType() != 'webview') {
+            return;
+        }
+
+        const pid = contents.getOSProcessId();
+        if (pid == 0) {
+            return;
+        }
+
+        Extensions.efficiency(pid);
     }
 });
 

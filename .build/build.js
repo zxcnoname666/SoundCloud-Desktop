@@ -8,6 +8,11 @@ execSync('cargo build --release', {
     stdio: 'inherit',
 });
 
+execSync('npm run build', {
+    cwd: path.join(__dirname, 'efficiency'),
+    stdio: 'inherit',
+});
+
 const BuildDir = path.join(__dirname, '..', 'dist');
 const BuildAsarDir = path.join(BuildDir, 'win-unpacked', 'resources', 'app.asar');
 
@@ -16,18 +21,31 @@ if (fs.existsSync(BuildDir)) {
 }
 
 const BinsDirPath = path.join(__dirname, '..', 'bins');
+
+if (!fs.existsSync(BinsDirPath)) {
+    fs.mkdirSync(BinsDirPath, { recursive: true });
+}
+
 const screnameBinPath = path.join(BinsDirPath, 'sc-rename.exe');
 const screnamePath = path.join(__dirname, 'sc-rename', 'target', 'release', 'sc-rename.exe');
 
 if (fs.existsSync(screnamePath)) {
-    if (!fs.existsSync(BinsDirPath)) {
-        fs.mkdirSync(BinsDirPath, { recursive: true });
-    }
-    else if (fs.existsSync(screnameBinPath)) {
-        fs.rmSync(screnameBinPath, { force: true });
+    if (fs.existsSync(screnameBinPath)) {
+        fs.rmSync(screnameBinPath, { force: true, recursive: true });
     }
 
     fs.copyFileSync(screnamePath, screnameBinPath);
+}
+
+const efficiencyBinPath = path.join(BinsDirPath, 'efficiency.node');
+const efficiencyPath = path.join(__dirname, 'efficiency', 'efficiency.node');
+
+if (fs.existsSync(efficiencyPath)) {
+    if (fs.existsSync(efficiencyBinPath)) {
+        fs.rmSync(efficiencyBinPath, { force: true, recursive: true });
+    }
+
+    fs.copyFileSync(efficiencyPath, efficiencyBinPath);
 }
 
 execSync('electron-builder', {

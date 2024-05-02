@@ -1,0 +1,12 @@
+{
+    "package": "efficiency",
+    "devDependencies": {
+        "@napi-rs/cli": "^2.18"
+    },
+    "napi": {
+        "name": "efficiency"
+    },
+    "scripts": {
+        "build": "napi build --release"
+    }
+}

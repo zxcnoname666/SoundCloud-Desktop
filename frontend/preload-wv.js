@@ -44,12 +44,9 @@ const removeBanners = () => {
     }, _removed ? 2000 : 100);
 
     setInterval(() => {
-        const antipropaganda = document.getElementsByClassName('frontHero__logo');
-        for (let i = 0; i < antipropaganda.length; i++) {
-            const apr = antipropaganda[i];
-            try { apr.title = ''; } catch { }
-        }
-    }, 2000);
+        const headerButton = document.querySelector('.header__logoLink, .frontHero__logo');
+        headerButton.title = '';
+    }, 3000);
 };
 
 const sendUpdatedUrl = () => {
@@ -102,32 +99,11 @@ const addStyle = () => {
     }
 };
 
-const updateTitle = () => {
-    setInterval(() => {
-        const headerButton = document.querySelector('.header__logoLink');
-        headerButton.title = '';
-    }, 1000);
-    /*
-    setInterval(() => {
-        const iframes = document.querySelectorAll('iframe');
-        iframes.forEach(iframe => {
-            if (iframe.src && iframe.src.includes('geo.captcha-delivery.com')) {
-                iframe.parentElement.style.backgroundColor = '#1b1b1b !important';
-                iframe.parentElement.style.height = 'auto';
-                iframe.parentElement.style.weight = 'auto';
-                //iframe.parentElement.outerHTML = '';
-            }
-        });
-    }, 100);
-    */
-}
-
 window.addEventListener('DOMContentLoaded', () => {
     updateUrl();
     removeBanners();
     sendUpdatedUrl();
     addStyle();
-    updateTitle();
 });
 
 document.addEventListener('mousedown', (e) => {
