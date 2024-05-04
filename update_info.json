@@ -1,10 +1,10 @@
 {
-    "details": "1. Updated electron to v30\n2. Removed and combined some functions in preload webview\n3. Added support of \"efficiency mode\" in windows",
-    "version": "1.6.0",
+    "details": "Fixed \"something went wrong\" error",
+    "version": "1.6.1",
     "electron": "30",
     "hashes": {
-        "asar"      : "86ed6d747dba22c27ddf26bcc9a5fd71297070659046d56949c5309a895c335d",
-        "installer" : "0e479f182531af9536fbf9c672ef83c781f46040f8f2456d523c11515ada587f"
+        "asar"      : "f66244a118ceed8a4dc3f9a1ad95f1cacfe42d8f9bd4d1ce3bb0fbd564123e06",
+        "installer" : "eecc69d2f384d6fc93ce960ec663f354c705e9c1d10d504b80a2d3df6026c003"
     },
     "names": {
         "asar"      : "packed.asar",

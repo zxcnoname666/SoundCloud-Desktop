@@ -45,7 +45,7 @@ module.exports = class Setuper {
                 }
 
                 if (parsedUrl.host == 'api-v2.soundcloud.com') {
-                    if (parsedUrl.pathname == '/me') {
+                    if (details.method != 'GET' && details.method != 'POST') {
                         callback({});
                         return;
                     }
@@ -55,13 +55,14 @@ module.exports = class Setuper {
                         || parsedUrl.pathname.startsWith('/search') // search page
                         || parsedUrl.pathname.startsWith('/resolve') // track page
                         || parsedUrl.pathname.startsWith('/playlists') // playlist page
-                        || (parsedUrl.pathname.startsWith('/users/') && parsedUrl.pathname.includes('/tracks')) // user page
+                        || (parsedUrl.pathname.startsWith('/users/') && parsedUrl.pathname.endsWith('/tracks')) // user page
                     ) {
                         callback({ redirectURL: 'scinner://proxy-tracks?url=' + encodeURI(proxyUrl) });
                         return;
                     }
 
-                    callback({ redirectURL: 'scinner://proxy-basic?url=' + encodeURI(proxyUrl) });
+                    callback({});
+                    //callback({ redirectURL: 'scinner://proxy-basic?url=' + encodeURI(proxyUrl) });
                     return;
                 }
 
