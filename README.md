@@ -45,8 +45,8 @@ Modify the `config.js` file.
 > Security Recommendation: Better use `user:password` access or only allow connections to the following servers: `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co`
 
 # Build
-1. `npm i` - Install required dependencies
-2. `npm i electron-builder -g` - Install electron builder
+1. Install nodejs: [link](https://nodejs.org/en/download)
+2. Install rustlang: [link](https://rust-lang.org/tools/install)
 3. `npm run build` - Compile app
 
 # Credits

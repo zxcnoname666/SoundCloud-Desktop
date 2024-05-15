@@ -39,6 +39,11 @@ module.exports = class Setuper {
                     return;
                 }
 
+                if (parsedUrl.host == 'soundcloud.com' && parsedUrl.pathname.startsWith('/n/pages/standby')) {
+                    callback({ cancel: true });
+                    return;
+                }
+
                 if (parsedUrl.pathname.startsWith('/assets/locales/locale-pt-br')) {
                     callback({ redirectURL: 'scinner://lang/ru.js' });
                     return;

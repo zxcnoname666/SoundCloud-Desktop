@@ -1,10 +1,10 @@
 {
-    "details": "Fixed \"something went wrong\" error",
-    "version": "1.6.1",
+    "details": "Fixed high load on RAM\nThis was caused because SoundCloud added their new page to a hidden testing frame and it was overloading RAM",
+    "version": "1.6.2",
     "electron": "30",
     "hashes": {
-        "asar"      : "f66244a118ceed8a4dc3f9a1ad95f1cacfe42d8f9bd4d1ce3bb0fbd564123e06",
-        "installer" : "eecc69d2f384d6fc93ce960ec663f354c705e9c1d10d504b80a2d3df6026c003"
+        "asar"      : "5def57b1af20f79b38840a10ff4851abfa25f81f49ce200c74cc0a28c436c89a",
+        "installer" : "e2e442b2dac77bb8b3fff7f0189540073113b1198800792159d946485a8916d3"
     },
     "names": {
         "asar"      : "packed.asar",

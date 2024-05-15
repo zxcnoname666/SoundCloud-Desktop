@@ -8,6 +8,21 @@ execSync('cargo build --release', {
     stdio: 'inherit',
 });
 
+execSync('npm i', {
+    cwd: path.join(__dirname, '..'),
+    stdio: 'inherit',
+});
+
+execSync('npm i electron-builder -g', {
+    cwd: path.join(__dirname, '..'),
+    stdio: 'inherit',
+});
+
+execSync('npm i @napi-rs/cli -g', {
+    cwd: path.join(__dirname, '..'),
+    stdio: 'inherit',
+});
+
 execSync('npm run build', {
     cwd: path.join(__dirname, 'efficiency'),
     stdio: 'inherit',

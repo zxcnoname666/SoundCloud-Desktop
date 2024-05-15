@@ -45,8 +45,8 @@
 > Рекомендация безопасности: Лучше используйте доступ по `user:password` или разрешите подключения только для следующих доменов: `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co`
 
 # Сборка
-1. `npm i` - Установить депенсы
-2. `npm i electron-builder -g` - Установить electron builder в глобальном режиме
+1. Установите nodejs: [ссылка](https://nodejs.org/en/download)
+2. Установите rustlang: [ссылка](https://rust-lang.org/tools/install)
 3. `npm run build` - Собрать приложение
 
 # Кредиты
