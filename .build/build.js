@@ -3,28 +3,56 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { execSync } = require('node:child_process');
 
-execSync('cargo build --release', {
-    cwd: path.join(__dirname, 'sc-rename'),
-    stdio: 'inherit',
-});
-
+console.log('Installing npm modules...\n');
 execSync('npm i', {
     cwd: path.join(__dirname, '..'),
     stdio: 'inherit',
 });
 
-execSync('npm i electron-builder -g', {
-    cwd: path.join(__dirname, '..'),
-    stdio: 'inherit',
-});
 
-execSync('npm i @napi-rs/cli -g', {
-    cwd: path.join(__dirname, '..'),
-    stdio: 'inherit',
-});
+console.log('\nChecking if "electron-builder" is installed');
+try {
+    const version_installed = execSync('electron-builder --version', {
+        cwd: path.join(__dirname, '..'),
+    });
+    const version_latest = execSync('npm view electron-builder version', {
+        cwd: path.join(__dirname, '..'),
+    });
 
+    if (parseFloat(version_latest) > parseFloat(version_installed)) {
+        console.log(`Available new version of electrion-builder. Installed version: ${version_installed.toString().trim()} // Available version: ${version_latest.toString().trim()}\n`);
+        throw new Error('update electron-builder');
+    }
+} catch {
+    execSync('npm i electron-builder -g', {
+        cwd: path.join(__dirname, '..'),
+        stdio: 'inherit',
+    });
+    console.log('\n');
+}
+
+
+console.log('Checking if "@napi-rs/cli" is installed');
+try {
+    execSync('napi -h', {
+        cwd: path.join(__dirname, '..'),
+    });
+} catch {
+    execSync('npm i @napi-rs/cli -g', {
+        cwd: path.join(__dirname, '..'),
+        stdio: 'inherit',
+    });
+    console.log('\n');
+}
+
+console.log('Building native modules...');
 execSync('npm run build', {
     cwd: path.join(__dirname, 'efficiency'),
+    stdio: 'inherit',
+});
+
+execSync('cargo build --release', {
+    cwd: path.join(__dirname, 'sc-rename'),
     stdio: 'inherit',
 });
 
@@ -63,6 +91,8 @@ if (fs.existsSync(efficiencyPath)) {
     fs.copyFileSync(efficiencyPath, efficiencyBinPath);
 }
 
+
+console.log('\nBuilding electron application...');
 execSync('electron-builder', {
     cwd: path.join(__dirname, '..'),
     stdio: 'inherit',

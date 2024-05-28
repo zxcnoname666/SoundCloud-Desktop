@@ -3,13 +3,29 @@ use std::os::raw::c_void;
 use windows::Win32::{Foundation::HANDLE, System::Threading::*};
 
 #[napi]
-unsafe fn efficiency(pid: u32) {
+#[allow(dead_code)]
+unsafe fn set_efficiency(pid: u32, value: bool) {
     let handle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
 
     if let Ok(process) = handle {
-        enable_ecoqos(process);
-        set_process_priority(process);
+        if value {
+            enable_ecoqos(process);
+        } else {
+            disable_ecoqoc(process);
+        }
     }
+}
+
+#[napi]
+#[allow(dead_code)]
+unsafe fn get_efficiency(pid: u32) -> bool {
+    let handle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
+
+    if let Ok(process) = handle {
+        return GetPriorityClass(process) == IDLE_PRIORITY_CLASS.0;
+    }
+
+    return false;
 }
 
 unsafe fn enable_ecoqos(process: HANDLE)
@@ -25,11 +41,16 @@ unsafe fn enable_ecoqos(process: HANDLE)
     if let Err(err) = result {
         println!("Err: {}", err);
     }
+
+    let result = SetPriorityClass(process, IDLE_PRIORITY_CLASS);
+    if let Err(err) = result {
+        println!("Err: {}", err);
+    }
 }
 
-unsafe fn set_process_priority(process: HANDLE)
+unsafe fn disable_ecoqoc(process: HANDLE)
 {
-    let result = SetPriorityClass(process, IDLE_PRIORITY_CLASS);
+    let result = SetPriorityClass(process, NORMAL_PRIORITY_CLASS);
     if let Err(err) = result {
         println!("Err: {}", err);
     }

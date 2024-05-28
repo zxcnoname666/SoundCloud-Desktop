@@ -15,6 +15,8 @@ const Extensions = require('./Extensions');
 const Version = require('./Version');
 
 const GlobalUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+let isPlaying = false;
+let isActive = false;
 
 module.exports = class Setuper {
     static urlReplaceSymbols = {
@@ -182,6 +184,10 @@ module.exports = class Setuper {
         ipcMain.on('UpdateCanBack', (ev) => {
             const contents = ev.sender;
             win.send('update-can-back', contents.canGoBack(), contents.canGoForward());
+        });
+
+        ipcMain.on('UpdateIsPlaying', (ev, value) => {
+            isPlaying = value;
         });
 
         ipcMain.on('call-update-url', (ev, url) => {
@@ -432,6 +438,7 @@ module.exports = class Setuper {
 
     static binds(win) {
         win.on('focus', () => {
+            isActive = true;
             globalShortcut.register('CommandOrControl+R', async () => {
                 win.send('load-url', await this.GetLastUrl());
             });
@@ -441,6 +448,7 @@ module.exports = class Setuper {
         });
 
         win.on('blur', () => {
+            isActive = false;
             globalShortcut.unregister('CommandOrControl+R');
             globalShortcut.unregister('CommandOrControl+Shift+R');
         });
@@ -624,6 +632,13 @@ module.exports = class Setuper {
             });
             app.exit(0);
         }
+    }
+
+    static getIsPlaying() {
+        return isPlaying || isActive;
+    }
+    static getisActive() {
+        return isActive;
     }
 
     static getStartArgsUrl() {

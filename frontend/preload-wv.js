@@ -99,10 +99,18 @@ const addStyle = () => {
     }
 };
 
+const UpdateIsPlaying = () => {
+    setInterval(() => {
+        const value = document.querySelector('.playControls__play').classList.contains('playing');
+        ipcRenderer.send('UpdateIsPlaying', value);
+    }, 1000);
+};
+
 window.addEventListener('DOMContentLoaded', () => {
     updateUrl();
     removeBanners();
     sendUpdatedUrl();
+    UpdateIsPlaying();
     addStyle();
 });
 

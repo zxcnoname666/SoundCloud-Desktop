@@ -120,14 +120,16 @@ module.exports = class ProxyManager {
             callback(proxy.login, proxy.password);
         });
 
-        const bypass_proxy = (
+        let bypass_proxy = (
             '<local>;' +
-            '*.captcha-delivery.com;' + // captcha
-            //'api-v2.soundcloud.com;' + // api v2
             //'*.google.com;*.gstatic.com;' + //google
             'www.google.com;accounts.google.com;ssl.gstatic.com;fonts.gstatic.com;www.gstatic.com;lh3.googleusercontent.com;' + //google
             'appleid.apple.com;iforgot.apple.com;www.apple.com;appleid.cdn-apple.com;*-ssl.mzstatic.com;appleid.cdn-apple.com' //apple
         );
+
+        if (await CheckWorkCaptcha()) {
+            bypass_proxy += ';*.captcha-delivery.com' // captcha
+        }
 
         const proxyCfg = {
             mode: 'fixed_servers',
@@ -222,6 +224,30 @@ function ProxyCheck(proxy) {
         }
 
         nfetch('https://soundcloud.com', proxyJson)
+            .then(() => {
+                resolve(true);
+                _sended = true;
+            }).catch(() => {
+                resolve(false);
+                _sended = true;
+            });
+    });
+}
+
+function CheckWorkCaptcha() {
+    return new Promise(async resolve => {
+        let _sended = false;
+
+        setTimeout(() => {
+            if (_sended) {
+                return;
+            }
+
+            resolve(false);
+            _sended = true;
+        }, 5000);
+
+        fetch('https://geo.captcha-delivery.com')
             .then(() => {
                 resolve(true);
                 _sended = true;

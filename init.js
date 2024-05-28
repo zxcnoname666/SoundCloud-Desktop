@@ -21,8 +21,11 @@ app.on('web-contents-created', (ev, contents) => {
     try { console.log('window created: ' + contents.getType()); } catch { }
 
     setTimeout(() => {
-        setInterval(() => {
-            enableIdle();
+        const interval = setInterval(() => {
+            const value = enableIdle();
+            if (value == 0) {
+                clearInterval(interval);
+            }
         }, 10000);
         enableIdle();
     }, 1000);
@@ -36,19 +39,26 @@ app.on('web-contents-created', (ev, contents) => {
 
     function enableIdle() {
         if (contents.isDestroyed()) {
-            return;
-        }
-
-        if (contents.getType() != 'webview') {
-            return;
+            return 0;
         }
 
         const pid = contents.getOSProcessId();
         if (pid == 0) {
-            return;
+            return 1;
         }
 
-        Extensions.efficiency(pid);
+        if (contents.getType() == 'webview' && Setuper.getIsPlaying()) {
+            Extensions.setEfficiency(pid, false);
+            return 1;
+        }
+
+        if (contents.getType() == 'window' && Setuper.getisActive()) {
+            Extensions.setEfficiency(pid, false);
+            return 1;
+        }
+
+        Extensions.setEfficiency(pid);
+        return 1;
     }
 });
 
@@ -64,6 +74,15 @@ app.whenReady().then(() => {
 async function startup() {
     let _portUse = await PortUsing();
     if (_portUse) return;
+
+    app.configureHostResolver({
+        secureDnsMode: 'secure',
+        secureDnsServers: [
+            'https://dns.quad9.net/dns-query',
+            'https://dns9.quad9.net/dns-query',
+            'https://cloudflare-dns.com/dns-query'
+        ]
+    });
 
     const loaderWin = await Setuper.loaderWin();
     const nmanager = new NotifyManager();

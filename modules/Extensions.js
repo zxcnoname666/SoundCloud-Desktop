@@ -2,7 +2,7 @@ const config = require('../config');
 
 const efficiency = (() => {
     try {
-        return require('../bins/efficiency.node').efficiency;
+        return require('../bins/efficiency.node');
     } catch {
         return () => { console.log('efficiency module not found'); }
     }
@@ -86,11 +86,22 @@ module.exports = class Extensions {
         return _default;
     }
 
-    static efficiency(pid) {
+    static setEfficiency(pid, value = true) {
         try {
-            efficiency(pid);
+            if (this.getEfficiency(pid) == value) {
+                return;
+            }
+
+            efficiency.setEfficiency(pid, value);
         } catch (err) {
             console.log(err);
+        }
+    }
+    static getEfficiency(pid) {
+        try {
+            return efficiency.getEfficiency(pid);
+        } catch {
+            return false;
         }
     }
 }
