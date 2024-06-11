@@ -42,12 +42,12 @@ Modify the `config.js` file.
 
 `proxy` - an array with links to connect to a proxy (like `socks://1.1.1.1:1337`, `http://1.1.1.1:80` or `scheme://user:password@ip:port`)
 
-> Security Recommendation: Better use `user:password` access or only allow connections to the following servers: `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co`
+> Security Recommendation: Better use `user:password` access or only allow connections to the following servers: `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co .captcha-delivery.com`
 
 # Build
 1. Install nodejs: [link](https://nodejs.org/en/download)
 2. Install rustlang: [link](https://rust-lang.org/tools/install)
-3. `npm run build` - Compile app
+3. Compile app: `npm run build`
 
 # Credits
 Names and images own by [SoundCloud](https://soundcloud.com)

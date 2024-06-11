@@ -42,12 +42,12 @@
 
 `proxy` - это массив строк/объектов-коннектов для подключения к прокси (например `socks://1.1.1.1:1337`, `http://1.1.1.1:80` или `scheme://user:password@ip:port`)
 
-> Рекомендация безопасности: Лучше используйте доступ по `user:password` или разрешите подключения только для следующих доменов: `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co`
+> Рекомендация безопасности: Лучше используйте доступ по `user:password` или разрешите подключения только для следующих доменов: `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co .captcha-delivery.com`
 
 # Сборка
 1. Установите nodejs: [ссылка](https://nodejs.org/en/download)
 2. Установите rustlang: [ссылка](https://rust-lang.org/tools/install)
-3. `npm run build` - Собрать приложение
+3. Соберите приложение: `npm run build`
 
 # Кредиты
 Названия и изображения принадлежат [SoundCloud](https://soundcloud.com)
