@@ -1,6 +1,6 @@
 {
   "name": "soundcloud",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "SoundCloud Desktop App",
   "main": "init.js",
   "scripts": {
@@ -18,12 +18,12 @@
   },
   "homepage": "https://github.com/zxcnoname666/SoundCloud-Desktop#readme",
   "devDependencies": {
-    "electron": "^30.0.8"
+    "electron": "^31.3.0"
   },
   "dependencies": {
     "https-proxy-agent": "^5.0.1",
     "node-fetch": "^2.6.12",
-    "notify-manager-electron": "^1.4.0",
+    "notify-manager-electron": "^1.5.0",
     "qurre-socket": "^1.1.0",
     "socks-proxy-agent": "^8.0.2",
     "winreg": "^1.2.4"

@@ -1,6 +1,6 @@
 use napi_derive::napi;
 use std::os::raw::c_void;
-use windows::Win32::{Foundation::HANDLE, System::Threading::*};
+use windows::Win32::{Foundation::{CloseHandle, HANDLE}, System::Threading::*};
 
 #[napi]
 #[allow(dead_code)]
@@ -13,6 +13,8 @@ unsafe fn set_efficiency(pid: u32, value: bool) {
         } else {
             disable_ecoqoc(process);
         }
+
+        _ = CloseHandle(process);
     }
 }
 
@@ -22,7 +24,9 @@ unsafe fn get_efficiency(pid: u32) -> bool {
     let handle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
 
     if let Ok(process) = handle {
-        return GetPriorityClass(process) == IDLE_PRIORITY_CLASS.0;
+        let ret = GetPriorityClass(process) == IDLE_PRIORITY_CLASS.0;
+        _ = CloseHandle(process);
+        return ret;
     }
 
     return false;

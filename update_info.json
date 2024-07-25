@@ -1,10 +1,10 @@
 {
-    "details": "1. Added Russian language support.\n2. Changed logic of power saving.\nNow it affects all processes except:\n- window, if it is active\n- frame, if it is active or music is playing.\n3. Added overriding of dns servers to force DoH (DNS over HTTPS) use\nWhile not particularly effective, this will reduce the problem with soundcloud captcha blocking on the ISP side.\n4. Added captcha validation without proxy.\nNow it checks if a client without proxy can access the site with captcha or not. And if it doesn't, then the connection goes through proxy.",
-    "version": "1.7.0",
-    "electron": "30",
+    "details": "1. Updated electron to v31.\n2. Added CloseHandle for correct ending of the function with efficiency",
+    "version": "1.7.1",
+    "electron": "31",
     "hashes": {
-        "asar"      : "ec0bf75fe6d9f099654b64832908e1de64722a1e8a8d0d3b4e678053b0a9e9e9",
-        "installer" : "48b5990b6c9e662a30fae2b09b6873f17af44d9beab810966a3354b655d9de6a"
+        "asar"      : "5d12b8124cb7bec73cbf65aee396d754626d8a56eb0e7f2f5346838de09b2f7e",
+        "installer" : "83aefeeafb24c1a6ed06134e49a9b099f8ff4c3ad071ee1c3085edcd676b3e0f"
     },
     "names": {
         "asar"      : "packed.asar",
