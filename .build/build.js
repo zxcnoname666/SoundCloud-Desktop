@@ -47,7 +47,7 @@ try {
 
 console.log('Building native modules...');
 execSync('npm run build', {
-    cwd: path.join(__dirname, 'efficiency'),
+    cwd: path.join(__dirname, 'native_utils'),
     stdio: 'inherit',
 });
 
@@ -80,15 +80,15 @@ if (fs.existsSync(screnamePath)) {
     fs.copyFileSync(screnamePath, screnameBinPath);
 }
 
-const efficiencyBinPath = path.join(BinsDirPath, 'efficiency.node');
-const efficiencyPath = path.join(__dirname, 'efficiency', 'efficiency.node');
+const nativeUtilsBinPath = path.join(BinsDirPath, 'native_utils.node');
+const nativeUtilsPath = path.join(__dirname, 'native_utils', 'native_utils.node');
 
-if (fs.existsSync(efficiencyPath)) {
-    if (fs.existsSync(efficiencyBinPath)) {
-        fs.rmSync(efficiencyBinPath, { force: true, recursive: true });
+if (fs.existsSync(nativeUtilsPath)) {
+    if (fs.existsSync(nativeUtilsBinPath)) {
+        fs.rmSync(nativeUtilsBinPath, { force: true, recursive: true });
     }
 
-    fs.copyFileSync(efficiencyPath, efficiencyBinPath);
+    fs.copyFileSync(nativeUtilsPath, nativeUtilsBinPath);
 }
 
 

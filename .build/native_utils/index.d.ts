@@ -5,3 +5,5 @@
 
 export function setEfficiency(pid: number, value: boolean): void
 export function getEfficiency(pid: number): boolean
+export function protocolInject(path: string): void
+export function sleeper(value: boolean): void

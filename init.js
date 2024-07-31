@@ -5,7 +5,6 @@ const Setuper = require('./modules/Setuper');
 const ProxyManager = require('./modules/ProxyManager');
 const Extensions = require('./modules/Extensions');
 const tpu = require('./modules/TCPPortUsing');
-const dontSleep = require('./modules/PreventSleep');
 
 let win;
 const dev = false;
@@ -73,7 +72,15 @@ app.whenReady().then(() => {
 
 async function startup() {
     let _portUse = await PortUsing();
-    if (_portUse) return;
+    if (_portUse) {
+        setTimeout(() => app.quit(), 1000);
+        return;
+    }
+
+    if (Setuper.getCloseAll()) {
+        setTimeout(() => app.quit(), 1000);
+        return;
+    }
 
     app.configureHostResolver({
         secureDnsMode: 'secure',
@@ -95,7 +102,7 @@ async function startup() {
 
     Setuper.setupTasks();
 
-    require('./modules/ProtocolInjector')();
+    Extensions.protocolInject();
 
     win = Setuper.create();
 
@@ -116,14 +123,17 @@ async function startup() {
     Setuper.binds(win);
 
     _portUse = await PortUsing();
-    if (_portUse) return;
+    if (_portUse) {
+        setTimeout(() => app.quit(), 1000);
+        return;
+    }
 
     require('./modules/Server')(AppPort, win);
 
     await win.loadFile(__dirname + '/frontend/main.html');
     win.send('load-url', await Setuper.getStartUrl());
 
-    dontSleep.enable();
+    Extensions.sleeper.enable();
 }
 
 async function PortUsing() {
@@ -141,6 +151,10 @@ async function PortUsing() {
     const url = Setuper.getStartArgsUrl();
     if (url.length > 1) {
         _client.emit('SetUrl', url);
+    }
+
+    if (Setuper.getCloseAll()) {
+        _client.emit('CloseAll');
     }
 
     return true;

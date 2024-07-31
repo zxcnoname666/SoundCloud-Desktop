@@ -1,6 +1,8 @@
 use napi_derive::napi;
 use std::os::raw::c_void;
-use windows::Win32::{Foundation::{CloseHandle, HANDLE}, System::Threading::*};
+use windows::Win32::{
+    Foundation::{CloseHandle, HANDLE}, System::Threading::*
+};
 
 #[napi]
 #[allow(dead_code)]

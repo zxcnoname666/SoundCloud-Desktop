@@ -1,10 +1,11 @@
 const config = require('../config');
+const { app } = require('electron');
 
-const efficiency = (() => {
+const nativeUtils = (() => {
     try {
-        return require('../bins/efficiency.node');
+        return require('../bins/native_utils.node');
     } catch {
-        return () => { console.log('efficiency module not found'); }
+        return () => { console.log('nativeUtils module not found'); }
     }
 })();
 
@@ -85,6 +86,24 @@ module.exports = class Extensions {
 
         return _default;
     }
+    static translationsTasks() {
+        const translated = (rulang ? config.translations.ru : (config.translations[_localize] ?? config.translations.en));
+        const _default = {
+            quit: 'Quit',
+            quit_desc: 'Close the app',
+        }
+
+        if (translated) {
+            if (typeof (translated.tasks_quit) == 'string') {
+                _default.quit = translated.tasks_quit;
+            }
+            if (typeof (translated.tasks_quit_desc) == 'string') {
+                _default.quit_desc = translated.tasks_quit_desc;
+            }
+        }
+
+        return _default;
+    }
 
     static setEfficiency(pid, value = true) {
         try {
@@ -92,16 +111,35 @@ module.exports = class Extensions {
                 return;
             }
 
-            efficiency.setEfficiency(pid, value);
+            nativeUtils.setEfficiency(pid, value);
         } catch (err) {
             console.log(err);
         }
     }
     static getEfficiency(pid) {
         try {
-            return efficiency.getEfficiency(pid);
+            return nativeUtils.getEfficiency(pid);
         } catch {
             return false;
         }
     }
+
+    static protocolInject() {
+        nativeUtils.protocolInject(app.getPath('exe'));
+    }
+
+    static sleeper = {
+        _timerId: 0,
+        _intervalTime: 5000,
+
+        enable() {
+            this._timerId = setInterval(() => nativeUtils.sleeper(true), this._intervalTime);
+        },
+
+        disable() {
+            clearInterval(this._timerId);
+            nativeUtils.sleeper(false);
+        }
+    }
+
 }

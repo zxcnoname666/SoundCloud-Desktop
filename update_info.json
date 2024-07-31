@@ -1,10 +1,10 @@
 {
-    "details": "1. Updated electron to v31.\n2. Added CloseHandle for correct ending of the function with efficiency",
-    "version": "1.7.1",
+    "details": "1. Rewritten “ProtocolInjector” to native module.\n2. Rewritten “Sleeper” to native module.\n3. Added translation for Tasks menu.\n4. Fixed a bug that caused some conditions to open the URL \"--close-all\".",
+    "version": "1.8.0",
     "electron": "31",
     "hashes": {
-        "asar"      : "5d12b8124cb7bec73cbf65aee396d754626d8a56eb0e7f2f5346838de09b2f7e",
-        "installer" : "83aefeeafb24c1a6ed06134e49a9b099f8ff4c3ad071ee1c3085edcd676b3e0f"
+        "asar"      : "f7ed544aa26522d8d7aad4785764da81e871cc288a596f1e9b88704f671e30b2",
+        "installer" : "c0e4f14632c9484b7c8cfbaffddf262121e022a84760e03766435300d6080b01"
     },
     "names": {
         "asar"      : "packed.asar",

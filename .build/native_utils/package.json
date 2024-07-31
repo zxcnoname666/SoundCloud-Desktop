@@ -1,10 +1,10 @@
 {
-    "package": "efficiency",
+    "package": "native_utils",
     "devDependencies": {
         "@napi-rs/cli": "^2.18"
     },
     "napi": {
-        "name": "efficiency"
+        "name": "native_utils"
     },
     "scripts": {
         "build": "napi build --release"

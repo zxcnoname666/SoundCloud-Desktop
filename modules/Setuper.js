@@ -463,11 +463,12 @@ module.exports = class Setuper {
 
         fs_electron.copyFileSync(path.join(__dirname, '..', 'icons', 'exit.ico'), icoPath);
 
+        const trl = Extensions.translationsTasks();
         if (process.platform == 'darwin') {
             const dockMenu = Menu.buildFromTemplate([
                 {
-                    label: 'Quit',
-                    toolTip: 'Close the app',
+                    label: trl.quit,
+                    toolTip: trl.quit_desc,
                     icon: icoPath,
                     click() { app.exit(); }
                 }
@@ -487,8 +488,8 @@ module.exports = class Setuper {
                     arguments: '--close-all',
                     iconPath: icoPath,
                     iconIndex: 0,
-                    title: 'Quit',
-                    description: 'Close the app'
+                    title: trl.quit,
+                    description: trl.quit_desc
                 }
             ]);
             return;
@@ -642,18 +643,22 @@ module.exports = class Setuper {
     }
 
     static getStartArgsUrl() {
-        try {
-            let url = process.argv[1];
-            if (url == '.') {
-                url = process.argv[2];
+        for (let i = 0; i < process.argv.length; i++) {
+            const arg = process.argv[i];
+            if (arg.startsWith('-site:')) {
+                return arg.substring(6);
             }
-            if (!url) {
-                url = '';
-            }
-            return url;
-        } catch {
-            return '';
         }
+        return '';
+    }
+
+    static getCloseAll() {
+        for (let i = 0; i < process.argv.length; i++) {
+            if (process.argv[i] == '--close-all') {
+                return true;
+            }
+        }
+        return false;
     }
 
     static async getStartUrl() {

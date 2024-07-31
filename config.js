@@ -23,6 +23,9 @@ module.exports = {
             updater_installation_error: 'Ошибка установки',
             updater_missing_hash: 'Несовпадение хэша',
             updater_missing_hash_message: 'Хэш загруженного обновления отличается от указанного в конфиге. Вероятнее всего, трафик был перехвачен (или кто-то забыл обновить хэш)',
+
+            tasks_quit: 'Закрыть',
+            tasks_quit_desc: 'Закрыть приложение',
         },
         en: {
             proxy_available_not_found: 'Available proxy servers not found',
@@ -38,9 +41,12 @@ module.exports = {
             updater_installation_error: 'Installation error',
             updater_missing_hash: 'Missing hash',
             updater_missing_hash_message: 'The hash of the downloaded update differs from the hash specified in the config. Most likely, the traffic was intercepted (or someone forgot to update the hash)',
+
+            tasks_quit: 'Quit',
+            tasks_quit_desc: 'Close the app',
         },
         /*
         'iso code': {...},
         */
     }
-};
+}

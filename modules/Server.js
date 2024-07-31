@@ -8,12 +8,11 @@ module.exports = (port, win) => {
     server.on('connection', (socket) => {
         socket.on('OpenApp', () => win.show());
 
-        socket.on('SetUrl', ([url]) => {
-            if (url == '--close-all') {
-                electron.app.exit();
-                return;
-            }
+        socket.on('CloseAll', () => {
+            electron.app.exit();
+        })
 
+        socket.on('SetUrl', ([url]) => {
             url = url.replace('sc://', '');
             const _url = 'https://soundcloud.com/' + url;
 
