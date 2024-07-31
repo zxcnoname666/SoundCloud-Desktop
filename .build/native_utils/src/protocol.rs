@@ -13,10 +13,12 @@ const TAG: &str = "sc";
 #[allow(dead_code)]
 fn protocol_inject(path: String) {
     let root = format!("Software\\Classes\\{}", TAG);
-    let ptr = root.as_ptr();
+
+    let root_str = format!("{}\0", root);
+    let ptr = root_str.as_ptr();
     let pcstr = PCSTR::from_raw(ptr);
 
-    unsafe { // fix memory leak
+    unsafe {
         if pcstr.to_string().unwrap_or_default() != root {
             return;
         }
@@ -83,7 +85,7 @@ fn protocol_inject(path: String) {
 
 
     let mut reg_key: HKEY = unsafe { mem::zeroed() };
-    let reg_command = format!("{}\\shell\\open\\command", root);
+    let reg_command = format!("{}\\shell\\open\\command\0", root);
     let ptr = reg_command.as_ptr();
     let pcstr = PCSTR::from_raw(ptr);
 
