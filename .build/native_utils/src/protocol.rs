@@ -11,13 +11,21 @@ const TAG: &str = "sc";
 
 #[napi]
 #[allow(dead_code)]
-unsafe fn protocol_inject(path: String) {
+fn protocol_inject(path: String) {
     let root = format!("Software\\Classes\\{}", TAG);
+    let ptr = root.as_ptr();
+    let pcstr = PCSTR::from_raw(ptr);
 
-    let reg_status = RegDeleteTreeA(
+    unsafe { // fix memory leak
+        if pcstr.to_string().unwrap_or_default() != root {
+            return;
+        }
+    }
+
+    let reg_status = unsafe { RegDeleteTreeA(
         HKEY_CURRENT_USER,
-        PCSTR::from_raw(root.as_ptr())
-    );
+        pcstr
+    ) };
     
     if reg_status.is_ok() {
         println!("Removed reg tree: {}", root);
@@ -26,12 +34,12 @@ unsafe fn protocol_inject(path: String) {
     }
 
 
-    let mut reg_key: HKEY = mem::zeroed();
-    let reg_status = RegCreateKeyA(
+    let mut reg_key: HKEY = unsafe { mem::zeroed() };
+    let reg_status = unsafe { RegCreateKeyA(
         HKEY_CURRENT_USER,
-        PCSTR::from_raw(root.as_ptr()),
+        pcstr,
         &mut reg_key
-    );
+    ) };
 
     if !reg_status.is_ok() {
         println!("Create reg tree error: {:?}", reg_status);
@@ -39,13 +47,13 @@ unsafe fn protocol_inject(path: String) {
     }
 
 
-    let reg_status = RegSetValueExA(
+    let reg_status = unsafe { RegSetValueExA(
         reg_key,
         s!("URL Protocol"),
         0,
         REG_SZ,
         Some("".as_bytes())
-    );
+    ) };
 
     if !reg_status.is_ok() {
         println!("Create reg \"URL Protocol\" error: {:?}", reg_status);
@@ -53,13 +61,13 @@ unsafe fn protocol_inject(path: String) {
     }
 
 
-    let reg_status = RegSetValueExA(
+    let reg_status = unsafe { RegSetValueExA(
         reg_key,
         s!(""),
         0,
         REG_SZ,
         Some(format!("URL:{}", TAG).as_bytes())
-    );
+    ) };
     
     if !reg_status.is_ok() {
         println!("Create reg \"Default\" error: {:?}", reg_status);
@@ -67,19 +75,23 @@ unsafe fn protocol_inject(path: String) {
     }
 
 
-    let reg_status = RegCloseKey(reg_key);
+    let reg_status = unsafe { RegCloseKey(reg_key) };
     if !reg_status.is_ok() {
         println!("Close reg error: {:?}", reg_status);
         return;
     }
 
 
-    let mut reg_key: HKEY = mem::zeroed();
-    let reg_status = RegCreateKeyA(
+    let mut reg_key: HKEY = unsafe { mem::zeroed() };
+    let reg_command = format!("{}\\shell\\open\\command", root);
+    let ptr = reg_command.as_ptr();
+    let pcstr = PCSTR::from_raw(ptr);
+
+    let reg_status = unsafe { RegCreateKeyA(
         HKEY_CURRENT_USER,
-        PCSTR::from_raw(format!("{}\\shell\\open\\command", root).as_ptr()),
+        pcstr,
         &mut reg_key
-    );
+    ) };
 
     if !reg_status.is_ok() {
         println!("Create reg tree of shell error: {:?}", reg_status);
@@ -87,13 +99,13 @@ unsafe fn protocol_inject(path: String) {
     }
 
 
-    let reg_status = RegSetValueExA(
+    let reg_status = unsafe { RegSetValueExA(
         reg_key,
         s!(""),
         0,
         REG_SZ,
         Some(format!("\"{}\" -site:\"%1\"", path).as_bytes())
-    );
+    ) };
     
     if !reg_status.is_ok() {
         println!("Create reg \"Shell\" error: {:?}", reg_status);
@@ -101,7 +113,7 @@ unsafe fn protocol_inject(path: String) {
     }
 
 
-    let reg_status = RegCloseKey(reg_key);
+    let reg_status = unsafe { RegCloseKey(reg_key) };
     if !reg_status.is_ok() {
         println!("Close shell reg error: {:?}", reg_status);
         return;

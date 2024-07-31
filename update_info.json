@@ -1,10 +1,10 @@
 {
-    "details": "1. Rewritten “ProtocolInjector” to native module.\n2. Rewritten “Sleeper” to native module.\n3. Added translation for Tasks menu.\n4. Fixed a bug that caused some conditions to open the URL \"--close-all\".",
-    "version": "1.8.0",
+    "details": "1. Rewritten “ProtocolInjector” to native module.\n2. Rewritten “Sleeper” to native module.\n3. Added translation for Tasks menu.\n4. Fixed a bug that caused some conditions to open the URL \"--close-all\".\n5. Fixed memory leak by napi (since 1.8.0)",
+    "version": "1.8.1",
     "electron": "31",
     "hashes": {
-        "asar"      : "9827809b73d346de3a1dc4c605959e418ea09ff9a112236193127e31ec20c84f",
-        "installer" : "f87e3ed5a9ee670c5d7e0e776386980b92f68012187030e12bdc49c73867bdb7"
+        "asar"      : "c364067678e032e9df1962ae4d71d532b8fff9433d12af1145d9c11b0ffcad88",
+        "installer" : "92f79c2b1a83e785a8db00b91ada77a7221f263be6686323be3003fbf8113d9e"
     },
     "names": {
         "asar"      : "packed.asar",
