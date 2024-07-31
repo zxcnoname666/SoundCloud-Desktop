@@ -12,7 +12,7 @@ const TAG: &str = "sc";
 #[napi]
 #[allow(dead_code)]
 unsafe fn protocol_inject(path: String) {
-    let root = format!("Software\\Classes\\{}\\", TAG);
+    let root = format!("Software\\Classes\\{}", TAG);
 
     let reg_status = RegDeleteTreeA(
         HKEY_CURRENT_USER,
@@ -77,7 +77,7 @@ unsafe fn protocol_inject(path: String) {
     let mut reg_key: HKEY = mem::zeroed();
     let reg_status = RegCreateKeyA(
         HKEY_CURRENT_USER,
-        PCSTR::from_raw(format!("{}shell\\open\\command", root).as_ptr()),
+        PCSTR::from_raw(format!("{}\\shell\\open\\command", root).as_ptr()),
         &mut reg_key
     );
 
