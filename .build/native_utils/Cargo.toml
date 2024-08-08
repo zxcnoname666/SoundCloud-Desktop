@@ -20,7 +20,7 @@ napi-build = "1"
 
 [profile.release]
 lto = true
-opt-level = "s"
+opt-level = "z"
 debug = false
 panic = "abort"
 strip = "symbols"

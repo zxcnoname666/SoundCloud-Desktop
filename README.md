@@ -34,11 +34,14 @@ You can also navigate in app by using url-navbar (like in browsers)
 4. Run `SoundCloudInstaller.exe`
 
 # Configs
+> You can customize the application language via config in the `config.js` file
+
+# Proxy
 > You can use your own proxy when connecting to SoundCloud
 
 > Recommended location: Switzerland
 
-Modify the `config.js` file.
+Modify the `config.proxy.js` file.
 
 `proxy` - an array with links to connect to a proxy (like `socks://1.1.1.1:1337`, `http://1.1.1.1:80` or `scheme://user:password@ip:port`)
 

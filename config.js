@@ -1,18 +1,10 @@
 module.exports = {
-    proxy: [
-        /*
-        'http://1.1.1.1:80',
-        {
-            url: 'socks://9.9.9.9:1000',
-            bestBypass: true,
-        },
-        */
-    ],
+    proxy: require('./config.proxy'),
     translations: {
         ru: { // ru, kk, ky, be
             proxy_available_not_found: 'Доступные прокси-серверы не найдены',
             proxy_work_not_found: 'Работающие прокси-серверы не найдены',
-            proxy_connected: 'Подключен к прокси-серверу: {ip}',
+            proxy_connected: 'Подключен к прокси-серверу: {name}',
 
             updater_title: 'Обновление приложения',
             updater_details: 'Доступна новая версия приложения. Нажмите на кнопку ниже для выбора.',
@@ -30,7 +22,7 @@ module.exports = {
         en: {
             proxy_available_not_found: 'Available proxy servers not found',
             proxy_work_not_found: 'Working proxy servers not found',
-            proxy_connected: 'Connected to proxy servers: {ip}',
+            proxy_connected: 'Connected to proxy servers: {name}',
 
             updater_title: 'Application Update',
             updater_details: 'A new version of the app is available. Click on the button below to select your choice.',

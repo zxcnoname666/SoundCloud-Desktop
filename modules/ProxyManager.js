@@ -93,6 +93,13 @@ module.exports = class ProxyManager {
                 proxy = ParseProxy(proxyConfig);
             } else if (typeof (proxyConfig.url) == 'string') {
                 proxy = ParseProxy(proxyConfig.url, (proxyConfig.bestBypass == true));
+
+                if (typeof (proxyConfig.name) == 'string') {
+                    proxy.name = proxyConfig.name;
+                } else {
+                    const urlName = new URL(proxyConfig.url);
+                    proxy.name = urlName.hostname;
+                }
             }
 
             const _check = await ProxyCheck(proxy.source);
@@ -156,7 +163,7 @@ module.exports = class ProxyManager {
         });
 
         const notify = new Notify('SoundCloud', '', 10, __dirname + '/../icons/data-server.png');
-        notify.body = translations.proxy_connected.replaceAll('{ip}', proxyCfg.proxyRules.replaceAll(',', ', '));
+        notify.body = translations.proxy_connected.replaceAll('{name}', '<br>' + workProxies.map(x => x.name).join(';<br>') + ';');
         nmanager.show(notify);
         return;
     };
@@ -171,6 +178,7 @@ function ParseProxy(proxy, best = false) {
         password: '',
         source: proxy,
         bestBypass: best,
+        name: '',
     }
 
     const parse1 = proxy.split('://');

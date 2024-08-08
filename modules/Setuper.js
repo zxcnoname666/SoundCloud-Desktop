@@ -588,7 +588,8 @@ module.exports = class Setuper {
                 return;
             }
 
-            shell.openExternal(temp_file);
+            app.relaunch({ execPath: temp_file });
+            app.exit(0);
             return;
         }
 
@@ -624,13 +625,8 @@ module.exports = class Setuper {
                 return;
             }
 
-            const temp_renamer = path.join(temp_dir, 'sc-rename.exe');
-            fs_electron.copyFileSync(path.join(__dirname, '..', 'bins', 'sc-rename.exe'), temp_renamer)
-
-            app.relaunch({
-                execPath: temp_renamer,
-                args: [app.getAppPath(), temp_file, app.getPath('exe')]
-            });
+            fs.copyFileSync(temp_file, app.getAppPath());
+            app.relaunch();
             app.exit(0);
         }
     }

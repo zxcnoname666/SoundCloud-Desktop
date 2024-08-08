@@ -51,11 +51,6 @@ execSync('npm run build', {
     stdio: 'inherit',
 });
 
-execSync('cargo build --release', {
-    cwd: path.join(__dirname, 'sc-rename'),
-    stdio: 'inherit',
-});
-
 const BuildDir = path.join(__dirname, '..', 'dist');
 const BuildAsarDir = path.join(BuildDir, 'win-unpacked', 'resources', 'app.asar');
 
@@ -67,17 +62,6 @@ const BinsDirPath = path.join(__dirname, '..', 'bins');
 
 if (!fs.existsSync(BinsDirPath)) {
     fs.mkdirSync(BinsDirPath, { recursive: true });
-}
-
-const screnameBinPath = path.join(BinsDirPath, 'sc-rename.exe');
-const screnamePath = path.join(__dirname, 'sc-rename', 'target', 'release', 'sc-rename.exe');
-
-if (fs.existsSync(screnamePath)) {
-    if (fs.existsSync(screnameBinPath)) {
-        fs.rmSync(screnameBinPath, { force: true, recursive: true });
-    }
-
-    fs.copyFileSync(screnamePath, screnameBinPath);
 }
 
 const nativeUtilsBinPath = path.join(BinsDirPath, 'native_utils.node');
