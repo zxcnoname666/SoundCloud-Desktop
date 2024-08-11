@@ -4,8 +4,7 @@
   "description": "SoundCloud Desktop App",
   "main": "init.js",
   "scripts": {
-    "build": "node .build/build.js",
-    "build-soon": "node .build/init.js"
+    "build": "node .build/build.js"
   },
   "repository": {
     "type": "git",
@@ -46,6 +45,13 @@
         }
       ],
       "icon": "icons/appLogo.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "zip"
+      ],
+      "icon": "icons/appLogo.png"
     }
   }
 }
