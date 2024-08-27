@@ -547,6 +547,10 @@ module.exports = class Setuper {
             dialogOpts.detail += json.details;
         }
 
+        if (!process.platform.startsWith('win')) {
+            dialogOpts.buttons = [];
+        }
+
         const returnValue = await dialog.showMessageBox(dialogOpts);
 
         if (returnValue.response != 0) {

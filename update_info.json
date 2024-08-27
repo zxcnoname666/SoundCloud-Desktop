@@ -1,10 +1,10 @@
 {
-    "details": "1. Changed config structure.\n? Configuration of proxy servers is moved to a separate file.\n? Added a \"name\" field to the proxy server object to provide the proxy server identifier in the notification.\n2. Added display of proxy server name.\n3. Removed the \"sc-rename\" module due to its uselessness.",
-    "version": "1.9.0",
+    "details": "1. Added response checking when connecting to a proxy.",
+    "version": "1.9.1",
     "electron": "31",
     "hashes": {
-        "asar"      : "e8095fc877a3c351012f4b43626070ee862c6d6af7415097f733d08b773cd5ac",
-        "installer" : "1ccd0ac7ff9f36a0c7a0335aa3b11ea21787138ebb1117f021d6146a79163466"
+        "asar"      : "6cde29d43c9db4cf1ec10cfc08380e195cb3d01312f06080c3a86bae0fa0c2d9",
+        "installer" : "97b43a1d8a0634038797bcd49b0c6be1f991812cfab9fbaa8726eca3e3d7cd98"
     },
     "names": {
         "asar"      : "packed.asar",

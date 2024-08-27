@@ -232,7 +232,13 @@ function ProxyCheck(proxy) {
         }
 
         nfetch('https://soundcloud.com', proxyJson)
-            .then(() => {
+            .then(async(res) => {
+                const content = await res.text();
+                if (content.includes('The Squid Software') || !content.includes('meta content="SoundCloud"')) {
+                    resolve(false);
+                    _sended = true;
+                    return;
+                }
                 resolve(true);
                 _sended = true;
             }).catch(() => {
