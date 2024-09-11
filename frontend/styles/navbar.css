@@ -86,7 +86,7 @@ body {
     margin-right: 3px;
 }
 #AppNavbarSystem .Locator .button:last-child {
-    margin-right: 0px;
+    margin-right: 0;
 }
 #AppNavbarSystem .Locator .button:hover {
     background: #68686879;

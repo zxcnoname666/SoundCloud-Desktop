@@ -35,7 +35,7 @@ module.exports = class Version {
     }
 
     isBiggest(compare) {
-        if (compare.major == -1) {
+        if (compare.major === -1) {
             return false;
         }
         if (this.major > compare.major) {
@@ -45,7 +45,7 @@ module.exports = class Version {
             return false;
         }
 
-        if (compare.minor == -1) {
+        if (compare.minor === -1) {
             return false;
         }
         if (this.minor > compare.minor) {
@@ -55,7 +55,7 @@ module.exports = class Version {
             return false;
         }
 
-        if (compare.build == -1) {
+        if (compare.build === -1) {
             return false;
         }
         if (this.build > compare.build) {
@@ -65,7 +65,7 @@ module.exports = class Version {
             return false;
         }
 
-        if (compare.revision == -1) {
+        if (compare.revision === -1) {
             return false;
         }
         if (this.revision > compare.revision) {

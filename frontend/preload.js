@@ -11,7 +11,7 @@ const SetupHeader = () => {
     const input = document.querySelector('#AppNavbarSystem .Locator .Path input');
 
     input.addEventListener('keydown', (ev) => {
-        if (ev.key == 'Enter') {
+        if (ev.key === 'Enter') {
             ipcRenderer.send('call-update-url', encodeURI(ev.target.value));
         }
     });
@@ -37,7 +37,7 @@ const Init = () => {
     ipcRenderer.on('load-url', (ev, url) => {
         UpdateUrlInPanel(url);
         try {
-            if (webview.getAttribute('src') == 'https://soundcloud.com/' + url) {
+            if (webview.getAttribute('src') === 'https://soundcloud.com/' + url) {
                 webview.setAttribute('src', 'https://soundcloud.com');
                 setTimeout(() => {
                     webview.setAttribute('src', 'https://soundcloud.com/' + url);

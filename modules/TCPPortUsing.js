@@ -6,7 +6,7 @@ module.exports = function (port, host) {
 
         client.on('connect', () => CR(true));
         client.on('error', (err) => {
-            if (err.code == 'ECONNREFUSED') CR(false);
+            if (err.code === 'ECONNREFUSED') CR(false);
             else CR(true);
         });
 

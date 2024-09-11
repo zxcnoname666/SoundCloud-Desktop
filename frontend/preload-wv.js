@@ -55,7 +55,7 @@ const sendUpdatedUrl = () => {
     setInterval(() => {
         const href = window.location.href;
 
-        if (lastUrlCache == href) {
+        if (lastUrlCache === href) {
             return;
         }
         if (href.replace('https://soundcloud.com').length < 2) {
@@ -115,10 +115,10 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('mousedown', (e) => {
-    if (e.button == 3) {
+    if (e.button === 3) {
         history.back();
     }
-    if (e.button == 4) {
+    if (e.button === 4) {
         history.forward();
     }
 });

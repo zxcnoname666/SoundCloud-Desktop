@@ -41,7 +41,7 @@ module.exports = class Setuper {
                     return;
                 }
 
-                if (parsedUrl.host == 'soundcloud.com' && parsedUrl.pathname.startsWith('/n/pages/standby')) {
+                if (parsedUrl.host === 'soundcloud.com' && parsedUrl.pathname.startsWith('/n/pages/standby')) {
                     callback({ cancel: true });
                     return;
                 }
@@ -51,8 +51,8 @@ module.exports = class Setuper {
                     return;
                 }
 
-                if (parsedUrl.host == 'api-v2.soundcloud.com') {
-                    if (details.method != 'GET' && details.method != 'POST') {
+                if (parsedUrl.host === 'api-v2.soundcloud.com') {
+                    if (details.method !== 'GET' && details.method !== 'POST') {
                         callback({});
                         return;
                     }
@@ -73,7 +73,7 @@ module.exports = class Setuper {
                     return;
                 }
 
-                if (details.resourceType == 'script') {
+                if (details.resourceType === 'script') {
                     callback({ redirectURL: 'scinner://scripts/load?url=' + encodeURI(proxyUrl) });
                     return;
                 }
@@ -96,7 +96,7 @@ module.exports = class Setuper {
                     return;
                 }
 
-                if (parsedUrl.host != 'soundcloud-upload.s3.amazonaws.com'
+                if (parsedUrl.host !== 'soundcloud-upload.s3.amazonaws.com'
                     && !parsedUrl.host.endsWith('soundcloud.com')
                     && !parsedUrl.host.endsWith('sndcdn.com')
 
@@ -105,7 +105,7 @@ module.exports = class Setuper {
 
                     && !parsedUrl.host.endsWith('google.com')
                     && !parsedUrl.host.endsWith('gstatic.com')
-                    && parsedUrl.host != 'lh3.googleusercontent.com'
+                    && parsedUrl.host !== 'lh3.googleusercontent.com'
 
                     && !parsedUrl.host.endsWith('apple.com')
                     && !parsedUrl.host.endsWith('-ssl.mzstatic.com')
@@ -120,14 +120,12 @@ module.exports = class Setuper {
         );
 
         function CheckAdBlock(parsedUrl) {
-            if (parsedUrl.host == 'promoted.soundcloud.com'
+            return parsedUrl.host === 'promoted.soundcloud.com'
                 || parsedUrl.host.endsWith('.adswizz.com')
                 || parsedUrl.host.endsWith('.adsrvr.org')
                 || parsedUrl.host.endsWith('.doubleclick.net')
-                || parsedUrl.href.includes('audio-ads')) {
-                return true;
-            }
-            return false;
+                || parsedUrl.href.includes('audio-ads');
+
         }
     }
 
@@ -284,7 +282,7 @@ module.exports = class Setuper {
                     }
 
                     let body = null;
-                    if (request.method != 'GET' && request.method != 'HEAD') {
+                    if (request.method !== 'GET' && request.method !== 'HEAD') {
                         body = await request.text();
                     }
 
@@ -319,7 +317,7 @@ module.exports = class Setuper {
                     }
 
                     let body = null;
-                    if (request.method != 'GET' && request.method != 'HEAD') {
+                    if (request.method !== 'GET' && request.method !== 'HEAD') {
                         body = await request.text();
                     }
 
@@ -365,7 +363,7 @@ module.exports = class Setuper {
                                     track.policy = 'ALLOW';
                                     if (typeof (track.media) == 'object'
                                         && Extensions.isArray(track.media.transcodings)
-                                        && track.media.transcodings.length == 0) {
+                                        && track.media.transcodings.length === 0) {
                                         delete track.media;
                                     }
                                 });
@@ -378,7 +376,7 @@ module.exports = class Setuper {
                             track.policy = 'ALLOW';
                             if (typeof (track.media) == 'object'
                                 && Extensions.isArray(track.media.transcodings)
-                                && track.media.transcodings.length == 0) {
+                                && track.media.transcodings.length === 0) {
                                 delete track.media;
                             }
                         });
@@ -464,7 +462,7 @@ module.exports = class Setuper {
         fs_electron.copyFileSync(path.join(__dirname, '..', 'icons', 'exit.ico'), icoPath);
 
         const trl = Extensions.translationsTasks();
-        if (process.platform == 'darwin') {
+        if (process.platform === 'darwin') {
             const dockMenu = Menu.buildFromTemplate([
                 {
                     label: trl.quit,
@@ -477,7 +475,7 @@ module.exports = class Setuper {
             return;
         }
 
-        if (process.platform == 'linux') {
+        if (process.platform === 'linux') {
             return;
         }
 
@@ -494,6 +492,8 @@ module.exports = class Setuper {
             ]);
             return;
         }
+
+        console.log('unknown os');
     }
 
     static async loaderWin() {
@@ -518,11 +518,11 @@ module.exports = class Setuper {
     }
 
     static async autoUpdate() {
-        const responce = await fetch('https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/update_info.json');
-        if (!responce.ok) {
+        const response = await fetch('https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/update_info.json');
+        if (!response.ok) {
             return;
         }
-        const json = await responce.json();
+        const json = await response.json();
         const translation = Extensions.translationsUpdater();
 
         const installedVersion = new Version(app.getVersion());
@@ -553,7 +553,7 @@ module.exports = class Setuper {
 
         const returnValue = await dialog.showMessageBox(dialogOpts);
 
-        if (returnValue.response != 0) {
+        if (returnValue.response !== 0) {
             return;
         }
 
@@ -582,7 +582,7 @@ module.exports = class Setuper {
             const buff = fs.readFileSync(temp_file);
             const hash = crypto.createHash('sha256').update(buff).digest('hex');
 
-            if (hash != json.hashes.installer) {
+            if (hash !== json.hashes.installer) {
                 await dialog.showMessageBox({
                     type: 'warning',
                     title: translation.missing_hash,
@@ -619,7 +619,7 @@ module.exports = class Setuper {
             const buff = fs.readFileSync(temp_file);
             const hash = crypto.createHash('sha256').update(buff).digest('hex');
 
-            if (hash != json.hashes.asar) {
+            if (hash !== json.hashes.asar) {
                 await dialog.showMessageBox({
                     type: 'warning',
                     title: translation.missing_hash,
@@ -654,7 +654,7 @@ module.exports = class Setuper {
 
     static getCloseAll() {
         for (let i = 0; i < process.argv.length; i++) {
-            if (process.argv[i] == '--close-all') {
+            if (process.argv[i] === '--close-all') {
                 return true;
             }
         }
@@ -672,7 +672,7 @@ module.exports = class Setuper {
     }
 
     static async UpdateLastUrl(url) {
-        if (url == 'about:blank') {
+        if (url === 'about:blank') {
             return;
         }
         if (!fs.existsSync(LocalDBDir)) {
@@ -691,7 +691,7 @@ module.exports = class Setuper {
             }
 
             fs.readFile(path.join(LocalDBDir, 'LastUrl'), 'utf-8', (err, _url) => {
-                if (_url == undefined || _url == null) {
+                if (!_url) {
                     return resolve('');
                 }
 

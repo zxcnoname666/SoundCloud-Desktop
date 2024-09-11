@@ -14,7 +14,7 @@ const rulang = _localize.includes('ru') || _localize.includes('kk') || _localize
 
 module.exports = class Extensions {
     static checkConstruction(object, construction) {
-        return typeof (object) != 'undefined' && object.constructor == construction;
+        return typeof (object) != 'undefined' && object.constructor === construction;
     }
     static isArray(object) {
         return this.checkConstruction(object, ([]).constructor);
@@ -107,7 +107,7 @@ module.exports = class Extensions {
 
     static setEfficiency(pid, value = true) {
         try {
-            if (this.getEfficiency(pid) == value) {
+            if (this.getEfficiency(pid) === value) {
                 return;
             }
 

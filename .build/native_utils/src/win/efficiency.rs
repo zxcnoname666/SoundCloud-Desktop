@@ -31,7 +31,7 @@ unsafe fn get_efficiency(pid: u32) -> bool {
         return ret;
     }
 
-    return false;
+    false
 }
 
 unsafe fn enable_ecoqos(process: HANDLE)

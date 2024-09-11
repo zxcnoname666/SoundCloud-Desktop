@@ -15,7 +15,7 @@ module.exports = class ProxyManager {
         let last_resp = null;
         let proxiesFiltered = [...this.proxies];
         if (filterBest) {
-            proxiesFiltered = proxiesFiltered.sort((a, b) => (a.bestBypass == b.bestBypass ? 0 : a.bestBypass ? -1 : 1));
+            proxiesFiltered = proxiesFiltered.sort((a, b) => (a.bestBypass === b.bestBypass ? 0 : a.bestBypass ? -1 : 1));
         }
         /*
         console.log(proxiesFiltered);
@@ -34,7 +34,7 @@ module.exports = class ProxyManager {
 
             const resp = await nfetch(url, init);
             last_resp = resp;
-            if (parseInt(resp.status / 100) == 2) {
+            if (parseInt(resp.status) / 100 === 2) {
                 let text = await resp.text();
                 const new_resp = new Response(text, {
                     headers: resp.headers,
@@ -49,12 +49,12 @@ module.exports = class ProxyManager {
                     if (Extensions.isArray(json)) {
                         if (json.some(x => typeof (x.media) == 'object'
                             && Extensions.isArray(x.media.transcodings)
-                            && x.media.transcodings.length == 0)) {
+                            && x.media.transcodings.length === 0)) {
                             continue;
                         }
                     } else if (typeof (json.media) == 'object'
                         && Extensions.isArray(json.media.transcodings)
-                        && json.media.transcodings.length == 0) {
+                        && json.media.transcodings.length === 0) {
                         continue;
                     }
                 } catch { }
@@ -69,8 +69,7 @@ module.exports = class ProxyManager {
 
         {
             delete init.agent;
-            const resp = await nfetch(url, init);
-            return resp;
+            return await nfetch(url, init);
         }
     }
 
@@ -78,7 +77,7 @@ module.exports = class ProxyManager {
         const translations = Extensions.translationsProxy();
         const proxyList = config.proxy;
 
-        if (proxyList.length == 0) {
+        if (proxyList.length === 0) {
             const notify = new Notify('SoundCloud', translations.proxy_available_not_found, 10, __dirname + '/../icons/appLogo.png');
             nmanager.show(notify);
             return;
@@ -92,7 +91,7 @@ module.exports = class ProxyManager {
             if (typeof (proxyConfig) == 'string') {
                 proxy = ParseProxy(proxyConfig);
             } else if (typeof (proxyConfig.url) == 'string') {
-                proxy = ParseProxy(proxyConfig.url, (proxyConfig.bestBypass == true));
+                proxy = ParseProxy(proxyConfig.url, (proxyConfig.bestBypass === true));
 
                 if (typeof (proxyConfig.name) == 'string') {
                     proxy.name = proxyConfig.name;
@@ -108,7 +107,7 @@ module.exports = class ProxyManager {
             }
         }
 
-        if (workProxies.length == 0) {
+        if (workProxies.length === 0) {
             const notify = new Notify('SoundCloud', translations.proxy_work_not_found, 10);
             nmanager.show(notify);
             return;
@@ -119,7 +118,7 @@ module.exports = class ProxyManager {
                 return;
             }
 
-            const proxy = workProxies.find(x => x.host == authInfo.host + ':' + authInfo.port && x.auth);
+            const proxy = workProxies.find(x => x.host === authInfo.host + ':' + authInfo.port && x.auth);
             if (!proxy) {
                 return;
             }
@@ -147,7 +146,7 @@ module.exports = class ProxyManager {
         for (let i = 0; i < workProxies.length; i++) {
             const proxy = workProxies[i];
             proxyCfg.proxyRules += proxy.scheme + '://' + proxy.host;
-            if (workProxies.length != i + 1) {
+            if (workProxies.length !== i + 1) {
                 proxyCfg.proxyRules += ',';
             }
         }

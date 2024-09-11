@@ -11,7 +11,7 @@ const dev = false;
 const AppPort = dev ? 3535 : 45828;
 
 app.on('window-all-closed', () => {
-    if (process.platform != 'darwin') {
+    if (process.platform !== 'darwin') {
         app.quit();
     }
 });
@@ -22,7 +22,7 @@ app.on('web-contents-created', (ev, contents) => {
     setTimeout(() => {
         const interval = setInterval(() => {
             const value = enableIdle();
-            if (value == 0) {
+            if (value === 0) {
                 clearInterval(interval);
             }
         }, 10000);
@@ -42,16 +42,16 @@ app.on('web-contents-created', (ev, contents) => {
         }
 
         const pid = contents.getOSProcessId();
-        if (pid == 0) {
+        if (pid === 0) {
             return 1;
         }
 
-        if (contents.getType() == 'webview' && Setuper.getIsPlaying()) {
+        if (contents.getType() === 'webview' && Setuper.getIsPlaying()) {
             Extensions.setEfficiency(pid, false);
             return 1;
         }
 
-        if (contents.getType() == 'window' && Setuper.getisActive()) {
+        if (contents.getType() === 'window' && Setuper.getisActive()) {
             Extensions.setEfficiency(pid, false);
             return 1;
         }
