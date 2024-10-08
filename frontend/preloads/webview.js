@@ -58,12 +58,6 @@ const sendUpdatedUrl = () => {
         if (lastUrlCache === href) {
             return;
         }
-        if (href.replace('https://soundcloud.com').length < 2) {
-            return;
-        }
-        if (href.startsWith('https://soundcloud.com/discover')) {
-            return;
-        }
 
         lastUrlCache = href;
         ipcRenderer.send('UpdateLastUrl', href);
@@ -95,7 +89,7 @@ const addStyle = () => {
         cssLink.rel = "stylesheet";
         cssLink.type = "text/css";
         cssLink.id = StyleId;
-        document.head.appendChild(cssLink);
+        document.body.appendChild(cssLink);
     }
 };
 

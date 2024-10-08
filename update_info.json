@@ -1,10 +1,10 @@
 {
-    "details": "1. Added response checking when connecting to a proxy.",
-    "version": "1.9.1",
+    "details": "1. Changed app theme to soundfy4.\n2. Added soundcloud api check to proxymanager.",
+    "version": "1.9.3",
     "electron": "31",
     "hashes": {
-        "asar"      : "6cde29d43c9db4cf1ec10cfc08380e195cb3d01312f06080c3a86bae0fa0c2d9",
-        "installer" : "97b43a1d8a0634038797bcd49b0c6be1f991812cfab9fbaa8726eca3e3d7cd98"
+        "asar"      : "adfe7344fba0001533d7badadb14689607c7206412b9514188a4fa9fa1cfafba",
+        "installer" : "be30c13aa5bf71024aded3ffeef75f2b72ab400a42322445459a3e32d5235c19"
     },
     "names": {
         "asar"      : "packed.asar",

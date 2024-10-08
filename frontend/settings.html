@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    <link rel="stylesheet" type="text/css" href="./styles/settings.css">
+</head>
+<body>
+<script src="./preloads/settings.js"></script>
+<h2>Monaco Editor Localization Sample</h2>
+<div id="container" style="width: 800px; height: 600px; border: 1px solid grey"></div>
+
+<script src="./_monaco/vs/loader.js"></script>
+<script>
+    require.config({ paths: { vs: './_monaco/vs' } });
+
+    require.config({
+        'vs/nls': {
+            availableLanguages: {
+                '*': 'ru'
+            }
+        }
+    });
+
+    require(['vs/editor/editor.main'], function () {
+        const editor = monaco.editor.create(document.getElementById('container'), {
+            value: ['.class {', '\tcolor: #fff', '}'].join('\n'),
+            language: 'css',
+            scrollbar: {
+                vertical: 'auto',
+                horizontal: 'auto'
+            },
+            theme: "vs-dark"
+        });
+    });
+</script>
+</body>
+</html>

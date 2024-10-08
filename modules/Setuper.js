@@ -136,10 +136,10 @@ module.exports = class Setuper {
             height: 720,
             icon: path.join(__dirname, '../icons/appLogo.ico'),
             webPreferences: {
-                devTools: false,
+                //devTools: false,
                 webviewTag: true,
                 spellcheck: false,
-                preload: path.join(__dirname, '../frontend/preload.js')
+                preload: path.join(__dirname, '../frontend/preloads/main.js')
             },
             frame: false,
             titleBarStyle: 'hidden',
@@ -205,6 +205,17 @@ module.exports = class Setuper {
 
                 case 'lang/ru.js':
                     return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'langs', 'ru.js')).toString());
+
+                case 'icon': {
+                    const parsedUrl = new URL(request.url);
+                    const name = parsedUrl.searchParams.get('name');
+
+                    if (name.includes('..')) {
+                        return;
+                    }
+
+                    return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'frontend', 'img', name)).toString());
+                }
 
                 /*
                 case 'proxy-login': {
@@ -561,7 +572,7 @@ module.exports = class Setuper {
         const availableElectron = new Version(json.electron);
 
         if (availableElectron.isBiggest(usedElectron)) {
-            const resp = await fetch('https:' + '//github.com/zxcnoname666/SoundCloud-Desktop/releases/download/' + json.version + '/' + json.names.installer);
+            const resp = await fetch('https://github.com/zxcnoname666/SoundCloud-Desktop/releases/download/' + json.version + '/' + json.names.installer);
 
             if (!resp.ok) {
                 await dialog.showMessageBox({
@@ -598,7 +609,7 @@ module.exports = class Setuper {
         }
 
         {
-            const resp = await fetch('https:' + '//github.com/zxcnoname666/SoundCloud-Desktop/releases/download/' + json.version + '/' + json.names.asar);
+            const resp = await fetch('https://github.com/zxcnoname666/SoundCloud-Desktop/releases/download/' + json.version + '/' + json.names.asar);
 
             if (!resp.ok) {
                 await dialog.showMessageBox({

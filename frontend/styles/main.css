@@ -19,3 +19,41 @@ webview {
     color: #be8b1c;
     background: #00000040;
 }
+
+.settings {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(80%, 1500px);
+    height: min(80%, 1000px);
+    max-height: min(80%, 1000px);
+    background-color: #1a1a1c;
+    border-radius: 12px;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 6;
+    outline: 0;
+    border: 0;
+}
+
+@keyframes slideUp {
+    0% {
+        top: 150%
+    }
+
+    100% {
+        top: 50%
+    }
+}
+
+@keyframes slideDown {
+    0% {
+        top: 50%
+    }
+
+    100% {
+        top: 150%
+    }
+}

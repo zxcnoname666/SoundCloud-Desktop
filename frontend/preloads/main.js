@@ -17,11 +17,7 @@ const SetupHeader = () => {
     });
 
     input.addEventListener('input', (ev) => {
-        let decodeUrl = ev.target.value
-            .replace('https://soundcloud.com/', '')
-            .replace('http://soundcloud.com/', '')
-            .replace('https://soundcloud.com', '')
-            .replace('http://soundcloud.com', '');
+        let decodeUrl = ev.target.value.replace(/(http|https)+(:\/\/)+(soundcloud\.com)+(\/?)/g, '');
 
         if (!decodeUrl.includes('search')) {
             decodeUrl = decodeUrl.split('?')[0];
@@ -29,6 +25,34 @@ const SetupHeader = () => {
 
         ev.target.value = decodeURI(decodeUrl);
     });
+}
+
+const SetupSetting = () => {
+    const settingsBlock = document.querySelector('.settings');
+    const ResetStyles = () => settingsBlock.style = '';
+    const ResetAnimations = () => settingsBlock.style.animation = '';
+    const EventClick = () => {
+        console.log(settingsBlock);
+        console.log(settingsBlock.style.display === 'flex');
+        console.log(settingsBlock.style.display);
+        console.log(typeof(settingsBlock.style.animation));
+
+        if (settingsBlock.style.animation !== '') {
+            return;
+        }
+
+        if  (settingsBlock.style.display === 'flex') {
+            settingsBlock.style.animation = 'slideDown 1s ease-in-out forwards';
+            setTimeout(ResetStyles, 900);
+        } else {
+            settingsBlock.style = '';
+            settingsBlock.style.display = 'flex';
+            settingsBlock.style.animation = 'slideUp 1s ease-in-out forwards';
+            setTimeout(ResetAnimations, 1000);
+        }
+    }
+
+    document.querySelector('.LogoText img').addEventListener('click', EventClick);
 }
 
 const Init = () => {
@@ -82,6 +106,7 @@ const Init = () => {
 window.addEventListener('DOMContentLoaded', () => {
     Init();
     SetupHeader();
+    SetupSetting();
     
     for (const type of ['chrome', 'node', 'electron']) {
         console.log(`${type}-version`, process.versions[type]);

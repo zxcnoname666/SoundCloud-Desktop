@@ -133,8 +133,12 @@ module.exports = class ProxyManager {
             'appleid.apple.com;iforgot.apple.com;www.apple.com;appleid.cdn-apple.com;*-ssl.mzstatic.com;appleid.cdn-apple.com' //apple
         );
 
-        if (await CheckWorkCaptcha()) {
+        if (await CheckWorkDomain('https://geo.captcha-delivery.com')) {
             bypass_proxy += ';*.captcha-delivery.com' // captcha
+        }
+
+        if (await CheckWorkDomain('https://api-auth.soundcloud.com/')) {
+            bypass_proxy += ';api-auth.soundcloud.com' // api auth
         }
 
         const proxyCfg = {
@@ -184,14 +188,14 @@ function ParseProxy(proxy, best = false) {
     json.scheme = parse1[0];
 
     if (parse1.length < 2) {
-        return (false, json);
+        return json;
     }
 
     const parse2 = parse1[1].split('@');
 
     if (parse2.length < 2) {
         json.host = parse2[0];
-        return (true, json);
+        return json;
     }
 
     json.host = parse2[1];
@@ -206,7 +210,7 @@ function ParseProxy(proxy, best = false) {
     json.login = parse3[0];
     json.password = parse3[1];
 
-    return (true, json);
+    return json;
 }
 
 function ProxyCheck(proxy) {
@@ -247,7 +251,7 @@ function ProxyCheck(proxy) {
     });
 }
 
-function CheckWorkCaptcha() {
+function CheckWorkDomain(url) {
     return new Promise(async resolve => {
         let _sended = false;
 
@@ -260,7 +264,7 @@ function CheckWorkCaptcha() {
             _sended = true;
         }, 5000);
 
-        fetch('https://geo.captcha-delivery.com')
+        fetch(url)
             .then(() => {
                 resolve(true);
                 _sended = true;
