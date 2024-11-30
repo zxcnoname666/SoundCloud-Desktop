@@ -1,10 +1,10 @@
 {
-    "details": "1. Returned proxying for captcha and api-auth from soundcloud due to ip checking by soundcloud.",
-    "version": "1.9.4",
+    "details": "1. Updated proxy servers.",
+    "version": "1.9.5",
     "electron": "31",
     "hashes": {
-        "asar"      : "d2d5aaf3b19c148baa2e769c6e6eb39d32dc247c02b13a21168b344cf70d7cf2",
-        "installer" : "a5f299ae8778cae402bddf5545df2ccea8fadf13de30cb0ff5f184f4e3b359c6"
+        "asar"      : "538a01bfafca6734e22602f20f58f1b2a3a1168074ac93607de320bd499199f0",
+        "installer" : "8cedadaefdef806a26ca4c7e11c477067baedfd7f2a59564746eb58ac3792ee1"
     },
     "names": {
         "asar"      : "packed.asar",

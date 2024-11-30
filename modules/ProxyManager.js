@@ -141,6 +141,10 @@ module.exports = class ProxyManager {
         if (await CheckWorkDomain('https://api-auth.soundcloud.com/')) {
             bypass_proxy += ';api-auth.soundcloud.com' // api auth
         }
+
+        if (await CheckWorkDomain('https://api.soundcloud.com/')) {
+            bypass_proxy += ';api.soundcloud.com' // api
+        }
         */
 
         const proxyCfg = {
