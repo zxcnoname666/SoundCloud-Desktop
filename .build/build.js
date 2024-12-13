@@ -1,10 +1,47 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { execSync } = require('node:child_process');
+const {execSync} = require('node:child_process');
+
+console.log('Checking if "pnpm" is installed');
+try {
+    execSync('pnpm -h', {
+        cwd: path.join(__dirname, '..'),
+    });
+} catch {
+    console.log('pnpm is not installed...');
+    console.log('installing pnpm...');
+
+    let command;
+    let arg = {};
+
+    switch (process.platform) {
+        case 'win32': {
+            command = 'Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression';
+            arg = {shell: 'powershell.exe'};
+            break;
+        }
+        default: {
+            command = 'wget -qO- https://get.pnpm.io/install.sh | sh -';
+            break;
+        }
+    }
+
+    if (!command) {
+        console.error('error.. os is not defined, install pnpm manually');
+        process.exit(1);
+    }
+
+    execSync(command, {
+        cwd: path.join(__dirname, '..'),
+        stdio: 'inherit',
+        ...arg
+    });
+    console.log('\n');
+}
 
 console.log('Installing npm modules...\n');
-execSync('npm i', {
+execSync('pnpm i', {
     cwd: path.join(__dirname, '..'),
     stdio: 'inherit',
 });
@@ -15,16 +52,16 @@ try {
     const version_installed = execSync('electron-builder --version', {
         cwd: path.join(__dirname, '..'),
     });
-    const version_latest = execSync('npm view electron-builder version', {
+    const version_latest = execSync('pnpm view electron-builder version', {
         cwd: path.join(__dirname, '..'),
     });
 
-    if (parseFloat(version_latest) > parseFloat(version_installed)) {
+    if (parseFloat(`${version_latest}`) > parseFloat(`${version_installed}`)) {
         console.log(`Available new version of electrion-builder. Installed version: ${version_installed.toString().trim()} // Available version: ${version_latest.toString().trim()}\n`);
         throw new Error('update electron-builder');
     }
 } catch {
-    execSync('npm i electron-builder -g', {
+    execSync('pnpm i electron-builder -g', {
         cwd: path.join(__dirname, '..'),
         stdio: 'inherit',
     });
@@ -38,7 +75,7 @@ try {
         cwd: path.join(__dirname, '..'),
     });
 } catch {
-    execSync('npm i @napi-rs/cli -g', {
+    execSync('pnpm i @napi-rs/cli -g', {
         cwd: path.join(__dirname, '..'),
         stdio: 'inherit',
     });
@@ -46,7 +83,7 @@ try {
 }
 
 console.log('Building native modules...');
-execSync('npm run build', {
+execSync('pnpm run build', {
     cwd: path.join(__dirname, 'native_utils'),
     stdio: 'inherit',
 });
@@ -55,13 +92,13 @@ const BuildDir = path.join(__dirname, '..', 'dist');
 const BuildAsarDir = path.join(BuildDir, 'win-unpacked', 'resources', 'app.asar');
 
 if (fs.existsSync(BuildDir)) {
-    fs.rmSync(BuildDir, { force: true, recursive: true });
+    fs.rmSync(BuildDir, {force: true, recursive: true});
 }
 
 const BinsDirPath = path.join(__dirname, '..', 'bins');
 
 if (!fs.existsSync(BinsDirPath)) {
-    fs.mkdirSync(BinsDirPath, { recursive: true });
+    fs.mkdirSync(BinsDirPath, {recursive: true});
 }
 
 const nativeUtilsBinPath = path.join(BinsDirPath, 'native_utils.node');
@@ -69,7 +106,7 @@ const nativeUtilsPath = path.join(__dirname, 'native_utils', 'native_utils.node'
 
 if (fs.existsSync(nativeUtilsPath)) {
     if (fs.existsSync(nativeUtilsBinPath)) {
-        fs.rmSync(nativeUtilsBinPath, { force: true, recursive: true });
+        fs.rmSync(nativeUtilsBinPath, {force: true, recursive: true});
     }
 
     fs.copyFileSync(nativeUtilsPath, nativeUtilsBinPath);
