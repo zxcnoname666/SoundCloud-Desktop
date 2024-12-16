@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+const {ipcRenderer} = require('electron');
 
 const updateUrl = () => {
     ipcRenderer.on('update-url', (ev, url) => {
@@ -37,7 +37,10 @@ const removeBanners = () => {
     setInterval(() => {
         const fel = document.getElementById('onetrust-consent-sdk');
         if (fel != null) {
-            try { document.getElementById('onetrust-accept-btn-handler').click(); } catch { }
+            try {
+                document.getElementById('onetrust-accept-btn-handler').click();
+            } catch {
+            }
             setTimeout(() => fel.outerHTML = '', 100);
             _removed = true;
         }
@@ -63,7 +66,7 @@ const sendUpdatedUrl = () => {
         ipcRenderer.send('UpdateLastUrl', href);
         ipcRenderer.send('UpdateCanBack');
     }, 200);
-    
+
     ipcRenderer.send('UpdateCanBack');
 };
 

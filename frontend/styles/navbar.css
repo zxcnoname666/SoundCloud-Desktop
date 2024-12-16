@@ -4,6 +4,7 @@
     font-style: normal;
     font-weight: normal;
 }
+
 @font-face {
     font-family: 'Nunito';
     src: url('../fonts/Nunito.ttf');
@@ -14,13 +15,14 @@
 * {
     user-select: none;
 }
+
 body {
     margin: 0;
 }
 
 #AppNavbarSystem {
     margin: 0;
-    font-family: Roboto,sans-serif;
+    font-family: Roboto, sans-serif;
     background-color: #1c1d20;
     position: fixed;
     left: 0;
@@ -72,9 +74,11 @@ body {
             span {
                 color: aliceblue;
             }
+
             l {
                 color: #9b9fa7;
             }
+
             input {
                 margin-right: 2px;
                 background: #0000;
@@ -95,12 +99,15 @@ body {
             cursor: pointer;
             margin-right: 3px;
         }
+
         .button:last-child {
             margin-right: 0;
         }
+
         .button:hover {
             background: #68686879;
         }
+
         .button.block {
             background: #2c2c2cd5;
             cursor: not-allowed;
@@ -122,6 +129,7 @@ body {
             -webkit-app-region: no-drag;
             cursor: pointer;
         }
+
         i:hover {
             border-radius: 35%;
         }

@@ -13,6 +13,7 @@ module.exports = function (port, host) {
         client.connect(port, host, () => CR(true));
 
         let alr = false;
+
         function CR(bool) {
             cleanUp();
             if (alr) return;

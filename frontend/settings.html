@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Settings</title>
-    <link rel="stylesheet" type="text/css" href="./styles/settings.css">
+    <link href="./styles/settings.css" rel="stylesheet" type="text/css">
 </head>
 <body>
 <script src="./preloads/settings.js"></script>
@@ -12,7 +12,7 @@
 
 <script src="./_monaco/vs/loader.js"></script>
 <script>
-    require.config({ paths: { vs: './_monaco/vs' } });
+    require.config({paths: {vs: './_monaco/vs'}});
 
     require.config({
         'vs/nls': {

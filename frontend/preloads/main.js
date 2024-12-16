@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const {contextBridge, ipcRenderer} = require('electron');
 
 contextBridge.exposeInMainWorld('ipcRenderer', {
     ...ipcRenderer,
@@ -35,13 +35,13 @@ const SetupSetting = () => {
         console.log(settingsBlock);
         console.log(settingsBlock.style.display === 'flex');
         console.log(settingsBlock.style.display);
-        console.log(typeof(settingsBlock.style.animation));
+        console.log(typeof (settingsBlock.style.animation));
 
         if (settingsBlock.style.animation !== '') {
             return;
         }
 
-        if  (settingsBlock.style.display === 'flex') {
+        if (settingsBlock.style.display === 'flex') {
             settingsBlock.style.animation = 'slideDown 1s ease-in-out forwards';
             setTimeout(ResetStyles, 900);
         } else {
@@ -68,7 +68,8 @@ const Init = () => {
                 }, 100);
                 return;
             }
-        } catch { }
+        } catch {
+        }
         webview.setAttribute('src', 'https://soundcloud.com/' + url);
     });
 
@@ -107,7 +108,7 @@ window.addEventListener('DOMContentLoaded', () => {
     Init();
     SetupHeader();
     SetupSetting();
-    
+
     for (const type of ['chrome', 'node', 'electron']) {
         console.log(`${type}-version`, process.versions[type]);
     }
@@ -119,5 +120,6 @@ function UpdateUrlInPanel(url) {
     }
     try {
         document.querySelector('#AppNavbarSystem .Locator .Path input').value = decodeURI(url);
-    } catch { }
+    } catch {
+    }
 }

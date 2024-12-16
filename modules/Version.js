@@ -24,11 +24,20 @@ module.exports = class Version {
             }
 
             switch (i) {
-                case 0: this.major = element; break;
-                case 1: this.minor = element; break;
-                case 2: this.build = element; break;
-                case 3: this.revision = element; break;
-                default: break;
+                case 0:
+                    this.major = element;
+                    break;
+                case 1:
+                    this.minor = element;
+                    break;
+                case 2:
+                    this.build = element;
+                    break;
+                case 3:
+                    this.revision = element;
+                    break;
+                default:
+                    break;
             }
 
         }

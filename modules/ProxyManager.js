@@ -1,10 +1,11 @@
 const electron = require('electron');
-const { Notify } = require('notify-manager-electron');
+const {Notify} = require('notify-manager-electron');
 const config = require('../config');
 
-const { SocksProxyAgent } = require('socks-proxy-agent');
+const {SocksProxyAgent} = require('socks-proxy-agent');
 const HttpsProxyAgent = require('https-proxy-agent');
 const nfetch = require('node-fetch');
+const tls = require('node:tls');
 
 const Extensions = require('./Extensions');
 
@@ -57,7 +58,8 @@ module.exports = class ProxyManager {
                         && json.media.transcodings.length === 0) {
                         continue;
                     }
-                } catch { }
+                } catch {
+                }
 
                 return new_resp;
             }
@@ -74,6 +76,8 @@ module.exports = class ProxyManager {
     }
 
     static async Init(nmanager) {
+        tls.DEFAULT_MAX_VERSION = 'TLSv1.2';
+
         const translations = Extensions.translationsProxy();
         const proxyList = config.proxy;
 
@@ -239,7 +243,7 @@ function ProxyCheck(proxy) {
         }
 
         nfetch('https://soundcloud.com', proxyJson)
-            .then(async(res) => {
+            .then(async (res) => {
                 const content = await res.text();
                 if (content.includes('The Squid Software') || !content.includes('meta content="SoundCloud"')) {
                     resolve(false);
@@ -249,9 +253,9 @@ function ProxyCheck(proxy) {
                 resolve(true);
                 _sended = true;
             }).catch(() => {
-                resolve(false);
-                _sended = true;
-            });
+            resolve(false);
+            _sended = true;
+        });
     });
 }
 
@@ -273,8 +277,8 @@ function CheckWorkDomain(url) {
                 resolve(true);
                 _sended = true;
             }).catch(() => {
-                resolve(false);
-                _sended = true;
-            });
+            resolve(false);
+            _sended = true;
+        });
     });
 }

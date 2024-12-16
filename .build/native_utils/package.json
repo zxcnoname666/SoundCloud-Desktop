@@ -1,12 +1,12 @@
 {
-    "package": "native_utils",
-    "devDependencies": {
-        "@napi-rs/cli": "^2.18"
-    },
-    "napi": {
-        "name": "native_utils"
-    },
-    "scripts": {
-        "build": "napi build --release"
-    }
+  "package": "native_utils",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18"
+  },
+  "napi": {
+    "name": "native_utils"
+  },
+  "scripts": {
+    "build": "napi build --release"
+  }
 }

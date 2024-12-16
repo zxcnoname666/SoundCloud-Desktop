@@ -1,6 +1,6 @@
-const { app, BrowserWindow } = require('electron');
-const { NotifyManager } = require('notify-manager-electron');
-const { Client } = require('qurre-socket');
+const {app, BrowserWindow} = require('electron');
+const {NotifyManager} = require('notify-manager-electron');
+const {Client} = require('qurre-socket');
 const Setuper = require('./modules/Setuper');
 const ProxyManager = require('./modules/ProxyManager');
 const Extensions = require('./modules/Extensions');
@@ -17,7 +17,10 @@ app.on('window-all-closed', () => {
 });
 
 app.on('web-contents-created', (ev, contents) => {
-    try { console.log('window created: ' + contents.getType()); } catch { }
+    try {
+        console.log('window created: ' + contents.getType());
+    } catch {
+    }
 
     setTimeout(() => {
         const interval = setInterval(() => {
@@ -33,7 +36,7 @@ app.on('web-contents-created', (ev, contents) => {
     Setuper.cors(contents.session);
 
     if (dev) {
-        contents.openDevTools({ mode: 'detach' });
+        contents.openDevTools({mode: 'detach'});
     }
 
     function enableIdle() {
@@ -98,7 +101,12 @@ async function startup() {
 
     await ProxyManager.Init(nmanager);
 
-    setTimeout(() => { try { nmanager.getWindow().destroy() } catch { } }, 15000);
+    setTimeout(() => {
+        try {
+            nmanager.getWindow().destroy()
+        } catch {
+        }
+    }, 15000);
 
     Setuper.setupTasks();
 
@@ -109,7 +117,10 @@ async function startup() {
     win.once('ready-to-show', () => {
         setTimeout(() => {
             win.show();
-            try { loaderWin.close(); } catch { }
+            try {
+                loaderWin.close();
+            } catch {
+            }
         }, 1000); // safe eyes from blink by chromium
     });
     win.on('close', (e) => {

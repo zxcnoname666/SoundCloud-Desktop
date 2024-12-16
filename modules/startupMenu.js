@@ -3,7 +3,7 @@ const electron = require('electron');
 const menu = [
     {
         label: '&SoundCloud',
-        icon: electron.nativeImage.createFromPath(__dirname + '/../icons/appLogo.ico').resize({ width: 16 }),
+        icon: electron.nativeImage.createFromPath(__dirname + '/../icons/appLogo.ico').resize({width: 16}),
         enabled: false
     }, {
         label: '&Quit',

@@ -1,11 +1,13 @@
 const config = require('../config');
-const { app } = require('electron');
+const {app} = require('electron');
 
 const nativeUtils = (() => {
     try {
         return require('../bins/native_utils.node');
     } catch {
-        return () => { console.log('nativeUtils module not found'); }
+        return () => {
+            console.log('nativeUtils module not found');
+        }
     }
 })();
 
@@ -13,9 +15,24 @@ const _localize = Intl.DateTimeFormat().resolvedOptions().locale;
 const rulang = _localize.includes('ru') || _localize.includes('kk') || _localize.includes('ky') || _localize.includes('be');
 
 module.exports = class Extensions {
+    static sleeper = {
+        _timerId: 0,
+        _intervalTime: 5000,
+
+        enable() {
+            this._timerId = setInterval(() => nativeUtils.sleeper(true), this._intervalTime);
+        },
+
+        disable() {
+            clearInterval(this._timerId);
+            nativeUtils.sleeper(false);
+        }
+    }
+
     static checkConstruction(object, construction) {
         return typeof (object) != 'undefined' && object.constructor === construction;
     }
+
     static isArray(object) {
         return this.checkConstruction(object, ([]).constructor);
     }
@@ -42,6 +59,7 @@ module.exports = class Extensions {
 
         return _default;
     }
+
     static translationsUpdater() {
         const translated = (rulang ? config.translations.ru : (config.translations[_localize] ?? config.translations.en));
         const _default = {
@@ -86,6 +104,7 @@ module.exports = class Extensions {
 
         return _default;
     }
+
     static translationsTasks() {
         const translated = (rulang ? config.translations.ru : (config.translations[_localize] ?? config.translations.en));
         const _default = {
@@ -116,6 +135,7 @@ module.exports = class Extensions {
             console.log(err);
         }
     }
+
     static getEfficiency(pid) {
         try {
             return nativeUtils.getEfficiency(pid);
@@ -126,20 +146,6 @@ module.exports = class Extensions {
 
     static protocolInject() {
         nativeUtils.protocolInject(app.getPath('exe'));
-    }
-
-    static sleeper = {
-        _timerId: 0,
-        _intervalTime: 5000,
-
-        enable() {
-            this._timerId = setInterval(() => nativeUtils.sleeper(true), this._intervalTime);
-        },
-
-        disable() {
-            clearInterval(this._timerId);
-            nativeUtils.sleeper(false);
-        }
     }
 
 }

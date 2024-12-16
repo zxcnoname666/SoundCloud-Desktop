@@ -1,13 +1,13 @@
 {
-    "details": "1. Updated electron.\n2. Updated ProxyManager.\n3. Optimized build.\n4. Changed npm to pnpm.",
-    "version": "1.9.6",
-    "electron": "33",
-    "hashes": {
-        "asar"      : "12b36679f8a148bedd48b59920330f46ce4c41ef654bcc2234603b194d0da957",
-        "installer" : "bbecb7bb93e8ea699cb67b60dc60f1cbb0f1ddd871977cd4fd3bfe23a0dabded"
-    },
-    "names": {
-        "asar"      : "packed.asar",
-        "installer" : "SoundCloudInstaller.exe"
-    }
+  "details": "1. Changed the maximum TLS version to 1.2 to bypass blocking.\n2. Code reformat.",
+  "version": "1.9.7",
+  "electron": "33",
+  "hashes": {
+    "asar": "e28683e2573607b9737256285a97f539737fbb6379653b5832bd4d1b90aed4a0",
+    "installer": "81b7c14b67339a9e300c86335086df9d075212f4464df07fe16612025c7bb950"
+  },
+  "names": {
+    "asar": "packed.asar",
+    "installer": "SoundCloudInstaller.exe"
+  }
 }

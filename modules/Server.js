@@ -1,5 +1,5 @@
 const electron = require('electron');
-const { Server } = require('qurre-socket');
+const {Server} = require('qurre-socket');
 const Setuper = require('./Setuper');
 
 module.exports = (port, win) => {

@@ -1,12 +1,24 @@
-const { BrowserWindow, Menu, webContents, app, ipcMain, shell, globalShortcut, protocol, net, nativeTheme, dialog } = require('electron');
+const {
+    BrowserWindow,
+    Menu,
+    webContents,
+    app,
+    ipcMain,
+    shell,
+    globalShortcut,
+    protocol,
+    net,
+    nativeTheme,
+    dialog
+} = require('electron');
 const path = require('path');
 const fs = require('original-fs');
 const fs_electron = require('fs');
 const url = require('url');
 const os = require('os');
 const crypto = require("crypto");
-const { pipeline } = require('node:stream');
-const { promisify } = require('node:util');
+const {pipeline} = require('node:stream');
+const {promisify} = require('node:util');
 
 const LocalDBDir = path.join(app.getPath('appData'), 'SoundCloud', 'AppDB');
 
@@ -25,7 +37,7 @@ module.exports = class Setuper {
     }
 
     static cors(session) {
-        session.webRequest.onBeforeRequest({ urls: ["*://*/*"] },
+        session.webRequest.onBeforeRequest({urls: ["*://*/*"]},
             (details, callback) => {
                 const proxyUrl = details.url.replaceAll('?', this.urlReplaceSymbols['?']).replaceAll('&', this.urlReplaceSymbols['&']);
                 const parsedUrl = (() => {
@@ -37,17 +49,17 @@ module.exports = class Setuper {
                 })();
 
                 if (CheckAdBlock(parsedUrl)) {
-                    callback({ cancel: true });
+                    callback({cancel: true});
                     return;
                 }
 
                 if (parsedUrl.host === 'soundcloud.com' && parsedUrl.pathname.startsWith('/n/pages/standby')) {
-                    callback({ cancel: true });
+                    callback({cancel: true});
                     return;
                 }
 
                 if (parsedUrl.pathname.startsWith('/assets/locales/locale-pt-br')) {
-                    callback({ redirectURL: 'scinner://lang/ru.js' });
+                    callback({redirectURL: 'scinner://lang/ru.js'});
                     return;
                 }
 
@@ -64,7 +76,7 @@ module.exports = class Setuper {
                         || parsedUrl.pathname.startsWith('/playlists') // playlist page
                         || (parsedUrl.pathname.startsWith('/users/') && parsedUrl.pathname.endsWith('/tracks')) // user page
                     ) {
-                        callback({ redirectURL: 'scinner://proxy-tracks?url=' + encodeURI(proxyUrl) });
+                        callback({redirectURL: 'scinner://proxy-tracks?url=' + encodeURI(proxyUrl)});
                         return;
                     }
 
@@ -74,7 +86,7 @@ module.exports = class Setuper {
                 }
 
                 if (details.resourceType === 'script') {
-                    callback({ redirectURL: 'scinner://scripts/load?url=' + encodeURI(proxyUrl) });
+                    callback({redirectURL: 'scinner://scripts/load?url=' + encodeURI(proxyUrl)});
                     return;
                 }
 
@@ -82,7 +94,7 @@ module.exports = class Setuper {
             },
         );
 
-        session.webRequest.onBeforeSendHeaders({ urls: ["*://*/*"] },
+        session.webRequest.onBeforeSendHeaders({urls: ["*://*/*"]},
             (details, callback) => {
                 // ----- set user agent to legit browser -----
                 details.requestHeaders['User-Agent'] = GlobalUserAgent;
@@ -92,7 +104,7 @@ module.exports = class Setuper {
                 const parsedUrl = new URL(details.url);
 
                 if (CheckAdBlock(parsedUrl)) {
-                    callback({ cancel: true });
+                    callback({cancel: true});
                     return;
                 }
 
@@ -110,12 +122,12 @@ module.exports = class Setuper {
                     && !parsedUrl.host.endsWith('apple.com')
                     && !parsedUrl.host.endsWith('-ssl.mzstatic.com')
                 ) {
-                    callback({ cancel: true });
+                    callback({cancel: true});
                     return;
                 }
                 // ----- adblock -----
 
-                callback({ requestHeaders: details.requestHeaders });
+                callback({requestHeaders: details.requestHeaders});
             },
         );
 
@@ -421,7 +433,7 @@ module.exports = class Setuper {
     static hookNewWindow(webContents) {
         webContents.setUserAgent(GlobalUserAgent);
 
-        webContents.setWindowOpenHandler(({ url }) => {
+        webContents.setWindowOpenHandler(({url}) => {
             if (url === 'about:blank') {
                 return {
                     action: 'allow',
@@ -441,7 +453,7 @@ module.exports = class Setuper {
             }
             console.log('blocked url: ' + url);
             shell.openExternal(url);
-            return { action: 'deny' }
+            return {action: 'deny'}
         });
     }
 
@@ -467,7 +479,7 @@ module.exports = class Setuper {
         const icoPath = path.join(app.getPath('temp'), 'sc-exit-view.ico');
 
         if (fs.existsSync(icoPath)) {
-            fs.rmSync(icoPath, { recursive: true });
+            fs.rmSync(icoPath, {recursive: true});
         }
 
         fs_electron.copyFileSync(path.join(__dirname, '..', 'icons', 'exit.ico'), icoPath);
@@ -479,7 +491,9 @@ module.exports = class Setuper {
                     label: trl.quit,
                     toolTip: trl.quit_desc,
                     icon: icoPath,
-                    click() { app.exit(); }
+                    click() {
+                        app.exit();
+                    }
                 }
             ]);
             app.dock.setMenu(dockMenu);
@@ -513,7 +527,7 @@ module.exports = class Setuper {
             width: 300,
             height: 400,
             icon: path.join(__dirname + '../../icons/appLogo.ico'),
-            webPreferences: { devTools: false },
+            webPreferences: {devTools: false},
             skipTaskbar: true,
             frame: false,
             titleBarStyle: 'hidden',
@@ -603,7 +617,7 @@ module.exports = class Setuper {
                 return;
             }
 
-            app.relaunch({ execPath: temp_file });
+            app.relaunch({execPath: temp_file});
             app.exit(0);
             return;
         }
@@ -649,6 +663,7 @@ module.exports = class Setuper {
     static getIsPlaying() {
         return isPlaying || isActive;
     }
+
     static getisActive() {
         return isActive;
     }
@@ -687,7 +702,7 @@ module.exports = class Setuper {
             return;
         }
         if (!fs.existsSync(LocalDBDir)) {
-            await fs.promises.mkdir(LocalDBDir, { recursive: true });
+            await fs.promises.mkdir(LocalDBDir, {recursive: true});
         }
         await fs.promises.writeFile(path.join(LocalDBDir, 'LastUrl'), url, 'utf-8');
     }
@@ -695,7 +710,7 @@ module.exports = class Setuper {
     static GetLastUrl() {
         return new Promise(async resolve => {
             if (!fs.existsSync(LocalDBDir)) {
-                await fs.promises.mkdir(LocalDBDir, { recursive: true });
+                await fs.promises.mkdir(LocalDBDir, {recursive: true});
             }
             if (!fs.existsSync(path.join(LocalDBDir, 'LastUrl'))) {
                 return resolve('');

@@ -1,14 +1,11 @@
 module.exports = [
-    /*
-    'http://1.1.1.1:80',
     {
-        url: 'socks://9.9.9.9:1000',
+        url: 'http://soundcloud-proxy-root.loli-xxx.baby:3128',
         name: 'Main Proxy',
     },
     {
-        url: 'socks://proxy.cloudflare.com:1234',
+        url: 'http://soundcloud-proxy.loli-xxx.baby:3128',
         name: 'Bypass Proxy',
         bestBypass: true,
     },
-    */
 ]
