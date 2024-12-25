@@ -30,7 +30,7 @@ const GlobalUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/5
 let isPlaying = false;
 let isActive = false;
 
-module.exports = class Setuper {
+module.exports = class Setup {
     static urlReplaceSymbols = {
         '?': '𖥍',
         '&': '𖠚',

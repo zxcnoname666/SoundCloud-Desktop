@@ -1,7 +1,7 @@
 const {app, BrowserWindow} = require('electron');
 const {NotifyManager} = require('notify-manager-electron');
 const {Client} = require('qurre-socket');
-const Setuper = require('./modules/Setuper');
+const Setup = require('./modules/Setuper');
 const ProxyManager = require('./modules/ProxyManager');
 const Extensions = require('./modules/Extensions');
 const tpu = require('./modules/TCPPortUsing');
@@ -32,8 +32,8 @@ app.on('web-contents-created', (ev, contents) => {
         enableIdle();
     }, 1000);
 
-    Setuper.hookNewWindow(contents);
-    Setuper.cors(contents.session);
+    Setup.hookNewWindow(contents);
+    Setup.cors(contents.session);
 
     if (dev) {
         contents.openDevTools({mode: 'detach'});
@@ -49,12 +49,12 @@ app.on('web-contents-created', (ev, contents) => {
             return 1;
         }
 
-        if (contents.getType() === 'webview' && Setuper.getIsPlaying()) {
+        if (contents.getType() === 'webview' && Setup.getIsPlaying()) {
             Extensions.setEfficiency(pid, false);
             return 1;
         }
 
-        if (contents.getType() === 'window' && Setuper.getisActive()) {
+        if (contents.getType() === 'window' && Setup.getisActive()) {
             Extensions.setEfficiency(pid, false);
             return 1;
         }
@@ -80,7 +80,7 @@ async function startup() {
         return;
     }
 
-    if (Setuper.getCloseAll()) {
+    if (Setup.getCloseAll()) {
         setTimeout(() => app.quit(), 1000);
         return;
     }
@@ -94,10 +94,10 @@ async function startup() {
         ]
     });
 
-    const loaderWin = await Setuper.loaderWin();
+    const loaderWin = await Setup.loaderWin();
     const nmanager = new NotifyManager();
 
-    await Setuper.autoUpdate();
+    await Setup.autoUpdate();
 
     await ProxyManager.Init(nmanager);
 
@@ -108,11 +108,11 @@ async function startup() {
         }
     }, 15000);
 
-    Setuper.setupTasks();
+    Setup.setupTasks();
 
     Extensions.protocolInject();
 
-    win = Setuper.create();
+    win = Setup.create();
 
     win.once('ready-to-show', () => {
         setTimeout(() => {
@@ -128,10 +128,10 @@ async function startup() {
         win?.hide();
     });
 
-    require('./modules/startupMenu')(win);
+    require('./modules/Tray')(win);
 
-    Setuper.cors(win.webContents.session);
-    Setuper.binds(win);
+    Setup.cors(win.webContents.session);
+    Setup.binds(win);
 
     _portUse = await PortUsing();
     if (_portUse) {
@@ -142,7 +142,7 @@ async function startup() {
     require('./modules/Server')(AppPort, win);
 
     await win.loadFile(__dirname + '/frontend/main.html');
-    win.send('load-url', await Setuper.getStartUrl());
+    win.send('load-url', await Setup.getStartUrl());
 
     Extensions.sleeper.enable();
 }
@@ -159,12 +159,12 @@ async function PortUsing() {
     const _client = new Client(AppPort);
     _client.emit('OpenApp');
 
-    const url = Setuper.getStartArgsUrl();
+    const url = Setup.getStartArgsUrl();
     if (url.length > 1) {
         _client.emit('SetUrl', url);
     }
 
-    if (Setuper.getCloseAll()) {
+    if (Setup.getCloseAll()) {
         _client.emit('CloseAll');
     }
 

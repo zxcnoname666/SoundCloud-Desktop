@@ -1,10 +1,10 @@
 {
-  "details": "1. Changed the maximum TLS version to 1.2 to bypass blocking.\n2. Code reformat.",
-  "version": "1.9.7",
+  "details": "1. Added socks proxy..",
+  "version": "1.9.8",
   "electron": "33",
   "hashes": {
-    "asar": "e28683e2573607b9737256285a97f539737fbb6379653b5832bd4d1b90aed4a0",
-    "installer": "81b7c14b67339a9e300c86335086df9d075212f4464df07fe16612025c7bb950"
+    "asar": "1aa718db1a022def6aeb91247bf1ad2d0f0e49621d486277fe14382dd6677cb9",
+    "installer": "7866c55b3888e8f25cb66b62af1b5142ae564481dacc8c1dc9500a9a0e901a42"
   },
   "names": {
     "asar": "packed.asar",
