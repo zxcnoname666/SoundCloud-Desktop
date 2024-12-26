@@ -74,3 +74,9 @@
 <a href="javascript:void(0)">
 <img src="https://profile-counter.glitch.me/scda/count.svg" width="200px" />
 </a>
+<p align="center">
+<a href="javascript:void(0)">
+<img src="https://img.shields.io/github/downloads/zxcnoname666/SoundCloud-Desktop/total?color=fd4313&style=plastic" />
+<img src="https://img.shields.io/github/v/release/zxcnoname666/SoundCloud-Desktop.svg?color=#fd4313&style=plastic" />
+</a>
+</p>
