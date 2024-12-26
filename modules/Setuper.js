@@ -26,7 +26,8 @@ const ProxyManager = require('./ProxyManager');
 const Extensions = require('./Extensions');
 const Version = require('./Version');
 
-const GlobalUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+const GlobalUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+const GlobalCHUA = '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"';
 let isPlaying = false;
 let isActive = false;
 
@@ -98,6 +99,7 @@ module.exports = class Setup {
             (details, callback) => {
                 // ----- set user agent to legit browser -----
                 details.requestHeaders['User-Agent'] = GlobalUserAgent;
+                details.requestHeaders['sec-ch-ua'] = GlobalCHUA;
                 // ----- end -----
 
                 // ----- adblock -----
