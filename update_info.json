@@ -1,10 +1,10 @@
 {
-  "details": "1. Added socks proxy..",
-  "version": "1.9.8",
+  "details": "1. Removed disabling proxy for api if it works.",
+  "version": "1.9.9",
   "electron": "33",
   "hashes": {
-    "asar": "1aa718db1a022def6aeb91247bf1ad2d0f0e49621d486277fe14382dd6677cb9",
-    "installer": "7866c55b3888e8f25cb66b62af1b5142ae564481dacc8c1dc9500a9a0e901a42"
+    "asar": "ff67133b2bcf8f943c5f8fba30e927535065aacb629c95b624f378372a6d74af",
+    "installer": "331e1464d3d43a7fa7bfb47c633265c4b2f67ce76d62654c3d713dcfb2abe7da"
   },
   "names": {
     "asar": "packed.asar",
