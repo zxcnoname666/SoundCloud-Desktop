@@ -1,10 +1,10 @@
 {
-  "details": "1. Removed disabling proxy for api if it works.",
-  "version": "1.9.9",
+  "details": "1. Added new proxy servers.",
+  "version": "1.9.10",
   "electron": "33",
   "hashes": {
-    "asar": "ff67133b2bcf8f943c5f8fba30e927535065aacb629c95b624f378372a6d74af",
-    "installer": "331e1464d3d43a7fa7bfb47c633265c4b2f67ce76d62654c3d713dcfb2abe7da"
+    "asar": "4a4c2a1a0357d868a70f02531b2d3938cc1907cc655e5026ff25f3bf4d87c20b",
+    "installer": "e6f235c6a94de90bfcb84fe588a76dbe630381d542888154456a0ac1987867f8"
   },
   "names": {
     "asar": "packed.asar",
