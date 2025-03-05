@@ -55,7 +55,7 @@ Modify the `config.proxy.js` file.
 `scheme://user:password@ip:port`)
 
 > Security Recommendation: Better use `user:password` access or only allow connections to the following servers:
-`.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co .captcha-delivery.com`
+`.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co .captcha-delivery.com .soundcloud.cloud`
 
 # Build
 

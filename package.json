@@ -1,6 +1,6 @@
 {
   "name": "soundcloud",
-  "version": "1.9.10",
+  "version": "1.10.0",
   "description": "SoundCloud Desktop App",
   "main": "init.js",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/zxcnoname666/SoundCloud-Desktop#readme",
   "devDependencies": {
-    "electron": "^33.2.1"
+    "electron": "^35.0.0"
   },
   "dependencies": {
     "https-proxy-agent": "^5.0.1",
@@ -54,6 +54,13 @@
       ],
       "icon": "icons/appLogo.png",
       "category": "Audio"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "SoundCloudInstaller.${ext}",
+      "shortcutName": "SoundCloud",
+      "license": "LICENSE"
     }
   }
 }

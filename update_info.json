@@ -1,10 +1,10 @@
 {
-  "details": "1. Added new proxy servers.",
-  "version": "1.9.10",
-  "electron": "33",
+  "details": "1. Добавлена возможность выбрать папку установки\n2. Исправлено воспроизведение новых треков\n3. Обновлены модули на RUST\n4. Обновлен electron",
+  "version": "1.10.0",
+  "electron": "35",
   "hashes": {
-    "asar": "4a4c2a1a0357d868a70f02531b2d3938cc1907cc655e5026ff25f3bf4d87c20b",
-    "installer": "e6f235c6a94de90bfcb84fe588a76dbe630381d542888154456a0ac1987867f8"
+    "asar": "71aff27c0617a4c1af996412fae3a4043ff0e010ee6320e0a8b342e419583391",
+    "installer": "70ac57389109caf6b1690587ae7437ca5afb458498f1831cac526a8c4c1e4db2"
   },
   "names": {
     "asar": "packed.asar",

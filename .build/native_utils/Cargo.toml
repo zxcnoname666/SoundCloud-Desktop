@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-windows = { version = "0.58", features = [
+windows = { version = "0.60", features = [
     "Win32_System_Threading",
     "Win32_System_Registry",
     "Win32_System_Power",
@@ -16,7 +16,7 @@ napi = "2"
 napi-derive = "2"
 
 [build-dependencies]
-napi-build = "1"
+napi-build = "2.1"
 
 [profile.release]
 lto = true

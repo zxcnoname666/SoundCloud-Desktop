@@ -1,5 +1,4 @@
 use std::mem;
-
 use napi_derive::napi;
 use windows::{
     core::{s, PCSTR},
@@ -52,7 +51,7 @@ fn protocol_inject(path: String) {
     let reg_status = unsafe { RegSetValueExA(
         reg_key,
         s!("URL Protocol"),
-        0,
+        Some(0),
         REG_SZ,
         Some("".as_bytes())
     ) };
@@ -66,7 +65,7 @@ fn protocol_inject(path: String) {
     let reg_status = unsafe { RegSetValueExA(
         reg_key,
         s!(""),
-        0,
+        Some(0),
         REG_SZ,
         Some(format!("URL:{}", TAG).as_bytes())
     ) };
@@ -104,7 +103,7 @@ fn protocol_inject(path: String) {
     let reg_status = unsafe { RegSetValueExA(
         reg_key,
         s!(""),
-        0,
+        Some(0),
         REG_SZ,
         Some(format!("\"{}\" -site:\"%1\"", path).as_bytes())
     ) };

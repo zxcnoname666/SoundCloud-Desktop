@@ -136,16 +136,6 @@ if (fs.existsSync(BuildAsarDir)) {
 
 const InstallerPath = path.join(BuildDir, 'SoundCloudInstaller.exe');
 
-fs.readdirSync(BuildDir).forEach(file => {
-    if (file.endsWith('.exe')) {
-        if (fs.existsSync(InstallerPath)) {
-            console.log('Installer already exist, skip... ' + file);
-            return;
-        }
-        fs.renameSync(path.join(BuildDir, file), InstallerPath);
-    }
-});
-
 if (fs.existsSync(InstallerPath)) {
     const buff = fs.readFileSync(InstallerPath);
     const hash = crypto.createHash('sha256').update(buff).digest('hex');

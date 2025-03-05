@@ -56,7 +56,7 @@
 
 > Рекомендация безопасности: Лучше используйте доступ по `user:password` или разрешите подключения только для следующих
 > доменов:
-`.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co .captcha-delivery.com`
+`.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co .captcha-delivery.com .soundcloud.cloud`
 
 # Сборка
 

@@ -43,7 +43,7 @@ unsafe fn enable_ecoqos(process: HANDLE)
     };
     let state_pointer: *const c_void = std::ptr::addr_of!(state).cast();
 
-    let result = SetProcessInformation(process, ProcessPowerThrottling, state_pointer, std::mem::size_of::<PROCESS_POWER_THROTTLING_STATE>() as u32);
+    let result = SetProcessInformation(process, ProcessPowerThrottling, state_pointer, size_of::<PROCESS_POWER_THROTTLING_STATE>() as u32);
     if let Err(err) = result {
         println!("Err: {}", err);
     }

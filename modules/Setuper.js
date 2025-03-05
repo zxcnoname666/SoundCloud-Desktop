@@ -113,6 +113,7 @@ module.exports = class Setup {
                 if (parsedUrl.host !== 'soundcloud-upload.s3.amazonaws.com'
                     && !parsedUrl.host.endsWith('soundcloud.com')
                     && !parsedUrl.host.endsWith('sndcdn.com')
+                    && !parsedUrl.host.endsWith('soundcloud.cloud')
 
                     && !parsedUrl.host.endsWith('.captcha-delivery.com')
                     && !parsedUrl.host.endsWith('js.datadome.co')
