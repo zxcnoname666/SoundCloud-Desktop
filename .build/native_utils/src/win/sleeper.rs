@@ -1,3 +1,4 @@
+use std::sync::Mutex;
 use napi_derive::napi;
 use windows::{
     core::PWSTR,
@@ -13,15 +14,16 @@ use windows::{
     }
 };
 
-static mut REQUEST: Option<HANDLE> = None;
+static mut REQUEST: Mutex<Option<HANDLE>> = Mutex::new(None);
 
 
 #[napi]
 #[allow(dead_code)]
 unsafe fn sleeper(value: bool) {
-    if value {
+    let request_option = REQUEST.lock().unwrap().take();
 
-        if REQUEST.is_none() {
+    if value {
+        if request_option.is_none() {
             let mut context = REASON_CONTEXT {
                 Version: 0,
                 Flags: POWER_REQUEST_CONTEXT_FLAGS(1),
@@ -38,10 +40,10 @@ unsafe fn sleeper(value: bool) {
                 }
             };
 
-            REQUEST = Some(handle);
+            REQUEST.lock().unwrap().replace(handle);
         }
 
-        if let Some(handle) = REQUEST {
+        if let Some(handle) = request_option {
             if let Err(err) = PowerSetRequest(handle, PowerRequestSystemRequired) {
                 println!("Err: {}", err);
             }
@@ -53,7 +55,7 @@ unsafe fn sleeper(value: bool) {
 
     } else {
 
-        if let Some(handle) = REQUEST {
+        if let Some(handle) = request_option {
             if let Err(err) = PowerClearRequest(handle, PowerRequestSystemRequired) {
                 println!("Err: {}", err);
             }
@@ -66,7 +68,7 @@ unsafe fn sleeper(value: bool) {
                 println!("Err: {}", err);
             }
 
-            REQUEST = None;
+            REQUEST.lock().unwrap().take();
         }
         
     }

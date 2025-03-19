@@ -1,5 +1,6 @@
 module.exports = {
     proxy: require('./config.proxy'),
+    autoUpdate: true,
     translations: {
         ru: { // ru, kk, ky, be
             proxy_available_not_found: 'Доступные прокси-серверы не найдены',

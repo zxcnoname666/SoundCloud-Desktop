@@ -25,6 +25,7 @@ const LocalDBDir = path.join(app.getPath('appData'), 'SoundCloud', 'AppDB');
 const ProxyManager = require('./ProxyManager');
 const Extensions = require('./Extensions');
 const Version = require('./Version');
+const {autoUpdate} = require("../config");
 
 const GlobalUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 const GlobalCHUA = '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"';
@@ -546,7 +547,11 @@ module.exports = class Setup {
     }
 
     static async autoUpdate() {
-        const response = await fetch('https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/update_info.json');
+        if (!autoUpdate) {
+            return;
+        }
+
+        const response = await fetch('https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/refs/heads/main/update_info.json');
         if (!response.ok) {
             return;
         }
