@@ -70,32 +70,6 @@ const sendUpdatedUrl = () => {
     ipcRenderer.send('UpdateCanBack');
 };
 
-const addStyle = () => {
-    const StyleId = 'BlackStyleDesktopApp';
-
-    _add();
-
-    setTimeout(() => {
-        setInterval(() => {
-            const _st = document.getElementById(StyleId);
-            if (_st != null) {
-                return;
-            }
-
-            _add();
-        }, 2000);
-    }, 10000);
-
-    function _add() {
-        const cssLink = document.createElement("link");
-        cssLink.href = "scinner://styles/black-mode.css";
-        cssLink.rel = "stylesheet";
-        cssLink.type = "text/css";
-        cssLink.id = StyleId;
-        document.body.appendChild(cssLink);
-    }
-};
-
 const UpdateIsPlaying = () => {
     setInterval(() => {
         const value = document.querySelector('.playControls__play').classList.contains('playing');
@@ -108,7 +82,6 @@ window.addEventListener('DOMContentLoaded', () => {
     removeBanners();
     sendUpdatedUrl();
     UpdateIsPlaying();
-    addStyle();
 });
 
 document.addEventListener('mousedown', (e) => {

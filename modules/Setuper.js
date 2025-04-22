@@ -216,9 +216,6 @@ module.exports = class Setup {
 
         protocol.handle('scinner', async (request) => {
             switch (request.url.slice('scinner://'.length).split('?')[0]) {
-                case 'styles/black-mode.css':
-                    return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'frontend', 'styles', 'black-mode.css')).toString());
-
                 case 'lang/ru.js':
                     return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'langs', 'ru.js')).toString());
 
