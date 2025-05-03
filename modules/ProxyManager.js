@@ -137,17 +137,17 @@ module.exports = class ProxyManager {
             'appleid.apple.com;iforgot.apple.com;www.apple.com;appleid.cdn-apple.com;*-ssl.mzstatic.com;appleid.cdn-apple.com' //apple
         );
 
-        if (await CheckWorkDomain('https://geo.captcha-delivery.com')) {
-            bypass_proxy += ';*.captcha-delivery.com' // captcha
-        }
-
-        if (await CheckWorkDomain('https://api-auth.soundcloud.com/')) {
-            bypass_proxy += ';api-auth.soundcloud.com' // api auth
-        }
-
-        if (await CheckWorkDomain('https://api.soundcloud.com/')) {
-            bypass_proxy += ';api.soundcloud.com' // api
-        }
+        // if (await CheckWorkDomain('https://geo.captcha-delivery.com')) {
+        //     bypass_proxy += ';*.captcha-delivery.com' // captcha
+        // }
+        //
+        // if (await CheckWorkDomain('https://api-auth.soundcloud.com/')) {
+        //     bypass_proxy += ';api-auth.soundcloud.com' // api auth
+        // }
+        //
+        // if (await CheckWorkDomain('https://api.soundcloud.com/')) {
+        //     bypass_proxy += ';api.soundcloud.com' // api
+        // }
 
         const proxyCfg = {
             mode: 'fixed_servers',

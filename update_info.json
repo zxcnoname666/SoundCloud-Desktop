@@ -1,10 +1,10 @@
 {
-  "details": "1. Удален Soundfy из-за обновления стилей SoundCloud.",
-  "version": "1.11.0",
+  "details": "- Обновлены версии пакетов в Cargo.lock, включая переход на windows 0.61.\n- Добавлен функционал для отключения процессорного троттлинга в efficiency.rs.\n- Исправлено определение функций в index.d.ts (добавлено `declare`).\n- Комментирован код в ProxyManager.js, связанный с обработкой прокси для SoundCloud.\n- Обновлена версия приложения в package.json и update_info.json до 1.11.1.",
+  "version": "1.11.1",
   "electron": "35",
   "hashes": {
-    "asar": "f51263fe66ab52f9b085f9ab4910e598b46bd2c803e0406fe8fbfa261f2185bd",
-    "installer": "aae337942f2222e083778bb13e7c570c267b4a1630820a603bb852a21b662184"
+    "asar": "9744d3dd58e30cbabf5b9333cf942fab8ca1f45134ab8ff6923d3e6b0bfaa0f5",
+    "installer": "08b60969c18de77991e0e3aa3916ebf38fe5d007ea12cfbd6f531dd5043c8e03"
   },
   "names": {
     "asar": "packed.asar",

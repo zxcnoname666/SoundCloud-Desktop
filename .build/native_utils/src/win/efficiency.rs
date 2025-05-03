@@ -56,6 +56,18 @@ unsafe fn enable_ecoqos(process: HANDLE)
 
 unsafe fn disable_ecoqoc(process: HANDLE)
 {
+    let state = PROCESS_POWER_THROTTLING_STATE {
+        Version: PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+        ControlMask: PROCESS_POWER_THROTTLING_EXECUTION_SPEED,
+        StateMask: 0 // Set to 0 to disable the throttling
+    };
+    let state_pointer: *const c_void = std::ptr::addr_of!(state).cast();
+
+    let result = SetProcessInformation(process, ProcessPowerThrottling, state_pointer, size_of::<PROCESS_POWER_THROTTLING_STATE>() as u32);
+    if let Err(err) = result {
+        println!("Err: {}", err);
+    }
+
     let result = SetPriorityClass(process, NORMAL_PRIORITY_CLASS);
     if let Err(err) = result {
         println!("Err: {}", err);
