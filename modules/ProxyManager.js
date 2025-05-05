@@ -131,7 +131,7 @@ module.exports = class ProxyManager {
         });
 
         let bypass_proxy = (
-            '<local>;' +
+            '<local>;cloudflare-dns.com;' +
             //'*.google.com;*.gstatic.com;' + //google
             'www.google.com;accounts.google.com;ssl.gstatic.com;fonts.gstatic.com;www.gstatic.com;lh3.googleusercontent.com;' + //google
             'appleid.apple.com;iforgot.apple.com;www.apple.com;appleid.cdn-apple.com;*-ssl.mzstatic.com;appleid.cdn-apple.com' //apple

@@ -1,10 +1,10 @@
 {
-  "details": "- Обновлены версии пакетов в Cargo.lock, включая переход на windows 0.61.\n- Добавлен функционал для отключения процессорного троттлинга в efficiency.rs.\n- Исправлено определение функций в index.d.ts (добавлено `declare`).\n- Комментирован код в ProxyManager.js, связанный с обработкой прокси для SoundCloud.\n- Обновлена версия приложения в package.json и update_info.json до 1.11.1.",
-  "version": "1.11.1",
+  "details": "- Добавлена обработка домена cloudflare-dns.com в обход прокси в ProxyManager.js.\n- Обновлены прокси в config.proxy.js: добавлены Tor Proxy и Tor Proxy через socks.\n- Повышена версия приложения в package.json и update_info.json до 1.11.2.",
+  "version": "1.11.2",
   "electron": "35",
   "hashes": {
-    "asar": "9744d3dd58e30cbabf5b9333cf942fab8ca1f45134ab8ff6923d3e6b0bfaa0f5",
-    "installer": "08b60969c18de77991e0e3aa3916ebf38fe5d007ea12cfbd6f531dd5043c8e03"
+    "asar": "d36a1fffce70324a44fff199867fe9dd87270abf88fd27ff2b2248a879f68030",
+    "installer": "72d9a0c437f8d2c0a1baf122b20039a10b73c856564b930c96867949ded75907"
   },
   "names": {
     "asar": "packed.asar",
