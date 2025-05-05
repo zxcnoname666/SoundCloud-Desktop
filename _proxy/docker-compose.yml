@@ -1,0 +1,63 @@
+name: squid-proxy
+
+services:
+  tor:
+    image: dperson/torproxy
+    container_name: tor
+    restart: unless-stopped
+    ports:
+      - "9050:9050"    # SOCKS5-прокси
+      - "8118:8118"    # HTTP-прокси (через Privoxy внутри образа)
+    environment:
+      - SAFE_SOCKS=1   # только SOCKSv5, без exit-relay
+
+  wireguard:
+    container_name: wireguard
+    image: lscr.io/linuxserver/wireguard
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    volumes:
+      - ./wg0.conf:/config/wg0.conf
+      - /lib/modules:/lib/modules:ro
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=1
+    networks:
+      - isolated_vpn_network
+
+  squid:
+    container_name: squid
+    image: ubuntu/squid:latest
+    restart: unless-stopped
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf
+    network_mode: service:wireguard
+    depends_on:
+      - wireguard
+
+  web-proxy:
+    container_name: web-proxy
+    image: dperson/nginx
+    restart: unless-stopped
+    environment:
+      - STREAM=69;squid:3128
+    ports:
+      - 3128:69/tcp
+    links:
+      - wireguard:squid
+    depends_on:
+      - squid
+    read_only: true
+    tmpfs:
+      - /run
+      - /tmp
+      - /var/cache/nginx
+    networks:
+      - default
+      - isolated_vpn_network
+
+networks:
+  default:
+  isolated_vpn_network:
