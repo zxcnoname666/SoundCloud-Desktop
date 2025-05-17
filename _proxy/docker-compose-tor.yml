@@ -1,0 +1,37 @@
+name: tor-proxy
+
+services:
+  tor:
+    image: dperson/torproxy:latest
+    container_name: tor
+    restart: unless-stopped
+
+    ports:
+      - 9050:9050/tcp # socks5
+      - 8118:8118/tcp # http
+
+    # --- критичные ресурсы ---------------------------------------------------
+    ulimits:                     # даём много дескрипторов
+      nofile:
+        soft: 200000
+        hard: 200000
+    sysctls:                     # чуть расширяем TCP-стек
+      - net.core.somaxconn=65535
+      - net.ipv4.ip_local_port_range=1024 65535
+
+    # --- конфигурация Tor ----------------------------------------------------
+    environment:
+      - SAFE_SOCKS=1                        # только SOCKS5
+      - TOR_SocksPort=0.0.0.0:9050          # слушаем всех
+      - TOR_ConnLimit=100000                # минимум 100k FD
+      - TOR_NewCircuitPeriod=60             # каждые 60 с новый маршрут
+      - TOR_MaxClientCircuitsPending=1024   # чтобы не отбрасывало бурстовый трафик
+      - TOR_ReducedConnectionPadding=1      # чуть экономим трафик ядру
+      - TOR_WarnPlaintextPorts=23,109,110,143
+
+    # --- самовосстановление --------------------------------------------------
+    healthcheck:                           # встроенный скрипт у dperson
+      test: ["CMD-SHELL", "torproxy.sh -n || exit 1"]
+      interval: 30s
+      retries: 3
+      start_period: 60s
