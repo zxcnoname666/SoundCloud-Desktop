@@ -12,6 +12,7 @@ const {webContents} = require("electron");
 
 module.exports = class ProxyManager {
     static proxies = [];
+    static failedChecks = 0;
 
     static async sendRequest(url, init, proxyAnyway = true, filterBest = false) {
         let last_resp = null;
@@ -182,15 +183,21 @@ module.exports = class ProxyManager {
             proxyCfg.proxyRules = '';
 
             for (let i = 0; i < work.length; i++) {
-                const proxy = workProxies[i];
+                const proxy = work[i];
                 proxyCfg.proxyRules += proxy.scheme + '://' + proxy.host;
-                if (workProxies.length !== i + 1) {
+                if (work.length !== i + 1) {
                     proxyCfg.proxyRules += ',';
                 }
             }
 
             if (proxyCfg.proxyRules === oldRules)
                 return;
+
+            if (work.length === 0 && this.failedChecks < 3) {
+                this.failedChecks++;
+            } else if (work.length !== 0) {
+                this.failedChecks = 0;
+            }
 
             this.proxies = work;
 
