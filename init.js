@@ -101,12 +101,12 @@ async function startup() {
 
     await ProxyManager.Init(nmanager);
 
-    setTimeout(() => {
-        try {
-            nmanager.getWindow().destroy()
-        } catch {
-        }
-    }, 15000);
+    // setTimeout(() => {
+    //     try {
+    //         nmanager.getWindow().destroy()
+    //     } catch {
+    //     }
+    // }, 15000);
 
     Setup.setupTasks();
 

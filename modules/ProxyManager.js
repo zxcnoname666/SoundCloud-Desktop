@@ -8,6 +8,7 @@ const nfetch = require('node-fetch');
 const tls = require('node:tls');
 
 const Extensions = require('./Extensions');
+const {webContents} = require("electron");
 
 module.exports = class ProxyManager {
     static proxies = [];
@@ -88,6 +89,7 @@ module.exports = class ProxyManager {
         }
 
         let workProxies = [];
+        let allProxies = [];
         for (let i = 0; i < proxyList.length; i++) {
             const proxyConfig = proxyList[i];
             let proxy;
@@ -105,16 +107,11 @@ module.exports = class ProxyManager {
                 }
             }
 
+            allProxies.push(proxy);
             const _check = await ProxyCheck(proxy.source);
             if (_check) {
                 workProxies.push(proxy);
             }
-        }
-
-        if (workProxies.length === 0) {
-            const notify = new Notify('SoundCloud', translations.proxy_work_not_found, 10);
-            nmanager.show(notify);
-            return;
         }
 
         electron.app.on('login', async (ev, webContents, req, authInfo, callback) => {
@@ -122,7 +119,7 @@ module.exports = class ProxyManager {
                 return;
             }
 
-            const proxy = workProxies.find(x => x.host === authInfo.host + ':' + authInfo.port && x.auth);
+            const proxy = allProxies.find(x => x.host === authInfo.host + ':' + authInfo.port && x.auth);
             if (!proxy) {
                 return;
             }
@@ -173,9 +170,65 @@ module.exports = class ProxyManager {
             await session.closeAllConnections();
         });
 
-        const notify = new Notify('SoundCloud', '', 10, __dirname + '/../icons/data-server.png');
-        notify.body = translations.proxy_connected.replaceAll('{name}', '<br>' + workProxies.map(x => x.name).join(';<br>') + ';');
-        nmanager.show(notify);
+        setInterval(async () => {
+            const work = [];
+            for (let proxy of allProxies) {
+                if (await ProxyCheck(proxy.source)) {
+                    work.push(proxy);
+                }
+            }
+
+            const oldRules = proxyCfg.proxyRules;
+            proxyCfg.proxyRules = '';
+
+            for (let i = 0; i < work.length; i++) {
+                const proxy = workProxies[i];
+                proxyCfg.proxyRules += proxy.scheme + '://' + proxy.host;
+                if (workProxies.length !== i + 1) {
+                    proxyCfg.proxyRules += ',';
+                }
+            }
+
+            if (proxyCfg.proxyRules === oldRules)
+                return;
+
+            this.proxies = work;
+
+            await electron.session.defaultSession.setProxy(proxyCfg);
+            await electron.session.defaultSession.closeAllConnections();
+
+            for (const win of electron.BrowserWindow.getAllWindows()) {
+                await win.webContents.session.setProxy(proxyCfg);
+                await win.webContents.session.closeAllConnections();
+            }
+
+            if (work.length === 0) {
+                const notify = new Notify('SoundCloud', translations.proxy_work_not_found, 10);
+                nmanager.show(notify);
+            } else {
+                const notify = new Notify('SoundCloud', '', 10, __dirname + '/../icons/data-server.png');
+                notify.body = translations.proxy_connected.replaceAll('{name}', '<br>' + work.map(x => x.name).join(';<br>') + ';');
+                nmanager.show(notify);
+            }
+
+            for (const content of webContents.getAllWebContents()) {
+                if (content.isDestroyed()) {
+                    continue;
+                }
+                content.send('reload');
+            }
+        }, 30000);
+
+
+        if (workProxies.length === 0) {
+            const notify = new Notify('SoundCloud', translations.proxy_work_not_found, 10);
+            nmanager.show(notify);
+        } else {
+            const notify = new Notify('SoundCloud', '', 10, __dirname + '/../icons/data-server.png');
+            notify.body = translations.proxy_connected.replaceAll('{name}', '<br>' + workProxies.map(x => x.name).join(';<br>') + ';');
+            nmanager.show(notify);
+        }
+
         return;
     };
 }
@@ -259,26 +312,30 @@ function ProxyCheck(proxy) {
     });
 }
 
-function CheckWorkDomain(url) {
-    return new Promise(async resolve => {
-        let _sended = false;
+function CheckAndUpdateProxy() {
 
-        setTimeout(() => {
-            if (_sended) {
-                return;
-            }
-
-            resolve(false);
-            _sended = true;
-        }, 5000);
-
-        fetch(url)
-            .then(() => {
-                resolve(true);
-                _sended = true;
-            }).catch(() => {
-            resolve(false);
-            _sended = true;
-        });
-    });
 }
+
+// function CheckWorkDomain(url) {
+//     return new Promise(async resolve => {
+//         let _sended = false;
+//
+//         setTimeout(() => {
+//             if (_sended) {
+//                 return;
+//             }
+//
+//             resolve(false);
+//             _sended = true;
+//         }, 5000);
+//
+//         fetch(url)
+//             .then(() => {
+//                 resolve(true);
+//                 _sended = true;
+//             }).catch(() => {
+//             resolve(false);
+//             _sended = true;
+//         });
+//     });
+// }

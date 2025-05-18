@@ -1,10 +1,10 @@
 {
-  "details": "- Добавлена обработка домена cloudflare-dns.com в обход прокси в ProxyManager.js.\n- Обновлены прокси в config.proxy.js: добавлены Tor Proxy и Tor Proxy через socks.\n- Повышена версия приложения в package.json и update_info.json до 1.11.2.",
-  "version": "1.11.2",
+  "details": "Переработана система прокси.\n- Автоматическая проверка доступных прокси\n- Новые прокси-сервера и новые маршруты\n- Исправлена ошибка с url chrome-error://\n\nПочитать подробнее про прокси и поддержать копеечкой можете на бусти:\nhttps://boosty.to/zxnoname",
+  "version": "1.12.0",
   "electron": "35",
   "hashes": {
-    "asar": "d36a1fffce70324a44fff199867fe9dd87270abf88fd27ff2b2248a879f68030",
-    "installer": "72d9a0c437f8d2c0a1baf122b20039a10b73c856564b930c96867949ded75907"
+    "asar": "1f0fb89815d73dae1cc20c76bbade4c96faea9cedad7932bbbd4579c19a3a5ea",
+    "installer": "6692cf6ad250db8e0e3bdca37a00ed3bf40b4e4b27df73b10e53c36f81479cf6"
   },
   "names": {
     "asar": "packed.asar",

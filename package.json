@@ -1,6 +1,6 @@
 {
   "name": "soundcloud",
-  "version": "1.11.2",
+  "version": "1.12.0",
   "description": "SoundCloud Desktop App",
   "main": "init.js",
   "scripts": {
@@ -32,7 +32,8 @@
       "!.git/*",
       "!dist/*",
       "!update_info.json",
-      "!_ignore/*"
+      "!_ignore/*",
+      "!_proxy/*"
     ],
     "appId": "SoundCloud",
     "win": {

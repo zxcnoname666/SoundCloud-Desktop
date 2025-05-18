@@ -1,6 +1,10 @@
 const {ipcRenderer} = require('electron');
 
 const updateUrl = () => {
+    ipcRenderer.on('reload', () => {
+        window.location.reload();
+    });
+
     ipcRenderer.on('update-url', (ev, url) => {
         url = 'https://soundcloud.com/' + url;
         history.pushState('SoundCloud', 'SoundCloud', url);
@@ -52,6 +56,16 @@ const removeBanners = () => {
     }, 3000);
 };
 
+const checkChromeError = () => {
+    setInterval(() => {
+        const url = new URL(window.location.href);
+
+        if (url.pathname.startsWith("chrome-error") || url.protocol === "chrome-error:") {
+            window.location.href = 'https://soundcloud.com/';
+        }
+    }, 3000);
+};
+
 const sendUpdatedUrl = () => {
     let lastUrlCache = '';
 
@@ -82,6 +96,7 @@ window.addEventListener('DOMContentLoaded', () => {
     removeBanners();
     sendUpdatedUrl();
     UpdateIsPlaying();
+    checkChromeError();
 });
 
 document.addEventListener('mousedown', (e) => {
