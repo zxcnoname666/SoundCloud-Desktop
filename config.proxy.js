@@ -17,4 +17,9 @@ module.exports = [
         name: 'Bypass Proxy [Reserve]',
         bestBypass: true,
     },
+    {
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9999',
+        name: 'Tor Proxy [Reserve]',
+        bestBypass: true,
+    },
 ]
