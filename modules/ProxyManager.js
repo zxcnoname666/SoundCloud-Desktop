@@ -13,6 +13,7 @@ const {webContents} = require("electron");
 module.exports = class ProxyManager {
     static proxies = [];
     static failedChecks = 0;
+    static previosCount = 0;
 
     static async sendRequest(url, init, proxyAnyway = true, filterBest = false) {
         let last_resp = null;
@@ -37,7 +38,11 @@ module.exports = class ProxyManager {
 
             const resp = await nfetch(url, init);
             last_resp = resp;
-            if (parseInt(resp.status) / 100 === 2) {
+            if (resp.ok) {
+                if (!url.includes('api.soundcloud.com/')) {
+                    return resp;
+                }
+
                 let text = await resp.text();
                 const new_resp = new Response(text, {
                     headers: resp.headers,
@@ -209,23 +214,29 @@ module.exports = class ProxyManager {
                 await win.webContents.session.closeAllConnections();
             }
 
-            if (work.length === 0) {
-                const notify = new Notify('SoundCloud', translations.proxy_work_not_found, 10);
-                nmanager.show(notify);
-            } else {
-                const notify = new Notify('SoundCloud', '', 10, __dirname + '/../icons/data-server.png');
-                notify.body = translations.proxy_connected.replaceAll('{name}', '<br>' + work.map(x => x.name).join(';<br>') + ';');
-                nmanager.show(notify);
+            if (this.previosCount !== work.length && (work.length === 0 || this.previosCount === 0)) {
+                if (work.length === 0) {
+                    const notify = new Notify('SoundCloud', translations.proxy_work_not_found, 10);
+                    nmanager.show(notify);
+                } else {
+                    const notify = new Notify('SoundCloud', '', 10, __dirname + '/../icons/data-server.png');
+                    notify.body = translations.proxy_connected.replaceAll('{name}', '<br>' + work.map(x => x.name).join(';<br>') + ';');
+                    nmanager.show(notify);
+                }
+
+                for (const content of webContents.getAllWebContents()) {
+                    if (content.isDestroyed()) {
+                        continue;
+                    }
+                    content.send('reload');
+                }
             }
 
-            for (const content of webContents.getAllWebContents()) {
-                if (content.isDestroyed()) {
-                    continue;
-                }
-                content.send('reload');
-            }
+            this.previosCount = work.length;
         }, 30000);
 
+
+        this.previosCount = workProxies.length;
 
         if (workProxies.length === 0) {
             const notify = new Notify('SoundCloud', translations.proxy_work_not_found, 10);
@@ -294,7 +305,12 @@ function ProxyCheck(proxy) {
             _sended = true;
         }, 10000);
 
-        let proxyJson = {};
+        let proxyJson = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
+                'sec-ch-ua': 'Google Chrome";v="136", "Chromium";v="136", "Not_A Brand";v="24"'
+            }
+        };
 
         if (proxy.startsWith('http:') || proxy.startsWith('https:')) {
             proxyJson.agent = new HttpsProxyAgent(proxy);
@@ -310,7 +326,7 @@ function ProxyCheck(proxy) {
                     _sended = true;
                     return;
                 }
-                resolve(true);
+                resolve(res.ok);
                 _sended = true;
             }).catch(() => {
             resolve(false);

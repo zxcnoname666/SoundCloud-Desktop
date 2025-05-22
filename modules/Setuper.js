@@ -19,6 +19,7 @@ const os = require('os');
 const crypto = require("crypto");
 const {pipeline} = require('node:stream');
 const {promisify} = require('node:util');
+const { Readable } = require('node:stream');
 
 const LocalDBDir = path.join(app.getPath('appData'), 'SoundCloud', 'AppDB');
 
@@ -27,8 +28,8 @@ const Extensions = require('./Extensions');
 const Version = require('./Version');
 const {autoUpdate} = require("../config");
 
-const GlobalUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
-const GlobalCHUA = '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"';
+const GlobalUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36';
+const GlobalCHUA = '"Google Chrome";v="136", "Chromium";v="136", "Not_A Brand";v="24"';
 let isPlaying = false;
 let isActive = false;
 
@@ -49,6 +50,11 @@ module.exports = class Setup {
                     }
                     return parsed;
                 })();
+
+                if (details.url.includes('chrome-error://')) {
+                    callback({redirectURL: 'https://soundcloud.com/'});
+                    return;
+                }
 
                 if (CheckAdBlock(parsedUrl)) {
                     callback({cancel: true});
@@ -215,210 +221,211 @@ module.exports = class Setup {
         });
 
         protocol.handle('scinner', async (request) => {
-            switch (request.url.slice('scinner://'.length).split('?')[0]) {
-                case 'lang/ru.js':
-                    return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'langs', 'ru.js')).toString());
+            await this.GetProxyResponse(request);
+        });
 
-                case 'icon': {
-                    const parsedUrl = new URL(request.url);
-                    const name = parsedUrl.searchParams.get('name');
-
-                    if (name.includes('..')) {
-                        return;
-                    }
-
-                    return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'frontend', 'img', name)).toString());
-                }
-
-                /*
-                case 'proxy-login': {
-                    const parsedUrl = new URL(request.url);
-                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
-
-                    if (!requestedUrl) {
-                        return;
-                    }
-
-                    const jsonBody = await request.json();
-                    jsonBody.vk.ag = GlobalUserAgent;
-
-                    const resp = await fetch(requestedUrl, {
-                        method: request.method,
-                        mode: request.mode,
-                        cache: request.cache,
-                        credentials: request.credentials,
-                        headers: request.headers,
-                        integrity: request.integrity,
-                        keepalive: request.keepalive,
-                        redirect: request.redirect,
-                        referrer: request.referrer,
-                        referrerPolicy: request.referrerPolicy,
-                        signal: request.signal,
-                        body: jsonBody,
-                    });
-                    return resp;
-                }
-                */
-
-                case 'scripts/load': {
-                    const parsedUrl = new URL(request.url);
-                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
-
-                    if (!requestedUrl) {
-                        return;
-                    }
-
-                    //const resp = await net.fetch(request, { bypassCustomProtocolHandlers: true });
-                    const resp = await ProxyManager.sendRequest(requestedUrl, {
-                        method: request.method,
-                        mode: request.mode,
-                        cache: request.cache,
-                        credentials: request.credentials,
-                        headers: request.headers,
-                        integrity: request.integrity,
-                        keepalive: request.keepalive,
-                        redirect: request.redirect,
-                        referrer: request.referrer,
-                        referrerPolicy: request.referrerPolicy,
-                        signal: request.signal,
-                    });
-                    let text = await resp.text();
-
-                    text = text.replaceAll('Português (Brasil)', 'Русский').replaceAll('Português', 'Русский');
-
-                    if (text.includes('mês')) {
-                        text = require('../langs/ru_electron')(text);
-                    }
-
-                    return new Response(text, {
-                        headers: resp.headers,
-                        status: resp.status,
-                        statusText: resp.statusText,
-                    });
-                }
-
-                case 'proxy-basic': {
-                    const parsedUrl = new URL(request.url);
-                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
-
-                    if (!requestedUrl) {
-                        return;
-                    }
-
-                    let body = null;
-                    if (request.method !== 'GET' && request.method !== 'HEAD') {
-                        body = await request.text();
-                    }
-
-                    const resp = await ProxyManager.sendRequest(requestedUrl, {
-                        method: request.method,
-                        mode: request.mode,
-                        cache: request.cache,
-                        credentials: request.credentials,
-                        headers: request.headers,
-                        integrity: request.integrity,
-                        keepalive: request.keepalive,
-                        redirect: request.redirect,
-                        referrer: request.referrer,
-                        referrerPolicy: request.referrerPolicy,
-                        signal: request.signal,
-                        body: body,
-                    });
-                    let text = await resp.text();
-                    return new Response(text, {
-                        headers: resp.headers,
-                        status: resp.status,
-                        statusText: resp.statusText,
-                    });
-                }
-
-                case 'proxy-tracks': {
-                    const parsedUrl = new URL(request.url);
-                    const requestedUrl = parsedUrl.searchParams.get('url').replaceAll(this.urlReplaceSymbols['?'], '?').replaceAll(this.urlReplaceSymbols['&'], '&');
-
-                    if (!requestedUrl) {
-                        return;
-                    }
-
-                    let body = null;
-                    if (request.method !== 'GET' && request.method !== 'HEAD') {
-                        body = await request.text();
-                    }
-
-                    const resp = await ProxyManager.sendRequest(requestedUrl, {
-                        method: request.method,
-                        mode: request.mode,
-                        cache: request.cache,
-                        credentials: request.credentials,
-                        headers: request.headers,
-                        integrity: request.integrity,
-                        keepalive: request.keepalive,
-                        redirect: request.redirect,
-                        referrer: request.referrer,
-                        referrerPolicy: request.referrerPolicy,
-                        signal: request.signal,
-                        body: body,
-                    }, false, true);
-                    let tracks = await resp.json();
-
-                    if (Extensions.isArray(tracks)) {
-                        let send = [];
-
-                        tracks.forEach(track => {
-                            track.policy = 'ALLOW';
-                            send.push(track);
-                        });
-
-                        return new Response(JSON.stringify(send), {
-                            headers: resp.headers,
-                            status: resp.status,
-                            statusText: resp.statusText,
-                        });
-                    }
-
-                    if (typeof (tracks.policy) == 'string') {
-                        tracks.policy = 'ALLOW';
-                    }
-
-                    if (Extensions.isArray(tracks.collection)) {
-                        tracks.collection.forEach(collection => {
-                            if (Extensions.isArray(collection.tracks)) {
-                                collection.tracks.forEach(track => {
-                                    track.policy = 'ALLOW';
-                                    if (typeof (track.media) == 'object'
-                                        && Extensions.isArray(track.media.transcodings)
-                                        && track.media.transcodings.length === 0) {
-                                        delete track.media;
-                                    }
-                                });
-                            }
-                        });
-                    }
-
-                    if (Extensions.isArray(tracks.tracks)) {
-                        tracks.tracks.forEach(track => {
-                            track.policy = 'ALLOW';
-                            if (typeof (track.media) == 'object'
-                                && Extensions.isArray(track.media.transcodings)
-                                && track.media.transcodings.length === 0) {
-                                delete track.media;
-                            }
-                        });
-                    }
-
-                    return new Response(JSON.stringify(tracks), {
-                        headers: resp.headers,
-                        status: resp.status,
-                        statusText: resp.statusText,
-                    });
-                }
-
-                default:
-                    break;
-            }
+        protocol.handle('https', async (request) => {
+            return await this.GetProxyResponse(request)
         });
 
         return win;
+    }
+
+    static async GetProxyResponse(request, overwriteUrl = null) {
+        if (overwriteUrl) request.url = overwriteUrl;
+        const parsedUrl = new URL(request.url);
+        const requestedUrl = parsedUrl.searchParams?.get('url')?.replaceAll(this.urlReplaceSymbols['?'], '?')?.replaceAll(this.urlReplaceSymbols['&'], '&');
+
+        switch (request.url.slice('scinner://'.length).split('?')[0]) {
+            case 'lang/ru.js':
+                return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'langs', 'ru.js')).toString());
+
+            case 'icon': {
+                const name = parsedUrl.searchParams.get('name');
+
+                if (name.includes('..')) {
+                    return;
+                }
+
+                return net.fetch(url.pathToFileURL(path.join(__dirname, '..', 'frontend', 'img', name)).toString());
+            }
+
+            case 'scripts/load': {
+                if (!requestedUrl) {
+                    return;
+                }
+
+                //const resp = await net.fetch(request, { bypassCustomProtocolHandlers: true });
+                const resp = await ProxyManager.sendRequest(requestedUrl, {
+                    method: request.method,
+                    mode: request.mode,
+                    cache: request.cache,
+                    credentials: request.credentials,
+                    headers: request.headers,
+                    integrity: request.integrity,
+                    keepalive: request.keepalive,
+                    redirect: request.redirect,
+                    referrer: request.referrer,
+                    referrerPolicy: request.referrerPolicy,
+                    signal: request.signal,
+                });
+                let text = await resp.text();
+
+                text = text.replaceAll('Português (Brasil)', 'Русский').replaceAll('Português', 'Русский');
+
+                if (text.includes('mês')) {
+                    text = require('../langs/ru_electron')(text);
+                }
+
+                return new Response(text, {
+                    headers: resp.headers,
+                    status: resp.status,
+                    statusText: resp.statusText,
+                });
+            }
+
+            case 'proxy-basic': {
+                if (!requestedUrl) {
+                    return;
+                }
+
+                let body = null;
+                if (request.method !== 'GET' && request.method !== 'HEAD') {
+                    body = await request.text();
+                }
+
+                const resp = await ProxyManager.sendRequest(requestedUrl, {
+                    method: request.method,
+                    mode: request.mode,
+                    cache: request.cache,
+                    credentials: request.credentials,
+                    headers: request.headers,
+                    integrity: request.integrity,
+                    keepalive: request.keepalive,
+                    redirect: request.redirect,
+                    referrer: request.referrer,
+                    referrerPolicy: request.referrerPolicy,
+                    signal: request.signal,
+                    body: body,
+                });
+                let text = await resp.text();
+                return new Response(text, {
+                    headers: resp.headers,
+                    status: resp.status,
+                    statusText: resp.statusText,
+                });
+            }
+
+            case 'proxy-tracks': {
+                if (!requestedUrl) {
+                    return;
+                }
+
+                let body = null;
+                if (request.method !== 'GET' && request.method !== 'HEAD') {
+                    body = await request.text();
+                }
+
+                const resp = await ProxyManager.sendRequest(requestedUrl, {
+                    method: request.method,
+                    mode: request.mode,
+                    cache: request.cache,
+                    credentials: request.credentials,
+                    headers: request.headers,
+                    integrity: request.integrity,
+                    keepalive: request.keepalive,
+                    redirect: request.redirect,
+                    referrer: request.referrer,
+                    referrerPolicy: request.referrerPolicy,
+                    signal: request.signal,
+                    body: body,
+                }, false, true);
+                let tracks = await resp.json();
+
+                if (Extensions.isArray(tracks)) {
+                    let send = [];
+
+                    tracks.forEach(track => {
+                        track.policy = 'ALLOW';
+                        send.push(track);
+                    });
+
+                    return new Response(JSON.stringify(send), {
+                        headers: resp.headers,
+                        status: resp.status,
+                        statusText: resp.statusText,
+                    });
+                }
+
+                if (typeof (tracks.policy) == 'string') {
+                    tracks.policy = 'ALLOW';
+                }
+
+                if (Extensions.isArray(tracks.collection)) {
+                    tracks.collection.forEach(collection => {
+                        if (Extensions.isArray(collection.tracks)) {
+                            collection.tracks.forEach(track => {
+                                track.policy = 'ALLOW';
+                                if (typeof (track.media) == 'object'
+                                    && Extensions.isArray(track.media.transcodings)
+                                    && track.media.transcodings.length === 0) {
+                                    delete track.media;
+                                }
+                            });
+                        }
+                    });
+                }
+
+                if (Extensions.isArray(tracks.tracks)) {
+                    tracks.tracks.forEach(track => {
+                        track.policy = 'ALLOW';
+                        if (typeof (track.media) == 'object'
+                            && Extensions.isArray(track.media.transcodings)
+                            && track.media.transcodings.length === 0) {
+                            delete track.media;
+                        }
+                    });
+                }
+
+                return new Response(JSON.stringify(tracks), {
+                    headers: resp.headers,
+                    status: resp.status,
+                    statusText: resp.statusText,
+                });
+            }
+
+            default: {
+                let resp = await ProxyManager.sendRequest(request.url, {
+                    method: request.method,
+                    mode: request.mode,
+                    cache: request.cache,
+                    credentials: request.credentials,
+                    headers: request.headers,
+                    integrity: request.integrity,
+                    keepalive: request.keepalive,
+                    redirect: request.redirect,
+                    referrer: request.referrer,
+                    referrerPolicy: request.referrerPolicy,
+                    signal: request.signal,
+                });
+                const webStream = Readable.toWeb(resp.body);
+
+                try {
+                    return {
+                        ...resp,
+                        body: webStream,
+                    };
+                } catch (err) {
+                    console.debug(err);
+                    let text = await resp.text();
+                    return new Response(text, {
+                        headers: resp.headers,
+                        status: 200,
+                        statusText: resp.statusText,
+                    });
+                }
+            }
+        }
     }
 
     static EmitGlobalEvent(event, ...args) {
