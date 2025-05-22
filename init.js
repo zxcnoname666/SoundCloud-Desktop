@@ -7,7 +7,7 @@ const Extensions = require('./modules/Extensions');
 const tpu = require('./modules/TCPPortUsing');
 
 let win;
-const dev = true;
+const dev = false;
 const AppPort = dev ? 3535 : 45828;
 
 app.on('window-all-closed', () => {
