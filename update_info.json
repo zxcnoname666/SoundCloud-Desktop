@@ -3,8 +3,8 @@
   "version": "1.13.0",
   "electron": "35",
   "hashes": {
-    "asar": "2c641c5a93e8e0a3584019c86a948d8cf92539c8f62e1bee8a713dc502b86d3b",
-    "installer": "853a2b946ea82ee38bd725ebaff863c248dc2b45bec089ec3558a9373a09cb0d"
+    "asar": "3f382f4de27cafd7c113e7b78938ca8865bdaa611f0694e64a0fcf663fd432f5",
+    "installer": "441c8886ce47f46fc7057e6b93000f6e6681ca773c9c6f6b466354c42f15bfad"
   },
   "names": {
     "asar": "packed.asar",
