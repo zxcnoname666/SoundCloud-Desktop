@@ -1,24 +1,42 @@
 module.exports = [
     {
-        url: 'http://soundcloud-proxy-root.loli-xxx.baby:3128',
-        name: 'Main Proxy',
-    },
-    {
-        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9999',
-        name: 'Tor Proxy [Reserve]',
-    },
-    {
         url: 'socks://soundcloud-proxy-root.loli-xxx.baby:9999',
         name: 'Tor Proxy',
     },
     {
-        url: 'http://soundcloud-proxy-root.loli-xxx.baby:9998',
-        name: 'Bypass Proxy',
-        bestBypass: true,
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9991',
+        name: 'Tor Proxy [Reserve-1]',
     },
     {
-        url: 'http://soundcloud-proxy-bypass.loli-xxx.baby:3128',
-        name: 'Bypass Proxy [Reserve]',
-        bestBypass: true,
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9992',
+        name: 'Tor Proxy [Reserve-2]',
+    },
+    {
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9993',
+        name: 'Tor Proxy [Reserve-3]',
+    },
+    {
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9994',
+        name: 'Tor Proxy [Reserve-4]',
+    },
+    {
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9995',
+        name: 'Tor Proxy [Reserve-5]',
+    },
+    {
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9996',
+        name: 'Tor Proxy [Reserve-6]',
+    },
+    {
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9997',
+        name: 'Tor Proxy [Reserve-7]',
+    },
+    {
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9998',
+        name: 'Tor Proxy [Reserve-8]',
+    },
+    {
+        url: 'socks://soundcloud-proxy-bypass.loli-xxx.baby:9999',
+        name: 'Tor Proxy [Reserve-9]',
     },
 ]

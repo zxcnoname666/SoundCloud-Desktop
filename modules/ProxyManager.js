@@ -198,7 +198,7 @@ module.exports = class ProxyManager {
             if (proxyCfg.proxyRules === oldRules)
                 return;
 
-            if (work.length === 0 && this.failedChecks < 3) {
+            if (work.length === 0 && this.failedChecks < 5) {
                 this.failedChecks++;
             } else if (work.length !== 0) {
                 this.failedChecks = 0;
@@ -224,16 +224,16 @@ module.exports = class ProxyManager {
                     nmanager.show(notify);
                 }
 
-                for (const content of webContents.getAllWebContents()) {
-                    if (content.isDestroyed()) {
-                        continue;
-                    }
-                    content.send('reload');
-                }
+                // for (const content of webContents.getAllWebContents()) {
+                //     if (content.isDestroyed()) {
+                //         continue;
+                //     }
+                //     content.send('reload');
+                // }
             }
 
             this.previosCount = work.length;
-        }, 30000);
+        }, 60000);
 
 
         this.previosCount = workProxies.length;
