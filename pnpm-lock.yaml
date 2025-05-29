@@ -25,8 +25,8 @@ importers:
         version: 8.0.5
     devDependencies:
       electron:
-        specifier: ^35.0.0
-        version: 35.0.0
+        specifier: ^36.3.2
+        version: 36.3.2
 
 packages:
 
@@ -114,8 +114,8 @@ packages:
   detect-node@2.1.0:
     resolution: {integrity: sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==}
 
-  electron@35.0.0:
-    resolution: {integrity: sha512-mwNQNktYLPnUWZVR8iNkfWCBjmM5e2/CmB1rhACwE9ASDbVU7CYPgp/jLUB3bj/LyQsfSuubD82OUite6SN8Uw==}
+  electron@36.3.2:
+    resolution: {integrity: sha512-v0/j7n22CL3OYv9BIhq6JJz2+e1HmY9H4bjTk8/WzVT9JwVX/T/21YNdR7xuQ6XDSEo9gP5JnqmjOamE+CUY8Q==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -447,7 +447,7 @@ snapshots:
   detect-node@2.1.0:
     optional: true
 
-  electron@35.0.0:
+  electron@36.3.2:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 22.13.9

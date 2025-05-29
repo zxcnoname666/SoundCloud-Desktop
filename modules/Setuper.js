@@ -408,12 +408,15 @@ module.exports = class Setup {
                     referrerPolicy: request.referrerPolicy,
                     signal: request.signal,
                 });
-                const webStream = Readable.toWeb(resp.body);
+
+                let webStream;
+                if (resp.body instanceof Readable)
+                    webStream = Readable.toWeb(resp.body);
 
                 try {
                     return {
                         ...resp,
-                        body: webStream,
+                        body: webStream ?? resp.body,
                     };
                 } catch (err) {
                     console.debug(err);

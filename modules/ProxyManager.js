@@ -8,78 +8,131 @@ const nfetch = require('node-fetch');
 const tls = require('node:tls');
 
 const Extensions = require('./Extensions');
-const {webContents} = require("electron");
+const {webContents, net} = require("electron");
+const url = require("url");
+const path = require("path");
 
 module.exports = class ProxyManager {
     static proxies = [];
     static failedChecks = 0;
     static previosCount = 0;
 
-    static async sendRequest(url, init, proxyAnyway = true, filterBest = false) {
-        let last_resp = null;
+    static async sendRequest(url, init = {}, proxyAnyway = true, filterBest = false) {
+        const controllers = [];
+
+        // ---------- helpers ----------
+        const agentFor = (proxy) => {
+            if (proxy.scheme.startsWith('http')) {
+                return new HttpsProxyAgent(proxy.source);
+            }
+            if (proxy.scheme.startsWith('socks')) {
+                return new SocksProxyAgent(proxy.source);
+            }
+            throw new Error(`Unknown proxy scheme: ${proxy.scheme}`);
+        };
+
+        const isSoundCloudInvalid = (json) => {
+            if (!json) return false;
+            const check = (item) =>
+                typeof item.media === 'object' &&
+                Array.isArray(item.media.transcodings) &&
+                item.media.transcodings.length === 0;
+
+            if (Array.isArray(json)) {
+                return json.some(check);
+            }
+            return check(json);
+        };
+
+        const madeRequest = async(opts) => {
+            const controller = new AbortController();
+            const obj = {
+                success: false,
+                abort: controller,
+            }
+            controllers.push(obj);
+
+            const resp = await nfetch(url, {
+                ...opts,
+                signal: controller.signal
+            });
+
+            if (!resp.ok) {
+                throw resp;// network/HTTP failure
+            }
+
+            const contentType = resp.headers.get('content-type');
+            if (!contentType || !contentType.includes('json')) {
+                obj.success = true;
+                return resp;
+            }
+
+            // --- SoundCloud edge case: weed out empty “media.transcodings” ---
+            let text;
+
+            try {
+                text = await resp.text();
+            } catch {
+                obj.success = true;
+                return resp;
+            }
+            const newResp = new Response(text, {
+                headers: resp.headers,
+                status: resp.status,
+                statusText: resp.statusText,
+            });
+
+            if (!url.includes('api.soundcloud.com/')) {
+                return newResp; // anything except SC API is fine
+            }
+
+            let json;
+            try {
+                json = JSON.parse(text);
+            } catch {
+                /* JSON parse failed – treat as valid */
+            }
+
+            if (json) {
+                if (isSoundCloudInvalid(json)) {
+                    throw newResp; // reject – let the race continue
+                }
+            }
+
+            return newResp;
+        }
+
+        // ---------- sort proxies if requested ----------
         let proxiesFiltered = [...this.proxies];
         if (filterBest) {
-            proxiesFiltered = proxiesFiltered.sort((a, b) => (a.bestBypass === b.bestBypass ? 0 : a.bestBypass ? -1 : 1));
+            proxiesFiltered.sort((a, b) =>
+                a.bestBypass === b.bestBypass ? 0 : a.bestBypass ? -1 : 1
+            );
         }
-        /*
-        console.log(proxiesFiltered);
-        console.log(url + '  --  ' + filterBest);
-        console.log('------');
-        */
 
-        for (let i = 0; i < proxiesFiltered.length; i++) {
-            const proxy = proxiesFiltered[i];
+        // ---------- fire all proxy requests concurrently ----------
+        const proxyPromises = proxiesFiltered.map((proxy) => madeRequest({ ...init, agent: agentFor(proxy) }));
+        proxyPromises.push(madeRequest({ ...init }));
 
-            if (proxy.scheme.startsWith('http')) {
-                init.agent = new HttpsProxyAgent(proxy.source);
-            } else if (proxy.scheme.startsWith('socks')) {
-                init.agent = new SocksProxyAgent(proxy.source);
-            }
+        const abortAll = () => controllers.forEach((c) => {if (!c.success) c.abort.abort()});
 
-            const resp = await nfetch(url, init);
-            last_resp = resp;
-            if (resp.ok) {
-                if (!url.includes('api.soundcloud.com/')) {
-                    return resp;
-                }
-
-                let text = await resp.text();
-                const new_resp = new Response(text, {
-                    headers: resp.headers,
-                    status: resp.status,
-                    statusText: resp.statusText,
-                });
-
-                last_resp = new_resp;
-
-                try {
-                    let json = JSON.parse(text);
-                    if (Extensions.isArray(json)) {
-                        if (json.some(x => typeof (x.media) == 'object'
-                            && Extensions.isArray(x.media.transcodings)
-                            && x.media.transcodings.length === 0)) {
-                            continue;
-                        }
-                    } else if (typeof (json.media) == 'object'
-                        && Extensions.isArray(json.media.transcodings)
-                        && json.media.transcodings.length === 0) {
-                        continue;
-                    }
-                } catch {
-                }
-
-                return new_resp;
+        try {
+            // Promise.any resolves with the FIRST fulfilment.
+            // If every promise rejects, an AggregateError is thrown.
+            const promise = await Promise.any(proxyPromises);
+            console.log(controllers.filter(x => x.success).length);
+            abortAll();
+            return promise;
+        } catch (aggregate) {
+            // Все прокси отвалились — abort pending fetches
+            abortAll();
+            if (aggregate && aggregate.errors) {
+                let err = aggregate.errors.reverse().find((e) => e instanceof Response) ?? null;
+                if (err != null) return err;
             }
         }
 
-        if (proxyAnyway) {
-            return last_resp;
-        }
-
-        {
-            delete init.agent;
-            return await nfetch(url, init);
-        }
+        return net.fetch(url, init);
     }
 
     static async Init(nmanager) {
@@ -103,7 +156,7 @@ module.exports = class ProxyManager {
             if (typeof (proxyConfig) == 'string') {
                 proxy = ParseProxy(proxyConfig);
             } else if (typeof (proxyConfig.url) == 'string') {
-                proxy = ParseProxy(proxyConfig.url, (proxyConfig.bestBypass === true));
+                proxy = ParseProxy(proxyConfig.url, (proxyConfig.bestBypass === true), (proxyConfig.dontCheck === true));
 
                 if (typeof (proxyConfig.name) == 'string') {
                     proxy.name = proxyConfig.name;
@@ -114,7 +167,7 @@ module.exports = class ProxyManager {
             }
 
             allProxies.push(proxy);
-            const _check = await ProxyCheck(proxy.source);
+            const _check = proxy.dontCheck ?? await ProxyCheck(proxy.source);
             if (_check) {
                 workProxies.push(proxy);
             }
@@ -179,7 +232,7 @@ module.exports = class ProxyManager {
         setInterval(async () => {
             const work = [];
             for (let proxy of allProxies) {
-                if (await ProxyCheck(proxy.source)) {
+                if (proxy.dontCheck ?? await ProxyCheck(proxy.source)) {
                     work.push(proxy);
                 }
             }
@@ -251,7 +304,7 @@ module.exports = class ProxyManager {
     };
 }
 
-function ParseProxy(proxy, best = false) {
+function ParseProxy(proxy, best = false, dontCheck = false) {
     let json = {
         scheme: '',
         host: '',
@@ -260,6 +313,7 @@ function ParseProxy(proxy, best = false) {
         password: '',
         source: proxy,
         bestBypass: best,
+        dontCheck,
         name: '',
     }
 
