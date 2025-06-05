@@ -67,6 +67,11 @@ module.exports = class ProxyManager {
                 return resp;
             }
 
+            if (!url.includes('api') && !url.includes('.soundcloud.com/') && !url.includes('tracks')) {
+                obj.success = true;
+                return resp;
+            }
+
             // --- SoundCloud edge case: weed out empty “media.transcodings” ---
             let text;
 
@@ -81,10 +86,6 @@ module.exports = class ProxyManager {
                 status: resp.status,
                 statusText: resp.statusText,
             });
-
-            if (!url.includes('api.soundcloud.com/')) {
-                return newResp; // anything except SC API is fine
-            }
 
             let json;
             try {
@@ -120,7 +121,6 @@ module.exports = class ProxyManager {
             // Promise.any resolves with the FIRST fulfilment.
             // If every promise rejects, an AggregateError is thrown.
             const promise = await Promise.any(proxyPromises);
-            console.log(controllers.filter(x => x.success).length);
             abortAll();
             return promise;
         } catch (aggregate) {

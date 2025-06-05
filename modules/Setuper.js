@@ -89,7 +89,6 @@ module.exports = class Setup {
                     }
 
                     callback({});
-                    //callback({ redirectURL: 'scinner://proxy-basic?url=' + encodeURI(proxyUrl) });
                     return;
                 }
 

@@ -1,5 +1,14 @@
+const {app} = require('electron');
+const {join} = require("node:path");
+const {existsSync} = require("node:fs");
+
+let proxyFile = join(app.getPath("appData"), "soundcloud", "config.proxy.js");
+if (!existsSync(proxyFile)) {
+    proxyFile = join(__dirname, "config.proxy.js");
+}
+
 module.exports = {
-    proxy: require('./config.proxy'),
+    proxy: require(proxyFile),
     autoUpdate: true,
     translations: {
         ru: { // ru, kk, ky, be
