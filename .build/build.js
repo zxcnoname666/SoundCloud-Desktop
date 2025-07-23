@@ -12,31 +12,9 @@ try {
   console.log("pnpm is not installed...");
   console.log("installing pnpm...");
 
-  let command;
-  let arg = {};
-
-  switch (process.platform) {
-    case "win32": {
-      command =
-        "Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression";
-      arg = { shell: "powershell.exe" };
-      break;
-    }
-    default: {
-      command = "wget -qO- https://get.pnpm.io/install.sh | sh -";
-      break;
-    }
-  }
-
-  if (!command) {
-    console.error("error.. os is not defined, install pnpm manually");
-    process.exit(1);
-  }
-
-  execSync(command, {
+  execSync('npm i pnpm -g', {
     cwd: path.join(__dirname, ".."),
-    stdio: "inherit",
-    ...arg,
+    stdio: "inherit"
   });
   console.log("\n");
 }
