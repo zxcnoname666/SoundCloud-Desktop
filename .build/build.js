@@ -45,7 +45,7 @@ try {
     throw new Error("update electron-builder");
   }
 } catch {
-  execSync("pnpm i electron-builder -g", {
+  execSync("npm i electron-builder -g", {
     cwd: path.join(__dirname, ".."),
     stdio: "inherit",
   });
@@ -58,7 +58,7 @@ try {
     cwd: path.join(__dirname, ".."),
   });
 } catch {
-  execSync("pnpm i @napi-rs/cli -g", {
+  execSync("npm i @napi-rs/cli -g", {
     cwd: path.join(__dirname, ".."),
     stdio: "inherit",
   });
