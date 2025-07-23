@@ -17,6 +17,10 @@ module.exports = class ProxyManager {
     static failedChecks = 0;
     static previosCount = 0;
 
+    static getProxiesLength() {
+        return this.proxies.length;
+    };
+
     static async sendRequest(url, init = {}, proxyAnyway = true, filterBest = false) {
         const controllers = [];
 

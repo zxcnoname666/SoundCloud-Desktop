@@ -223,9 +223,21 @@ module.exports = class Setup {
             await this.GetProxyResponse(request);
         });
 
-        protocol.handle('https', async (request) => {
+        // proxy register
+        let registered = false;
+        const httpsHandleMethod = async (request) => {
             return await this.GetProxyResponse(request)
-        });
+        };
+        setInterval(() => {
+            const useProxy = !!ProxyManager.getProxiesLength();
+            if (!useProxy && registered) {
+                protocol.unhandle('https');
+                registered = false;
+            } else if (useProxy && !registered) {
+                protocol.handle('https', httpsHandleMethod);
+                registered = true;
+            }
+        }, 5_000);
 
         return win;
     }
