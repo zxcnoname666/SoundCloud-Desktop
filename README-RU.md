@@ -26,22 +26,26 @@
 
 # Протокол приложения
 
-Вы можете открыть страницу в приложении сразу из браузера, использовав протокол `sc://`
-> Для этого надо заменить `https://soundcloud.com/...` на `sc://...`. По принципу: `https://soundcloud.com/discover` =>
-`sc://discover`
+Вы можете открыть страницу в приложении сразу из браузера, использовав протокол
+`sc://`
+
+> Для этого надо заменить `https://soundcloud.com/...` на `sc://...`. По
+> принципу: `https://soundcloud.com/discover` => `sc://discover`
 
 В приложении вы также можете перемещаться по вводу ссылки (как в браузере)
 
 # Установка
 
-1. Перейдите в [последние релизы](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+1. Перейдите в
+   [последние релизы](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
 2. Скачайте `SoundCloudInstaller.exe`
 3. При желании, проверьте сигнатуру через программы по типу gpgex4
 4. Запустите `SoundCloudInstaller.exe`
 
 # Конфиги
 
-> Вы можете настроить язык приложения через конфиг в файле `config.js` в рутовой директории
+> Вы можете настроить язык приложения через конфиг в файле `config.js` в рутовой
+> директории
 
 # Прокси
 
@@ -51,12 +55,13 @@
 
 Для этого измените файл `config.proxy.js` в рутовой директории.
 
-`proxy` - это массив строк/объектов-коннектов для подключения к прокси (например `socks://1.1.1.1:1337`,
-`http://1.1.1.1:80` или `scheme://user:password@ip:port`)
+`proxy` - это массив строк/объектов-коннектов для подключения к прокси (например
+`socks://1.1.1.1:1337`, `http://1.1.1.1:80` или
+`scheme://user:password@ip:port`)
 
-> Рекомендация безопасности: Лучше используйте доступ по `user:password` или разрешите подключения только для следующих
-> доменов:
-`.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co .captcha-delivery.com .soundcloud.cloud`
+> Рекомендация безопасности: Лучше используйте доступ по `user:password` или
+> разрешите подключения только для следующих доменов:
+> `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co .captcha-delivery.com .soundcloud.cloud`
 
 # Сборка
 

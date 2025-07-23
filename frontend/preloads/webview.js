@@ -1,109 +1,115 @@
-const {ipcRenderer} = require('electron');
+const { ipcRenderer } = require("electron");
 
 const updateUrl = () => {
-    ipcRenderer.on('reload', () => {
-        window.location.reload();
-    });
+  ipcRenderer.on("reload", () => {
+    window.location.reload();
+  });
 
-    ipcRenderer.on('update-url', (ev, url) => {
-        url = 'https://soundcloud.com/' + url;
-        history.pushState('SoundCloud', 'SoundCloud', url);
-        setTimeout(() => {
-            history.back();
-            setTimeout(() => history.forward(), 100);
-        }, 100);
-    });
+  ipcRenderer.on("update-url", (ev, url) => {
+    url = "https://soundcloud.com/" + url;
+    history.pushState("SoundCloud", "SoundCloud", url);
+    setTimeout(() => {
+      history.back();
+      setTimeout(() => history.forward(), 100);
+    }, 100);
+  });
 
-    ipcRenderer.on('call-wv-event', (ev, type) => {
-        switch (type) {
-            case 1: {
-                history.back();
-                break;
-            }
-            case 2: {
-                history.forward();
-                break;
-            }
-            case 3: {
-                location.reload();
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    });
+  ipcRenderer.on("call-wv-event", (ev, type) => {
+    switch (type) {
+      case 1: {
+        history.back();
+        break;
+      }
+      case 2: {
+        history.forward();
+        break;
+      }
+      case 3: {
+        location.reload();
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+  });
 };
 
 const removeBanners = () => {
-    let _removed = false;
+  let _removed = false;
 
-    setInterval(() => {
-        const fel = document.getElementById('onetrust-consent-sdk');
-        if (fel != null) {
-            try {
-                document.getElementById('onetrust-accept-btn-handler').click();
-            } catch {
-            }
-            setTimeout(() => fel.outerHTML = '', 100);
-            _removed = true;
-        }
-    }, _removed ? 2000 : 100);
+  setInterval(() => {
+    const fel = document.getElementById("onetrust-consent-sdk");
+    if (fel != null) {
+      try {
+        document.getElementById("onetrust-accept-btn-handler").click();
+      } catch {
+      }
+      setTimeout(() => fel.outerHTML = "", 100);
+      _removed = true;
+    }
+  }, _removed ? 2000 : 100);
 
-    setInterval(() => {
-        const headerButton = document.querySelector('.header__logoLink, .frontHero__logo');
-        headerButton.title = '';
-    }, 3000);
+  setInterval(() => {
+    const headerButton = document.querySelector(
+      ".header__logoLink, .frontHero__logo",
+    );
+    headerButton.title = "";
+  }, 3000);
 };
 
 const checkChromeError = () => {
-    setInterval(() => {
-        const url = new URL(window.location.href);
+  setInterval(() => {
+    const url = new URL(window.location.href);
 
-        if (url.pathname.startsWith("chrome-error") || url.protocol === "chrome-error:") {
-            window.location.href = 'https://soundcloud.com/';
-        }
-    }, 3000);
+    if (
+      url.pathname.startsWith("chrome-error") ||
+      url.protocol === "chrome-error:"
+    ) {
+      window.location.href = "https://soundcloud.com/";
+    }
+  }, 3000);
 };
 
 const sendUpdatedUrl = () => {
-    let lastUrlCache = '';
+  let lastUrlCache = "";
 
-    setInterval(() => {
-        const href = window.location.href;
+  setInterval(() => {
+    const href = window.location.href;
 
-        if (lastUrlCache === href) {
-            return;
-        }
+    if (lastUrlCache === href) {
+      return;
+    }
 
-        lastUrlCache = href;
-        ipcRenderer.send('UpdateLastUrl', href);
-        ipcRenderer.send('UpdateCanBack');
-    }, 200);
+    lastUrlCache = href;
+    ipcRenderer.send("UpdateLastUrl", href);
+    ipcRenderer.send("UpdateCanBack");
+  }, 200);
 
-    ipcRenderer.send('UpdateCanBack');
+  ipcRenderer.send("UpdateCanBack");
 };
 
 const UpdateIsPlaying = () => {
-    setInterval(() => {
-        const value = document.querySelector('.playControls__play').classList.contains('playing');
-        ipcRenderer.send('UpdateIsPlaying', value);
-    }, 1000);
+  setInterval(() => {
+    const value = document.querySelector(".playControls__play").classList
+      .contains("playing");
+    ipcRenderer.send("UpdateIsPlaying", value);
+  }, 1000);
 };
 
-window.addEventListener('DOMContentLoaded', () => {
-    updateUrl();
-    removeBanners();
-    sendUpdatedUrl();
-    UpdateIsPlaying();
-    checkChromeError();
+window.addEventListener("DOMContentLoaded", () => {
+  updateUrl();
+  removeBanners();
+  sendUpdatedUrl();
+  UpdateIsPlaying();
+  checkChromeError();
 });
 
-document.addEventListener('mousedown', (e) => {
-    if (e.button === 3) {
-        history.back();
-    }
-    if (e.button === 4) {
-        history.forward();
-    }
+document.addEventListener("mousedown", (e) => {
+  if (e.button === 3) {
+    history.back();
+  }
+  if (e.button === 4) {
+    history.forward();
+  }
 });

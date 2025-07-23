@@ -1,137 +1,137 @@
 @font-face {
-    font-family: 'NeonOL';
-    src: url('../fonts/NeonOL.ttf');
-    font-style: normal;
-    font-weight: normal;
+  font-family: "NeonOL";
+  src: url("../fonts/NeonOL.ttf");
+  font-style: normal;
+  font-weight: normal;
 }
 
 @font-face {
-    font-family: 'Nunito';
-    src: url('../fonts/Nunito.ttf');
-    font-style: normal;
-    font-weight: normal;
+  font-family: "Nunito";
+  src: url("../fonts/Nunito.ttf");
+  font-style: normal;
+  font-weight: normal;
 }
 
 * {
-    user-select: none;
+  user-select: none;
 }
 
 body {
-    margin: 0;
+  margin: 0;
 }
 
 #AppNavbarSystem {
-    margin: 0;
-    font-family: Roboto, sans-serif;
-    background-color: #1c1d20;
-    position: fixed;
-    left: 0;
-    right: 0;
-    height: 40px;
-    z-index: 999;
-    -webkit-app-region: drag;
+  margin: 0;
+  font-family: Roboto, sans-serif;
+  background-color: #1c1d20;
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 40px;
+  z-index: 999;
+  -webkit-app-region: drag;
 
-    display: grid;
-    justify-content: space-between;
+  display: grid;
+  justify-content: space-between;
+  align-items: center;
+  grid-template-columns: 0.6fr 1fr 0.6fr;
+
+  .LogoText {
+    display: inline-flex;
     align-items: center;
-    grid-template-columns: 0.6fr 1fr 0.6fr;
+    font-family: NeonOL;
+    color: #bf7c00;
+    margin: 3px 5px;
+    font-size: 22px;
 
-    .LogoText {
-        display: inline-flex;
-        align-items: center;
-        font-family: NeonOL;
-        color: #bf7c00;
-        margin: 3px 5px;
-        font-size: 22px;
+    img {
+      margin-left: 10px;
+      height: 22px;
+      -webkit-app-region: no-drag;
 
-        img {
-            margin-left: 10px;
-            height: 22px;
-            -webkit-app-region: no-drag;
+      &, * {
+        cursor: pointer;
+      }
+    }
+  }
 
-            &, * {
-                cursor: pointer;
-            }
-        }
+  .Locator {
+    height: 20px;
+    border-radius: 8px;
+    background: #83602c33;
+    padding: 5px;
+    display: grid;
+    grid-template-columns: 1fr 20px 20px 20px; /* url | left | right | reload */
+    -webkit-app-region: no-drag;
+
+    .Path {
+      margin-right: 5px;
+      border-right: 1px solid gray;
+      display: flex;
+      font-family: Nunito;
+      font-size: 15px;
+
+      span {
+        color: aliceblue;
+      }
+
+      l {
+        color: #9b9fa7;
+      }
+
+      input {
+        margin-right: 2px;
+        background: #0000;
+        outline: 0;
+        border: 0;
+        padding: 0;
+        color: #9b9fa7;
+        width: 100%;
+      }
     }
 
-    .Locator {
-        height: 20px;
-        border-radius: 8px;
-        background: #83602c33;
-        padding: 5px;
-        display: grid;
-        grid-template-columns: 1fr 20px 20px 20px; /* url | left | right | reload */
-        -webkit-app-region: no-drag;
-
-        .Path {
-            margin-right: 5px;
-            border-right: 1px solid gray;
-            display: flex;
-            font-family: Nunito;
-            font-size: 15px;
-
-            span {
-                color: aliceblue;
-            }
-
-            l {
-                color: #9b9fa7;
-            }
-
-            input {
-                margin-right: 2px;
-                background: #0000;
-                outline: 0;
-                border: 0;
-                padding: 0;
-                color: #9b9fa7;
-                width: 100%;
-            }
-        }
-
-        .button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 3px;
-            height: 20px;
-            cursor: pointer;
-            margin-right: 3px;
-        }
-
-        .button:last-child {
-            margin-right: 0;
-        }
-
-        .button:hover {
-            background: #68686879;
-        }
-
-        .button.block {
-            background: #2c2c2cd5;
-            cursor: not-allowed;
-        }
+    .button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 3px;
+      height: 20px;
+      cursor: pointer;
+      margin-right: 3px;
     }
 
-    .ButtonsSelector {
-        display: flex;
-        flex-direction: row-reverse;
-        -webkit-app-region: drag;
-        user-select: none;
-
-        i {
-            display: flex;
-            height: 17px;
-            width: 17px;
-            border-radius: 50%;
-            margin-right: 10px;
-            -webkit-app-region: no-drag;
-            cursor: pointer;
-        }
-
-        i:hover {
-            border-radius: 35%;
-        }
+    .button:last-child {
+      margin-right: 0;
     }
+
+    .button:hover {
+      background: #68686879;
+    }
+
+    .button.block {
+      background: #2c2c2cd5;
+      cursor: not-allowed;
+    }
+  }
+
+  .ButtonsSelector {
+    display: flex;
+    flex-direction: row-reverse;
+    -webkit-app-region: drag;
+    user-select: none;
+
+    i {
+      display: flex;
+      height: 17px;
+      width: 17px;
+      border-radius: 50%;
+      margin-right: 10px;
+      -webkit-app-region: no-drag;
+      cursor: pointer;
+    }
+
+    i:hover {
+      border-radius: 35%;
+    }
+  }
 }
