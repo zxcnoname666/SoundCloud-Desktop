@@ -16,6 +16,10 @@ try {
     cwd: path.join(__dirname, ".."),
     stdio: "inherit"
   });
+  execSync('pnpm setup', {
+    cwd: path.join(__dirname, ".."),
+    stdio: "inherit"
+  });
   console.log("\n");
 }
 
