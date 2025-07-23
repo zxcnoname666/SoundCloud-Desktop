@@ -105,7 +105,7 @@ if (fs.existsSync(nativeUtilsPath)) {
 }
 
 console.log("\nBuilding electron application...");
-execSync("electron-builder", {
+execSync("electron-builder --publish never", {
   cwd: path.join(__dirname, ".."),
   stdio: "inherit",
 });
