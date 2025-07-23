@@ -14,10 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 'latest'
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
