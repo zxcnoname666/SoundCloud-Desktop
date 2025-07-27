@@ -75,7 +75,7 @@ This app was created out of personal necessity.
 
 <p align="center">
 <a href="javascript:void(0)">
-<img src="https://profile-counter.glitch.me/scda/count.svg" width="200px" />
+<img src="https://count.getloli.com/get/@soundcloud-desktop" width="200px" />
 </a>
 </p>
 <p align="center">
