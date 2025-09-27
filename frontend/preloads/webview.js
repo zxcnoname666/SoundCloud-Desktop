@@ -5,8 +5,8 @@ const updateUrl = () => {
     window.location.reload();
   });
 
-  ipcRenderer.on("update-url", (ev, url) => {
-    url = "https://soundcloud.com/" + url;
+    ipcRenderer.on("webview:navigate", (ev, url) => {
+        url = "https://soundcloud.com/" + url.replace("https://soundcloud.com/", "");
     history.pushState("SoundCloud", "SoundCloud", url);
     setTimeout(() => {
       history.back();
@@ -14,24 +14,16 @@ const updateUrl = () => {
     }, 100);
   });
 
-  ipcRenderer.on("call-wv-event", (ev, type) => {
-    switch (type) {
-      case 1: {
+    ipcRenderer.on("webview:back", () => {
         history.back();
-        break;
-      }
-      case 2: {
+    });
+
+    ipcRenderer.on("webview:forward", () => {
         history.forward();
-        break;
-      }
-      case 3: {
+    });
+
+    ipcRenderer.on("webview:reload", () => {
         location.reload();
-        break;
-      }
-      default: {
-        break;
-      }
-    }
   });
 };
 
@@ -82,18 +74,18 @@ const sendUpdatedUrl = () => {
     }
 
     lastUrlCache = href;
-    ipcRenderer.send("UpdateLastUrl", href);
-    ipcRenderer.send("UpdateCanBack");
+      ipcRenderer.send("webview:url-changed", href);
+      ipcRenderer.send("webview:navigation-state-changed");
   }, 200);
 
-  ipcRenderer.send("UpdateCanBack");
+    ipcRenderer.send("webview:navigation-state-changed");
 };
 
-const UpdateIsPlaying = () => {
+const trackPlayingState = () => {
   setInterval(() => {
     const value = document.querySelector(".playControls__play").classList
       .contains("playing");
-    ipcRenderer.send("UpdateIsPlaying", value);
+      ipcRenderer.send("app:set-playing", value);
   }, 1000);
 };
 
@@ -101,7 +93,7 @@ window.addEventListener("DOMContentLoaded", () => {
   updateUrl();
   removeBanners();
   sendUpdatedUrl();
-  UpdateIsPlaying();
+    trackPlayingState();
   checkChromeError();
 });
 

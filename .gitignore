@@ -1,7 +1,5 @@
-/.build/bin/*
-/.build/sc-rename/target/*
-/.build/native_utils/target/*
-/.build/native_utils/native_utils.node
+/native_utils/target/*
+/native_utils/native_utils.node
 
 /node_modules/*
 /dist/*

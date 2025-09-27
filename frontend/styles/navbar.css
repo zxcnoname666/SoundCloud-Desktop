@@ -119,6 +119,7 @@ body {
     flex-direction: row-reverse;
     -webkit-app-region: drag;
     user-select: none;
+      align-items: center;
 
     i {
       display: flex;

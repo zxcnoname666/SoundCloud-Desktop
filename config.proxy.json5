@@ -1,0 +1,19 @@
+{
+  // Web proxy configuration for header-based tunneling
+  // Format: https://proxy-domain.com/path
+  //
+  // Target URL is sent in X-Proxy-Target-URL header
+  // Request will be sent as:
+  // POST https://proxy-domain.com/
+  // Headers:
+  //   X-Proxy-Target-URL: https://api.soundcloud.com/resolve
+  //   User-Agent: SoundCloud-Desktop/1.0
+  //   [other headers copied as-is]
+
+  proxy: [
+    // Add your web proxy URLs here
+    // "https://cloudflare-proxy-domain.example.com/",
+    // "https://proxy.example.com/api/tunnel"
+    "https://soundcloud-desktop-proxy.sexy-loli.workers.dev"
+  ]
+}
