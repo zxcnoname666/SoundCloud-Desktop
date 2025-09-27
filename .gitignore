@@ -4,6 +4,7 @@
 /node_modules/*
 /dist/*
 /bins/*
+/artifacts/*
 
 /.idea/*
 
