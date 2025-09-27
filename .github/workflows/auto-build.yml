@@ -74,7 +74,7 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BUILD_COMMAND: "echo 'Using pre-built artifacts'"
-          ASSET_PATTERNS: "artifacts/*/dist/*"
+          ASSET_PATTERNS: "artifacts/*/*"
           OPENAI_API_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
           OPENAI_API_MODEL: gemini-2.5-flash
           OPENAI_API_KEY: ${{ secrets.AI_GEMINI_API_KEY }}
