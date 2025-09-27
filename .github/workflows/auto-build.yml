@@ -51,9 +51,10 @@ jobs:
         with:
           name: ${{ matrix.os }}-build
           path: |
-            dist/soundcloud-*
-            dist/latest-*.yml
-            dist/*.blockmap
+            dist/*.exe
+            dist/*.AppImage
+            dist/*.dmg
+            dist/*.zip
 
   release:
     needs: build
