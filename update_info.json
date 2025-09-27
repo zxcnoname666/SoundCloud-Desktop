@@ -1,13 +1,14 @@
 {
-  "details": "",
-  "version": "1.16.0",
-  "electron": "36",
+  "note": "ЭТО АРХИВНЫЙ ФАЙЛ! Используется для обновления с v1 до v2, в v2 используется новый updater с github releases.",
+  "details": "Проект обновлен до v2. Приложение полностью переписано, изменена логика прокси, добавлена поддержка linux и macos, изменена структура конфигов, также добавлена 'внешняя' авторизация.",
+  "version": "2.0.0",
+  "electron": "38",
   "hashes": {
-    "asar": "0096d44f5c719e7d5f3a80d9723f3f98e887a5dd346a5a36c3ada5b277843c50",
-    "installer": "243585e05b06aee350354da32648a2243b5c4c3bf0c8e77f965b202330597018"
+    "asar": "",
+    "installer": "f64d6551045b3d7604064b5f3b58afb442bd26d0a79ac38c68902757e8080690"
   },
   "names": {
-    "asar": "packed.asar",
+    "asar": "",
     "installer": "SoundCloudInstaller.exe"
   }
 }
