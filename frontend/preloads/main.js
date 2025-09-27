@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld("ipcRenderer", {
   on: (name, event) => ipcRenderer.on(name, event),
   once: (name, event) => ipcRenderer.once(name, event),
   send: (name, ...args) => ipcRenderer.send(name, ...args),
+    invoke: (name, ...args) => ipcRenderer.invoke(name, ...args),
 });
 
 const SetupHeader = () => {
@@ -12,7 +13,7 @@ const SetupHeader = () => {
 
   input.addEventListener("keydown", (ev) => {
     if (ev.key === "Enter") {
-      ipcRenderer.send("call-update-url", encodeURI(ev.target.value));
+        ipcRenderer.send("webview:navigate", encodeURI(ev.target.value));
     }
   });
 
@@ -61,7 +62,8 @@ const SetupSetting = () => {
 const Init = () => {
   const webview = document.querySelector("webview");
 
-  ipcRenderer.on("load-url", (ev, url) => {
+    ipcRenderer.on("webview:navigate", (ev, url) => {
+        url = url.replace("https://soundcloud.com/", "");
     UpdateUrlInPanel(url);
     try {
       if (webview.getAttribute("src") === "https://soundcloud.com/" + url) {
@@ -76,11 +78,11 @@ const Init = () => {
     webview.setAttribute("src", "https://soundcloud.com/" + url);
   });
 
-  ipcRenderer.on("update-url", (ev, url) => {
+    ipcRenderer.on("webview:url-changed", (ev, url) => {
     UpdateUrlInPanel(url);
   });
 
-  ipcRenderer.on("update-can-back", (ev, canBack, canForward) => {
+    ipcRenderer.on("webview:navigation-state-changed", (ev, canBack, canForward) => {
     const buttons = document.querySelector("#AppNavbarSystem .Locator");
     const backButton = buttons.querySelector(".Back.button");
     const forwardButton = buttons.querySelector(".Forward.button");

@@ -6,18 +6,14 @@
   </head>
   <body>
     <div id="AppNavbarSystem">
-      <span class="LogoText">SoundCloud <img
-          ondragstart="return false;"
-          src="./img/neon-settings.svg"
-          style="display: none"
-        ></span>
+        <span class="LogoText">SoundCloud</span>
       <div class="Locator">
         <div class="Path">
           <span>soundcloud.com</span>
           <l>/</l>
           <input>
         </div>
-        <div class="Back button" onclick="ipcRenderer.send('call-wv', 1)">
+          <div class="Back button" onclick="ipcRenderer.send('webview:back')">
           <svg
             height="17px"
             preserveAspectRatio="xMidYMid meet"
@@ -37,7 +33,7 @@
             </g>
           </svg>
         </div>
-        <div class="Forward button" onclick="ipcRenderer.send('call-wv', 2)">
+          <div class="Forward button" onclick="ipcRenderer.send('webview:forward')">
           <svg
             height="17px"
             preserveAspectRatio="xMidYMid meet"
@@ -58,7 +54,7 @@
             </g>
           </svg>
         </div>
-        <div class="Reload button" onclick="ipcRenderer.send('call-wv', 3)">
+          <div class="Reload button" onclick="ipcRenderer.send('webview:reload')">
           <svg
             height="17px"
             preserveAspectRatio="xMidYMid meet"
@@ -85,24 +81,113 @@
       </div>
       <div class="ButtonsSelector">
         <i
-          onclick="ipcRenderer.send('navbarEvent', 3)"
+                onclick="ipcRenderer.send('window:close')"
           style="background: #ff3737"
         ></i>
         <i
-          onclick="ipcRenderer.send('navbarEvent', 1)"
+                onclick="ipcRenderer.send('window:minimize')"
           style="background: #ffe819"
         ></i>
         <i
-          onclick="ipcRenderer.send('navbarEvent', 2)"
+                onclick="ipcRenderer.send('window:maximize')"
           style="background: lime"
         ></i>
+          <div class="AuthButton" onclick="openAuthModal()" title="Authentication">
+              <svg fill="#9b9fa7" height="17" viewBox="0 0 24 24" width="17">
+                  <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.4 7 14.8 8.6 14.8 10V11.5C14.8 12.6 14.4 13.5 13.5 13.5H10.5C9.6 13.5 9.2 12.6 9.2 11.5V10C9.2 8.6 10.6 7 12 7M12 8.2C11.2 8.2 10.4 8.7 10.4 10V11.3H13.6V10C13.6 8.7 12.8 8.2 12 8.2Z"/>
+              </svg>
+          </div>
       </div>
     </div>
-    <iframe class="settings" style="display: none; visibility: hidden"></iframe>
+
+    <!-- Authentication Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
+                <h2>🎵 SoundCloud Authentication</h2>
+                <span class="auth-close" onclick="closeAuthModal()">&times;</span>
+            </div>
+
+            <!-- Manual Token Tab -->
+            <div class="auth-tab-content active" id="tokenTab">
+                <div class="auth-section">
+                    <h3>🔑 Enter Your Authentication Token</h3>
+                    <p>Follow the guide below to extract your SoundCloud authentication token:</p>
+                    <input class="auth-input" id="tokenInput" placeholder="Paste your oauth_token here..."
+                           type="password">
+                    <button class="auth-button primary" onclick="saveToken()">Save Token</button>
+                </div>
+
+                <div class="auth-guide">
+                    <h4>📋 How to get your SoundCloud token:</h4>
+                    <div class="guide-steps">
+                        <div class="guide-step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <strong>Open SoundCloud in your browser</strong>
+                                <p>Go to <code>soundcloud.com</code> and make sure you're logged in</p>
+                            </div>
+                        </div>
+
+                        <div class="guide-step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <strong>Open Developer Tools</strong>
+                                <p>Press <kbd>F12</kbd> or <kbd>Ctrl+Shift+I</kbd> (Windows/Linux) or
+                                    <kbd>Cmd+Option+I</kbd> (Mac)</p>
+                            </div>
+                        </div>
+
+                        <div class="guide-step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <strong>Go to Application/Storage tab</strong>
+                                <p>Click on "Application" tab (Chrome/Edge) or "Storage" tab (Firefox)</p>
+                            </div>
+                        </div>
+
+                        <div class="guide-step">
+                            <span class="step-number">4</span>
+                            <div class="step-content">
+                                <strong>Find Cookies</strong>
+                                <p>Expand "Cookies" → "https://soundcloud.com"</p>
+                            </div>
+                        </div>
+
+                        <div class="guide-step">
+                            <span class="step-number">5</span>
+                            <div class="step-content">
+                                <strong>Copy oauth_token</strong>
+                                <p>Find cookie named <code>oauth_token</code> and copy its <strong>Value</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="guide-step">
+                            <span class="step-number">6</span>
+                            <div class="step-content">
+                                <strong>Paste and Save</strong>
+                                <p>Paste the token value above and click "Save Token"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="guide-note">
+                        <strong>⚠️ Important:</strong> Your token is like a password - keep it secure and don't share it
+                        with others!
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-status" id="authStatus"></div>
+        </div>
+    </div>
+
     <webview
       allowpopups
       preload="./preloads/webview.js"
       webpreferences="nativeWindowOpen=true"
     ></webview>
+
+    <script src="./scripts/auth.js"></script>
   </body>
 </html>

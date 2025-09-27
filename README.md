@@ -1,6 +1,6 @@
 <p>
 <a href="https://soundcloud.com" alt="soundcloud">
-<img src="https://raw.githubusercontent.com/fydne/SoundCloud-Desktop/main/icons/appLogo.png" width="200px" align="right" style="border-radius: 50%;" />
+<img src="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png" width="200px" align="right" style="border-radius: 50%;" />
 </a>
 
 # SoundCloud Desktop
@@ -11,18 +11,22 @@
 </a>
 </p>
 <p align="center">
-The unofficial SoundCloud desktop app for Windows
+The unofficial SoundCloud desktop app for Windows, Linux & macOS
 </p>
 
 # Select language
 
 ### EN [RU](https://github.com/zxcnoname666/SoundCloud-Desktop/blob/main/README-RU.md)
 
-# Features
+# ✨ Features
 
-- Dark theme
-- Bypass the blocking of most tracks
-- AdBlock
+- **🌙 Dark theme** - Modern dark interface
+- **🌍 Bypass geo-blocking** - Access blocked tracks from any region
+- **🚫 AdBlock** - Built-in ad blocking for clean experience
+- **⚡ Fast & lightweight** - Optimized TypeScript codebase with bundling
+- **🔒 Proxy support** - Built-in proxy for unrestricted access
+- **🔗 Protocol support** - Open SoundCloud links directly with `sc://` protocol
+- **🖥️ Cross-platform** - Available for Windows, Linux & macOS
 
 # App Protocol
 
@@ -34,38 +38,88 @@ You can open the page in the application directly from the browser using the
 
 You can also navigate in app by using url-navbar (like in browsers)
 
-# Install
+# 📥 Download & Install
 
-1. Go to
-   [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+## Windows
+
+1. Go to [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
 2. Download `SoundCloudInstaller.exe`
-3. If you wish, check the sig hash via programs like gpgex4
-4. Run `SoundCloudInstaller.exe`
+3. Run the installer and follow instructions
 
-# Configs
+## Linux
 
-> You can customize the application language via config in the `config.js` file
+1. Go to [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+2. Download `soundcloud-*.AppImage`
+3. Make it executable: `chmod +x soundcloud-*.AppImage`
+4. Run the AppImage
 
-# Proxy
+## macOS
 
-> You can use your own proxy when connecting to SoundCloud
+1. Go to [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+2. Download `soundcloud-*.dmg`
+3. Open the DMG and drag the app to Applications
 
-> Recommended location: Switzerland
+# ⚙️ Configuration
 
-Modify the `config.proxy.js` file.
+## Language Settings
 
-`proxy` - an array with links to connect to a proxy (like
-`socks://1.1.1.1:1337`, `http://1.1.1.1:80` or `scheme://user:password@ip:port`)
+You can customize the application language via `config.json5` file in the app directory.
 
-> Security Recommendation: Better use `user:password` access or only allow
-> connections to the following servers:
-> `.soundcloud.com .sndcdn.com soundcloud-upload.s3.amazonaws.com js.datadome.co api-js.datadome.co .captcha-delivery.com .soundcloud.cloud`
+## 🔒 Proxy Configuration
 
-# Build
+Configure proxy settings to bypass geo-restrictions:
 
-1. Install nodejs: [link](https://nodejs.org/en/download)
-2. Install rustlang: [link](https://rust-lang.org/tools/install)
-3. Compile app: `npm run build`
+**Config locations (priority order):**
+
+1. **User folder**: `%APPDATA%/soundcloud/config.proxy.json5` (Windows) or `~/.config/soundcloud/config.proxy.json5` (
+   Linux/macOS)
+2. **App folder**: `config.proxy.json5` in app directory
+
+**Configuration format:**
+
+```json5
+{
+  "proxy": [
+    "https://your-worker.workers.dev",
+    "http://proxy.example.com:8080"
+  ]
+}
+```
+
+**Cloudflare Worker Proxy (Recommended):**
+
+1. Use the ready-made Worker code from `_proxy/cloudflare-proxy.js`
+2. Deploy it to Cloudflare Workers (free tier available)
+3. Add your Worker URL to proxy config
+4. See `_proxy/README.md` for detailed setup instructions
+
+**Alternative proxy formats:**
+
+- `http://host:port`, `https://host:port`
+
+# 🔨 Development & Building
+
+## Requirements
+
+- **Node.js** 18+
+- **pnpm** 8+
+- **Rust** (for native modules)
+
+## Setup
+
+```bash
+# Install pnpm
+npm install -g pnpm
+
+# Install dependencies  
+pnpm install
+
+# Development mode
+pnpm dev
+
+# Build for production
+pnpm build
+```
 
 # Credits
 

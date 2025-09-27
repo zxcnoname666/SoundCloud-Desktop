@@ -7,24 +7,74 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    runs-on: windows-latest
+  build:
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest, macos-latest ]
+        include:
+          - os: windows-latest
+            asset_name: "soundcloud-*.exe"
+          - os: ubuntu-latest
+            asset_name: "soundcloud-*.AppImage"
+          - os: macos-latest
+            asset_name: "soundcloud-*.dmg"
+    
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-build
+          path: |
+            dist/soundcloud-*
+            dist/latest-*.yml
+            dist/*.blockmap
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
 
       - name: Auto Release
-        uses: Shiro-nn/release-helper@v1.0.0
+        uses: uwu-loli/release-helper@v1.0.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BUILD_COMMAND: "npm run build"
-          ASSET_PATTERNS: "dist/SoundCloudInstaller.exe dist/packed.asar"
+          BUILD_COMMAND: "echo 'Using pre-built artifacts'"
+          ASSET_PATTERNS: "artifacts/*/dist/*"
           OPENAI_API_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
           OPENAI_API_MODEL: gemini-2.5-flash
           OPENAI_API_KEY: ${{ secrets.AI_GEMINI_API_KEY }}
