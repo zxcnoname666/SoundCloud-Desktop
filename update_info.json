@@ -1,0 +1,13 @@
+{
+  "details": "",
+  "version": "1.16.0",
+  "electron": "36",
+  "hashes": {
+    "asar": "0096d44f5c719e7d5f3a80d9723f3f98e887a5dd346a5a36c3ada5b277843c50",
+    "installer": "243585e05b06aee350354da32648a2243b5c4c3bf0c8e77f965b202330597018"
+  },
+  "names": {
+    "asar": "packed.asar",
+    "installer": "SoundCloudInstaller.exe"
+  }
+}
