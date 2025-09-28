@@ -50,6 +50,10 @@
       "!.build/*",
       "!.git/*",
       "dist/**/*",
+      "!**/linux-unpacked/**",
+      "!**/win-unpacked/**",
+      "!**/mac-unpacked/**",
+      "!**/mac/**",
       "!update_info.json",
       "!_ignore/*",
       "!_proxy/*"
