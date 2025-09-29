@@ -1,9 +1,9 @@
-import {URL} from 'node:url';
+import { URL } from 'node:url';
 import fetch from 'node-fetch';
-import type {ProxyManagerInterface} from '../types/global.js';
-import {ConfigManager} from '../utils/config.js';
-import {Extensions} from './Extensions.js';
-import type {NotificationManager} from './NotificationManager.js';
+import type { ProxyManagerInterface } from '../types/global.js';
+import { ConfigManager } from '../utils/config.js';
+import { Extensions } from './Extensions.js';
+import type { NotificationManager } from './NotificationManager.js';
 
 interface ProxyInfo {
   source: string;
@@ -38,7 +38,7 @@ export class ProxyManager implements ProxyManagerInterface {
       const configManager = ConfigManager.getInstance();
       const proxyConfig = configManager.loadProxyConfig(
         require('electron').app.getPath('appData'),
-          require('electron').app.getAppPath()
+        require('electron').app.getAppPath()
       );
 
       this.proxies = this.parseProxies(proxyConfig.proxy || []);
