@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import {execSync} from 'node:child_process';
-import {cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
-import {join} from 'node:path';
-import {build as esbuild} from 'esbuild';
+import { execSync } from 'node:child_process';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { build as esbuild } from 'esbuild';
 
 interface BuildOptions {
   skipTypeCheck?: boolean;
@@ -75,9 +75,9 @@ class Builder {
         keepNames: true,
         logLevel: 'info',
         treeShaking: true,
-          banner: {
-              js: 'import { createRequire } from "module"; const require = createRequire(import.meta.url);',
-          },
+        banner: {
+          js: 'import { createRequire } from "module"; const require = createRequire(import.meta.url);',
+        },
         define: {
           'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
         },
@@ -139,28 +139,28 @@ class Builder {
       }
     }
 
-      // Generate minimal package.json for electron-builder
-      this.generatePackageJson();
+    // Generate minimal package.json for electron-builder
+    this.generatePackageJson();
   }
 
-    private generatePackageJson(): void {
-        console.log('📄 Generating package.json...');
+  private generatePackageJson(): void {
+    console.log('📄 Generating package.json...');
 
-        const rootPackageJson = JSON.parse(readFileSync(join(this.rootDir, 'package.json'), 'utf-8'));
+    const rootPackageJson = JSON.parse(readFileSync(join(this.rootDir, 'package.json'), 'utf-8'));
 
-        const distPackageJson = {
-            name: rootPackageJson.name,
-            version: rootPackageJson.version,
-            description: rootPackageJson.description,
-            type: rootPackageJson.type,
-            main: 'init.js',
-        };
+    const distPackageJson = {
+      name: rootPackageJson.name,
+      version: rootPackageJson.version,
+      description: rootPackageJson.description,
+      type: rootPackageJson.type,
+      main: 'init.js',
+    };
 
-        writeFileSync(
-            join(this.distDir, 'package.json'),
-            JSON.stringify(distPackageJson, null, 2),
-            'utf-8'
-        );
+    writeFileSync(
+      join(this.distDir, 'package.json'),
+      JSON.stringify(distPackageJson, null, 2),
+      'utf-8'
+    );
   }
 }
 

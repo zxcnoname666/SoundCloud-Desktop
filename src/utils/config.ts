@@ -1,8 +1,8 @@
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
-import {dirname, join} from 'node:path';
-import {app} from 'electron';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { app } from 'electron';
 import JSON5 from 'json5';
-import type {AppConfig, ProxyConfig} from '../types/config.js';
+import type { AppConfig, ProxyConfig } from '../types/config.js';
 
 interface CookieInfo {
   name: string;
@@ -38,13 +38,13 @@ export class ConfigManager {
 
     if (!actualConfigPath) {
       // Try to find config in order of preference
-        // Используем app.getAppPath() для работы с ASAR
-        const appPath = app.getAppPath();
+      // Используем app.getAppPath() для работы с ASAR
+      const appPath = app.getAppPath();
       const possiblePaths = [
-          join(appPath, 'config.json5'),
-          join(appPath, 'config.js'),
-          join(appPath, 'config.json'),
-          // Фоллбэк на текущий каталог для разработки
+        join(appPath, 'config.json5'),
+        join(appPath, 'config.js'),
+        join(appPath, 'config.json'),
+        // Фоллбэк на текущий каталог для разработки
         join(process.cwd(), 'config.json5'),
         join(process.cwd(), 'config.js'),
         join(process.cwd(), 'config.json'),
@@ -93,11 +93,11 @@ export class ConfigManager {
     return this.config;
   }
 
-    loadProxyConfig(appDataPath: string, fallbackPath?: string): ProxyConfig {
+  loadProxyConfig(appDataPath: string, fallbackPath?: string): ProxyConfig {
     const proxyPath = join(appDataPath, 'soundcloud', 'config.proxy.json5');
-        // Используем app.getAppPath() как fallback для ASAR
-        const actualFallbackPath = fallbackPath || app.getAppPath();
-        const fallbackProxyPath = join(actualFallbackPath, 'config.proxy.json5');
+    // Используем app.getAppPath() как fallback для ASAR
+    const actualFallbackPath = fallbackPath || app.getAppPath();
+    const fallbackProxyPath = join(actualFallbackPath, 'config.proxy.json5');
 
     let configPath = proxyPath;
     if (!existsSync(proxyPath) && existsSync(fallbackProxyPath)) {

@@ -1,8 +1,17 @@
-import {join} from 'node:path';
-import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
+import { join } from 'node:path';
+import {
+  BrowserWindow,
+  Menu,
+  Tray,
+  app,
+  globalShortcut,
+  nativeImage,
+  protocol,
+  shell,
+} from 'electron';
 import fetch from 'node-fetch';
-import type {WindowBounds} from '../types/config.js';
-import {ProxyManager} from './ProxyManager.js';
+import type { WindowBounds } from '../types/config.js';
+import { ProxyManager } from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
@@ -21,9 +30,9 @@ export class WindowSetup {
         nodeIntegration: false,
         contextIsolation: true,
         webviewTag: true,
-          preload: join(app.getAppPath(), 'frontend/preloads/main.js'),
+        preload: join(app.getAppPath(), 'frontend/preloads/main.js'),
       },
-        icon: join(app.getAppPath(), 'icons/appLogo.png'),
+      icon: join(app.getAppPath(), 'icons/appLogo.png'),
       title: 'SoundCloud Desktop',
       titleBarStyle: 'hidden',
       darkTheme: true,
@@ -50,17 +59,17 @@ export class WindowSetup {
         nodeIntegration: false,
         contextIsolation: true,
       },
-        icon: join(app.getAppPath(), 'icons/appLogo.png'),
+      icon: join(app.getAppPath(), 'icons/appLogo.png'),
     });
 
-      await loaderWindow.loadFile(join(app.getAppPath(), 'frontend/loader.html'));
+    await loaderWindow.loadFile(join(app.getAppPath(), 'frontend/loader.html'));
 
     return loaderWindow;
   }
 
   static setupTray(window: BrowserWindow): void {
     try {
-        const icon = nativeImage.createFromPath(join(app.getAppPath(), 'icons/appLogo.png'));
+      const icon = nativeImage.createFromPath(join(app.getAppPath(), 'icons/appLogo.png'));
       WindowSetup.tray = new Tray(icon.resize({ width: 16, height: 16 }));
 
       const contextMenu = Menu.buildFromTemplate([

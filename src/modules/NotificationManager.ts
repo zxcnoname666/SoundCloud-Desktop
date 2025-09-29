@@ -1,5 +1,5 @@
-import {join} from 'node:path';
-import {app, Notification} from 'electron';
+import { join } from 'node:path';
+import { Notification, app } from 'electron';
 
 export interface NotificationOptions {
   title: string;
@@ -15,7 +15,7 @@ export class NotificationManager {
   private readonly defaultIcon: string;
 
   private constructor() {
-      this.defaultIcon = join(app.getAppPath(), 'icons/appLogo.png');
+    this.defaultIcon = join(app.getAppPath(), 'icons/appLogo.png');
   }
 
   static getInstance(): NotificationManager {
