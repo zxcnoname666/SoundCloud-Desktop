@@ -49,8 +49,8 @@ body {
       height: 22px;
       -webkit-app-region: no-drag;
 
-        &,
-        * {
+      &,
+      * {
         cursor: pointer;
       }
     }
@@ -120,7 +120,7 @@ body {
     flex-direction: row-reverse;
     -webkit-app-region: drag;
     user-select: none;
-      align-items: center;
+    align-items: center;
 
     i {
       display: flex;

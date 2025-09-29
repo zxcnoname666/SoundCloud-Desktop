@@ -62,423 +62,423 @@ webview {
 
 /* Authentication Modal Styles */
 .auth-modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
 }
 
 .auth-modal-content {
-    position: relative;
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    margin: 5% auto;
-    padding: 0;
-    border: 1px solid #ff5500;
-    border-radius: 20px;
-    width: min(90%, 600px);
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 40px rgba(255, 85, 0, 0.2);
-    animation: modalSlideIn 0.3s ease-out;
+  position: relative;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  margin: 5% auto;
+  padding: 0;
+  border: 1px solid #ff5500;
+  border-radius: 20px;
+  width: min(90%, 600px);
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(255, 85, 0, 0.2);
+  animation: modalSlideIn 0.3s ease-out;
 }
 
 /* Custom Scrollbar for Modal */
 .auth-modal-content::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 .auth-modal-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    margin: 20px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin: 20px 0;
 }
 
 .auth-modal-content::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #ff5500, #ff7733);
-    border-radius: 10px;
-    transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ff5500, #ff7733);
+  border-radius: 10px;
+  transition: all 0.3s ease;
 }
 
 .auth-modal-content::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #ff7733, #ff9955);
-    transform: scale(1.1);
+  background: linear-gradient(135deg, #ff7733, #ff9955);
+  transform: scale(1.1);
 }
 
 .auth-modal-content::-webkit-scrollbar-thumb:active {
-    background: linear-gradient(135deg, #ff3300, #ff5500);
+  background: linear-gradient(135deg, #ff3300, #ff5500);
 }
 
 /* Firefox Scrollbar */
 .auth-modal-content {
-    scrollbar-width: thin;
-    scrollbar-color: #ff5500 rgba(255, 255, 255, 0.05);
+  scrollbar-width: thin;
+  scrollbar-color: #ff5500 rgba(255, 255, 255, 0.05);
 }
 
 @keyframes modalSlideIn {
-    from {
-        transform: translateY(-50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .auth-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 25px 30px;
-    border-bottom: 1px solid #333;
-    background: rgba(255, 85, 0, 0.1);
-    border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 1px solid #333;
+  background: rgba(255, 85, 0, 0.1);
+  border-radius: 20px 20px 0 0;
 }
 
 .auth-modal-header h2 {
-    margin: 0;
-    color: #ff5500;
-    font-size: 1.5rem;
-    font-weight: 600;
+  margin: 0;
+  color: #ff5500;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .auth-close {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.2s ease;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
 }
 
 .auth-close:hover {
-    color: #ff5500;
-    background: rgba(255, 85, 0, 0.1);
+  color: #ff5500;
+  background: rgba(255, 85, 0, 0.1);
 }
 
 .auth-tabs {
-    display: flex;
-    border-bottom: 1px solid #333;
-    background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  border-bottom: 1px solid #333;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .auth-tab {
-    flex: 1;
-    padding: 15px 20px;
-    background: none;
-    border: none;
-    color: #aaa;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-    font-weight: 500;
+  flex: 1;
+  padding: 15px 20px;
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .auth-tab:hover {
-    color: #fff;
-    background: rgba(255, 85, 0, 0.1);
+  color: #fff;
+  background: rgba(255, 85, 0, 0.1);
 }
 
 .auth-tab.active {
-    color: #ff5500;
-    background: rgba(255, 85, 0, 0.15);
-    border-bottom: 2px solid #ff5500;
+  color: #ff5500;
+  background: rgba(255, 85, 0, 0.15);
+  border-bottom: 2px solid #ff5500;
 }
 
 .auth-tab-content {
-    display: none;
-    padding: 30px;
+  display: none;
+  padding: 30px;
 }
 
 .auth-tab-content.active {
-    display: block;
+  display: block;
 }
 
 .auth-section h3 {
-    color: #fff;
-    margin: 0 0 15px 0;
-    font-size: 1.2rem;
-    font-weight: 600;
+  color: #fff;
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .auth-section p {
-    color: #ccc;
-    margin: 0 0 20px 0;
-    line-height: 1.5;
+  color: #ccc;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
 }
 
 .auth-input,
 .auth-select {
-    width: 100%;
-    padding: 12px 16px;
-    margin: 10px 0;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #333;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 12px 16px;
+  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .auth-input:focus,
 .auth-select:focus {
-    outline: none;
-    border-color: #ff5500;
-    background: rgba(255, 85, 0, 0.1);
-    box-shadow: 0 0 10px rgba(255, 85, 0, 0.2);
+  outline: none;
+  border-color: #ff5500;
+  background: rgba(255, 85, 0, 0.1);
+  box-shadow: 0 0 10px rgba(255, 85, 0, 0.2);
 }
 
 .auth-input::placeholder {
-    color: #666;
+  color: #666;
 }
 
 .auth-button {
-    padding: 12px 24px;
-    margin: 10px 5px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  padding: 12px 24px;
+  margin: 10px 5px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .auth-button.primary {
-    background: linear-gradient(135deg, #ff5500, #ff7733);
-    color: white;
+  background: linear-gradient(135deg, #ff5500, #ff7733);
+  color: white;
 }
 
 .auth-button.primary:hover {
-    background: linear-gradient(135deg, #ff7733, #ff5500);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 85, 0, 0.4);
+  background: linear-gradient(135deg, #ff7733, #ff5500);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 85, 0, 0.4);
 }
 
 .auth-button.secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border: 1px solid #444;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid #444;
 }
 
 .auth-button.secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: #ff5500;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #ff5500;
 }
 
 .browser-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
 }
 
 .browser-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 10px;
-    border: 2px solid #333;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.02);
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 10px;
+  border: 2px solid #333;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.02);
+  text-align: center;
 }
 
 .browser-item:hover {
-    border-color: #ff5500;
-    background: rgba(255, 85, 0, 0.1);
-    transform: translateY(-3px);
+  border-color: #ff5500;
+  background: rgba(255, 85, 0, 0.1);
+  transform: translateY(-3px);
 }
 
 .browser-item.selected {
-    border-color: #ff5500;
-    background: rgba(255, 85, 0, 0.2);
+  border-color: #ff5500;
+  background: rgba(255, 85, 0, 0.2);
 }
 
 .browser-item.unavailable {
-    opacity: 0.4;
-    cursor: not-allowed;
-    border-color: #555;
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #555;
 }
 
 .browser-item.unavailable:hover {
-    border-color: #555;
-    background: rgba(255, 255, 255, 0.02);
-    transform: none;
+  border-color: #555;
+  background: rgba(255, 255, 255, 0.02);
+  transform: none;
 }
 
 .browser-icon {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 10px;
-    border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+  border-radius: 8px;
 }
 
 .browser-name {
-    color: #fff;
-    font-size: 12px;
-    font-weight: 500;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .browser-item.unavailable .browser-name {
-    color: #777;
+  color: #777;
 }
 
 .auth-status {
-    padding: 15px 30px;
-    margin-top: 20px;
-    border-top: 1px solid #333;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 0 0 20px 20px;
+  padding: 15px 30px;
+  margin-top: 20px;
+  border-top: 1px solid #333;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 20px 20px;
 }
 
 .auth-status.success {
-    color: #4caf50;
-    background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
 }
 
 .auth-status.error {
-    color: #f44336;
-    background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
 }
 
 .auth-status.info {
-    color: #2196f3;
-    background: rgba(33, 150, 243, 0.1);
+  color: #2196f3;
+  background: rgba(33, 150, 243, 0.1);
 }
 
 /* AuthButton in navbar */
 .AuthButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-right: 10px;
-    -webkit-app-region: no-drag;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 10px;
+  -webkit-app-region: no-drag;
 }
 
 .AuthButton:hover {
-    background: rgba(255, 85, 0, 0.2);
+  background: rgba(255, 85, 0, 0.2);
 }
 
 .AuthButton svg {
-    transition: fill 0.3s ease;
+  transition: fill 0.3s ease;
 }
 
 .AuthButton:hover svg {
-    fill: #ff5500;
+  fill: #ff5500;
 }
 
 /* Auth Guide Styles */
 .auth-guide {
-    margin-top: 30px;
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 15px;
-    border: 1px solid #333;
+  margin-top: 30px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 15px;
+  border: 1px solid #333;
 }
 
 .auth-guide h4 {
-    color: #ff5500;
-    margin: 0 0 20px 0;
-    font-size: 1.1rem;
-    font-weight: 600;
+  color: #ff5500;
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .guide-steps {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .guide-step {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 10px;
-    border-left: 3px solid #ff5500;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  border-left: 3px solid #ff5500;
 }
 
 .step-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(135deg, #ff5500, #ff7733);
-    color: white;
-    border-radius: 50%;
-    font-weight: bold;
-    font-size: 14px;
-    margin-right: 15px;
-    flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #ff5500, #ff7733);
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+  margin-right: 15px;
+  flex-shrink: 0;
 }
 
 .step-content {
-    flex: 1;
+  flex: 1;
 }
 
 .step-content strong {
-    color: #fff;
-    font-size: 15px;
-    display: block;
-    margin-bottom: 5px;
+  color: #fff;
+  font-size: 15px;
+  display: block;
+  margin-bottom: 5px;
 }
 
 .step-content p {
-    color: #ccc;
-    margin: 0;
-    line-height: 1.4;
+  color: #ccc;
+  margin: 0;
+  line-height: 1.4;
 }
 
 .step-content code {
-    background: rgba(255, 85, 0, 0.2);
-    color: #ff7733;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: "Monaco", "Menlo", "Consolas", monospace;
-    font-size: 13px;
+  background: rgba(255, 85, 0, 0.2);
+  color: #ff7733;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Monaco", "Menlo", "Consolas", monospace;
+  font-size: 13px;
 }
 
 .step-content kbd {
-    background: #333;
-    color: #fff;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-family: "Monaco", "Menlo", "Consolas", monospace;
-    font-size: 12px;
-    border: 1px solid #555;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  background: #333;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: "Monaco", "Menlo", "Consolas", monospace;
+  font-size: 12px;
+  border: 1px solid #555;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .guide-note {
-    padding: 15px;
-    background: rgba(255, 193, 7, 0.1);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-    border-radius: 10px;
-    color: #ffc107;
-    font-size: 14px;
-    line-height: 1.4;
+  padding: 15px;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 10px;
+  color: #ffc107;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .guide-note strong {
-    color: #ffeb3b;
+  color: #ffeb3b;
 }

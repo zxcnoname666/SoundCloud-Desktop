@@ -39,20 +39,7 @@
     }
   },
   "files": {
-    "include": [
-      "src/**/*",
-      "frontend/**/*",
-      "*.ts",
-      "*.js",
-      "*.tsx",
-      "*.jsx"
-    ],
-    "ignore": [
-      "node_modules/**",
-      "dist/**",
-      ".git/**",
-      ".pnpm-store/**",
-      "**/.pnpm/**"
-    ]
+    "include": ["src/**/*", "frontend/**/*", "*.ts", "*.js", "*.tsx", "*.jsx"],
+    "ignore": ["node_modules/**", "dist/**", ".git/**", ".pnpm-store/**", "**/.pnpm/**"]
   }
 }

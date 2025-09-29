@@ -1,21 +1,21 @@
 declare module 'notify-manager-electron' {
-    export interface NotificationOptions {
-        title: string;
-        body: string;
-        icon?: string;
-    }
+  export interface NotificationOptions {
+    title: string;
+    body: string;
+    icon?: string;
+  }
 
-    export class NotifyManager {
-        constructor();
+  export class NotifyManager {
+    constructor();
 
-        showNotification(options: NotificationOptions): void;
+    showNotification(options: NotificationOptions): void;
 
-        getWindow(): any;
-    }
+    getWindow(): any;
+  }
 
-    export class Notify {
-        constructor(manager: NotifyManager);
+  export class Notify {
+    constructor(manager: NotifyManager);
 
-        show(options: NotificationOptions): void;
-    }
+    show(options: NotificationOptions): void;
+  }
 }

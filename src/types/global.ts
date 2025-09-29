@@ -1,42 +1,42 @@
-import type {BrowserWindow} from 'electron';
+import type { BrowserWindow } from 'electron';
 
 export interface AppContext {
-    isDev: boolean;
-    port: number;
-    window?: BrowserWindow;
+  isDev: boolean;
+  port: number;
+  window?: BrowserWindow;
 }
 
 export interface WindowManager {
-    createWindow(): Promise<BrowserWindow>;
+  createWindow(): Promise<BrowserWindow>;
 
-    showWindow(): void;
+  showWindow(): void;
 
-    hideWindow(): void;
+  hideWindow(): void;
 
-    closeWindow(): void;
+  closeWindow(): void;
 }
 
 export interface ProxyManagerInterface {
-    init(): Promise<void>;
+  init(): Promise<void>;
 
-    getCurrentProxy(): string | null;
+  getCurrentProxy(): string | null;
 
-    sendRequest(url: string, options?: any, useProxy?: boolean): Promise<any>;
+  sendRequest(url: string, options?: any, useProxy?: boolean): Promise<any>;
 }
 
 export interface ExtensionsInterface {
-    protocolInject(): void;
+  protocolInject(): void;
 
-    setEfficiency(pid: number, enable?: boolean): void;
+  setEfficiency(pid: number, enable?: boolean): void;
 }
 
 export interface NotificationData {
-    title: string;
-    body: string;
-    icon?: string;
+  title: string;
+  body: string;
+  icon?: string;
 }
 
 export interface ServerConfig {
-    port: number;
-    host: string;
+  port: number;
+  host: string;
 }

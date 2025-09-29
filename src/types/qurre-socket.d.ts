@@ -1,17 +1,17 @@
 declare module 'qurre-socket' {
-    export class Server {
-        constructor(port: number);
+  export class Server {
+    constructor(port: number);
 
-        on(event: 'connection', callback: (socket: any) => void): void;
+    on(event: 'connection', callback: (socket: any) => void): void;
 
-        initialize(): Promise<void>;
+    initialize(): Promise<void>;
 
-        close(): void;
-    }
+    close(): void;
+  }
 
-    export class Client {
-        constructor(port: number);
+  export class Client {
+    constructor(port: number);
 
-        emit(event: string, ...args: any[]): void;
-    }
+    emit(event: string, ...args: any[]): void;
+  }
 }

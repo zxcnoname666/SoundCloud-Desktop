@@ -1,66 +1,66 @@
-import {app, type BrowserWindow} from 'electron';
-import {Server as SocketServer} from 'qurre-socket';
+import { type BrowserWindow, app } from 'electron';
+import { Server as SocketServer } from 'qurre-socket';
 
 export class Server {
-    private server: SocketServer | null = null;
+  private server: SocketServer | null = null;
 
-    async start(port: number, window: BrowserWindow): Promise<void> {
-        this.server = new SocketServer(port);
+  async start(port: number, window: BrowserWindow): Promise<void> {
+    this.server = new SocketServer(port);
 
-        this.server.on('connection', (socket) => {
-            this.setupSocketHandlers(socket, window);
-        });
+    this.server.on('connection', (socket) => {
+      this.setupSocketHandlers(socket, window);
+    });
 
-        try {
-            await this.server.initialize();
-            console.log(`Server started on port ${port}`);
-        } catch (error) {
-            console.error('Failed to start server:', error);
-            throw error;
-        }
+    try {
+      await this.server.initialize();
+      console.log(`Server started on port ${port}`);
+    } catch (error) {
+      console.error('Failed to start server:', error);
+      throw error;
     }
+  }
 
-    stop(): void {
-        if (this.server) {
-            try {
-                this.server.close();
-                console.log('Server stopped');
-            } catch (error) {
-                console.error('Failed to stop server:', error);
-            }
-        }
+  stop(): void {
+    if (this.server) {
+      try {
+        this.server.close();
+        console.log('Server stopped');
+      } catch (error) {
+        console.error('Failed to stop server:', error);
+      }
     }
+  }
 
-    private setupSocketHandlers(socket: any, window: BrowserWindow): void {
-        socket.on('OpenApp', () => {
-            window.show();
-            window.focus();
-        });
+  private setupSocketHandlers(socket: any, window: BrowserWindow): void {
+    socket.on('OpenApp', () => {
+      window.show();
+      window.focus();
+    });
 
-        socket.on('CloseAll', () => {
-            app.exit(0);
-        });
+    socket.on('CloseAll', () => {
+      app.exit(0);
+    });
 
-        socket.on('SetUrl', ([url]: [string]) => {
-            try {
-                const cleanUrl = url.replace('sc://', '');
-                const fullUrl = `https://soundcloud.com/${cleanUrl}`;
+    socket.on('SetUrl', ([url]: [string]) => {
+      try {
+        const cleanUrl = url.replace('sc://', '');
+        const fullUrl = `https://soundcloud.com/${cleanUrl}`;
 
-                this.updateUrl(window, fullUrl, cleanUrl);
-                window.show();
-                window.focus();
-            } catch (error) {
-                console.error('Failed to set URL:', error);
-            }
-        });
+        this.updateUrl(window, fullUrl, cleanUrl);
+        window.show();
+        window.focus();
+      } catch (error) {
+        console.error('Failed to set URL:', error);
+      }
+    });
+  }
+
+  private updateUrl(window: BrowserWindow, fullUrl: string, shortUrl: string): void {
+    try {
+      window.webContents.send('webview:url-changed', shortUrl);
+      console.log(`Updated URL to: ${fullUrl}`);
+    } catch (error) {
+      console.error('Failed to update URL:', error);
     }
-
-    private updateUrl(window: BrowserWindow, fullUrl: string, shortUrl: string): void {
-        try {
-            window.webContents.send('webview:url-changed', shortUrl);
-            console.log(`Updated URL to: ${fullUrl}`);
-        } catch (error) {
-            console.error('Failed to update URL:', error);
-        }
-    }
+  }
 }
