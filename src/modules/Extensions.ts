@@ -69,8 +69,8 @@ export class Extensions {
             const isRussian = Extensions.isRussianLocale(locale);
 
             const selectedTranslation = isRussian
-                ? config.translations.ru
-                : (config.translations[locale] ?? config.translations.en);
+                ? config.translations['ru']
+                : (config.translations[locale] ?? config.translations['en']);
 
             return {
                 proxy: Extensions.getProxyTranslations(selectedTranslation || ({} as Translation)),

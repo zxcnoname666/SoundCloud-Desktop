@@ -18,7 +18,7 @@ class SoundCloudApp {
 
     constructor() {
         this.context = {
-            isDev: process.env.NODE_ENV === 'development' || process.argv.includes('--dev'),
+            isDev: process.env['NODE_ENV'] === 'development' || process.argv.includes('--dev'),
             port: 0, // Will be set after initialization
         };
 

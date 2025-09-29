@@ -74,7 +74,7 @@ export class ConfigManager {
                 this.config = JSON.parse(configContent);
             }
 
-            return this.config;
+            return this.config!;
         } catch (error) {
             throw new Error(`Failed to parse config file: ${error}`);
         }

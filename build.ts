@@ -90,7 +90,7 @@ class Builder {
     }
 
     private async buildNativeModules(): Promise<void> {
-        const nativeScriptPath = join(this.rootDir, 'scripts/build-native.js');
+        const nativeScriptPath = join(this.rootDir, 'scripts/build-native.cjs');
 
         if (!existsSync(nativeScriptPath)) {
             console.log('⚠️  Native build script not found, skipping native build');
