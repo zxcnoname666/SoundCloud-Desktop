@@ -1,6 +1,7 @@
-import { app } from 'electron';
-import type { Translation } from '../types/config.js';
-import { ConfigManager } from '../utils/config.js';
+import {join} from 'node:path';
+import {app} from 'electron';
+import type {Translation} from '../types/config.js';
+import {ConfigManager} from '../utils/config.js';
 
 interface NativeUtils {
   protocolInject(exePath: string): boolean;
@@ -12,7 +13,11 @@ export class Extensions {
   static {
     try {
       // Try different paths for native module
+        // Используем app.getAppPath() для работы с ASAR архивом
+        const appPath = app.getAppPath();
       const possiblePaths = [
+          join(appPath, 'bins/native_utils.node'),
+          // Фоллбэк пути для разработки
         '../../bins/native_utils.node',
         '../bins/native_utils.node',
         './bins/native_utils.node',

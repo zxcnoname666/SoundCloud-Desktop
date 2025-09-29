@@ -1,0 +1,5 @@
+ignoredBuiltDependencies:
+  - '@biomejs/biome'
+  - electron
+  - electron-winstaller
+  - esbuild

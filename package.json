@@ -1,6 +1,6 @@
 {
   "name": "soundcloud",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "SoundCloud Desktop App",
   "type": "module",
   "main": "dist/init.js",
@@ -52,10 +52,13 @@
   },
   "build": {
     "publish": false,
+    "directories": {
+      "app": "dist"
+    },
     "files": [
       "!.build/*",
       "!.git/*",
-      "dist/**/*",
+      "**/*",
       "!**/linux-unpacked/**",
       "!**/win-unpacked/**",
       "!**/mac-unpacked/**",
