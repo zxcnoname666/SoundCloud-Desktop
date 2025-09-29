@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import {execSync} from 'node:child_process';
-import {cpSync, existsSync, mkdirSync, rmSync} from 'node:fs';
-import {join} from 'node:path';
-import {build as esbuild} from 'esbuild';
+import { execSync } from 'node:child_process';
+import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { build as esbuild } from 'esbuild';
 
 interface BuildOptions {
   skipTypeCheck?: boolean;
@@ -67,10 +67,10 @@ class Builder {
         bundle: true,
         platform: 'node',
         target: 'node22',
-          format: 'esm',
+        format: 'esm',
         outfile: join(this.distDir, 'init.js'),
         external: ['electron'],
-          minify: isProduction || true,
+        minify: isProduction || true,
         sourcemap: !isProduction,
         keepNames: true,
         packages: 'external',
