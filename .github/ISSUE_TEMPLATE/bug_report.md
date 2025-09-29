@@ -1,31 +1,33 @@
+```
 ---
-name: Bug report
-about: Create a report to help us improve
+name: Отчёт об ошибке
+about: Создайте отчёт, чтобы помочь нам улучшить проект
 title: "[BUG]"
 labels: bug, help wanted
 assignees: zxcnoname666
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Опишите ошибку**
+Чёткое и краткое описание того, в чём заключается ошибка.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Как воспроизвести**
+Шаги для воспроизведения поведения:
+1. Перейдите в '...'
+2. Нажмите на '....'
+3. Прокрутите вниз до '....'
+4. Увидите ошибку
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Ожидаемое поведение**
+Чёткое и краткое описание того, что вы ожидали увидеть.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Скриншоты**
+Если применимо, добавьте скриншоты, чтобы помочь объяснить вашу проблему.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. Windows]
- - Version [e.g. 2.0.0]
+**Рабочий стол (пожалуйста, заполните следующую информацию):**
+ - ОС: [например, Windows 10]
+ - Версия приложения [например, 2.0.0]
 
-**Additional context**
-Add any other context about the problem here.
+**Дополнительный контекст**
+Добавьте любую другую информацию о проблеме здесь.
+```

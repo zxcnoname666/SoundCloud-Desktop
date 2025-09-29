@@ -1,6 +1,7 @@
+```
 ---
-name: Custom issue template
-about: Describe this issue template's purpose here.
+name: Пустой шаблон
+about: Опишите здесь что хотите.
 title: ''
 labels: ''
 assignees: zxcnoname666
@@ -8,3 +9,5 @@ assignees: zxcnoname666
 ---
 
 
+
+```
