@@ -1,5 +1,5 @@
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
-import {dirname, join} from 'path';
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import {dirname, join} from 'node:path';
 import JSON5 from 'json5';
 import type {AppConfig, ProxyConfig} from '../types/config.js';
 
@@ -34,7 +34,9 @@ export class ConfigManager {
     }
 
     loadConfig(configPath?: string): AppConfig {
-        if (!configPath) {
+        let actualConfigPath = configPath;
+
+        if (!actualConfigPath) {
             // Try to find config in order of preference
             const possiblePaths = [
                 join(process.cwd(), 'config.json5'),
@@ -44,33 +46,35 @@ export class ConfigManager {
 
             for (const path of possiblePaths) {
                 if (existsSync(path)) {
-                    configPath = path;
+                    actualConfigPath = path;
                     break;
                 }
             }
 
-            if (!configPath) {
-                throw new Error('No config file found. Looking for config.json5, config.js, or config.json');
+            if (!actualConfigPath) {
+                throw new Error(
+                    'No config file found. Looking for config.json5, config.js, or config.json'
+                );
             }
         }
 
-        if (!existsSync(configPath)) {
-            throw new Error(`Config file not found: ${configPath}`);
+        if (!existsSync(actualConfigPath)) {
+            throw new Error(`Config file not found: ${actualConfigPath}`);
         }
 
         try {
-            const configContent = readFileSync(configPath, 'utf-8');
+            const configContent = readFileSync(actualConfigPath, 'utf-8');
 
-            if (configPath.endsWith('.json5')) {
+            if (actualConfigPath.endsWith('.json5')) {
                 this.config = JSON5.parse(configContent);
-            } else if (configPath.endsWith('.js')) {
-                delete require.cache[require.resolve(configPath)];
-                this.config = require(configPath);
+            } else if (actualConfigPath.endsWith('.js')) {
+                delete require.cache[require.resolve(actualConfigPath)];
+                this.config = require(actualConfigPath);
             } else {
                 this.config = JSON.parse(configContent);
             }
 
-            return this.config!;
+            return this.config;
         } catch (error) {
             throw new Error(`Failed to parse config file: ${error}`);
         }
@@ -101,12 +105,12 @@ export class ConfigManager {
 
             if (configPath.endsWith('.json5')) {
                 return JSON5.parse(configContent);
-            } else if (configPath.endsWith('.js')) {
+            }
+            if (configPath.endsWith('.js')) {
                 delete require.cache[require.resolve(configPath)];
                 return require(configPath);
-            } else {
-                return JSON.parse(configContent);
             }
+            return JSON.parse(configContent);
         } catch (error) {
             console.warn(`Failed to parse proxy config: ${error}`);
             return {proxy: []};

@@ -2,6 +2,7 @@
   "name": "soundcloud",
   "version": "2.0.0",
   "description": "SoundCloud Desktop App",
+  "type": "module",
   "main": "dist/init.js",
   "scripts": {
     "dev": "tsx build.ts && electron dist/init.js --dev",
@@ -11,7 +12,10 @@
     "build:production": "tsx build.ts --production",
     "start": "electron dist/init.js",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx --fix"
+    "lint": "eslint src --ext .ts,.tsx --fix",
+    "biome:check": "biome check .",
+    "biome:write": "biome check --write .",
+    "format": "pnpm biome:write"
   },
   "engines": {
     "node": ">=22.0.0",
@@ -29,6 +33,8 @@
   },
   "homepage": "https://github.com/zxcnoname666/SoundCloud-Desktop#readme",
   "devDependencies": {
+    "@biomejs/biome": "^1.9.3",
+    "@eslint/js": "^9.36.0",
     "@types/node": "^24.5.2",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",

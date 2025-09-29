@@ -68,7 +68,6 @@ export class AuthManager {
         });
     }
 
-
     private parseTokenToCookies(token: string): CookieInfo[] {
         // Simple implementation - in reality, you'd parse the actual token format
         return [
@@ -78,8 +77,8 @@ export class AuthManager {
                 domain: '.soundcloud.com',
                 path: '/',
                 secure: true,
-                httpOnly: false
-            }
+                httpOnly: false,
+            },
         ];
     }
 

@@ -1,15 +1,15 @@
+import {createHash} from 'node:crypto';
+import {createReadStream, createWriteStream} from 'node:fs';
+import {pipeline} from 'node:stream/promises';
 import {app, dialog} from 'electron';
-import {createHash} from 'crypto';
-import {createReadStream, createWriteStream} from 'fs';
-import {pipeline} from 'stream/promises';
 import fetch from 'node-fetch';
 import {Extensions} from './Extensions.js';
 
 export class Version {
-    public major: number = -1;
-    public minor: number = -1;
-    public build: number = -1;
-    public revision: number = -1;
+    public major = -1;
+    public minor = -1;
+    public build = -1;
+    public revision = -1;
 
     constructor(version: string) {
         if (typeof version !== 'string') {
@@ -23,9 +23,9 @@ export class Version {
         }
 
         for (let i = 0; i < Math.min(parts.length, 4); i++) {
-            const element = parseInt(parts[i]!);
+            const element = Number.parseInt(parts[i]!);
 
-            if (isNaN(element) || element < 0) {
+            if (Number.isNaN(element) || element < 0) {
                 continue;
             }
 
@@ -49,7 +49,7 @@ export class Version {
     static async checkForUpdates(): Promise<boolean> {
         try {
             const currentVersion = new Version(app.getVersion());
-            const updateInfo = await this.fetchUpdateInfo();
+            const updateInfo = await Version.fetchUpdateInfo();
 
             if (!updateInfo) {
                 return false;
@@ -58,7 +58,7 @@ export class Version {
             const remoteVersion = new Version(updateInfo.tag_name);
 
             if (remoteVersion.isNewerThan(currentVersion)) {
-                return await this.showUpdateDialog(updateInfo);
+                return await Version.showUpdateDialog(updateInfo);
             }
 
             return false;
@@ -70,7 +70,9 @@ export class Version {
 
     private static async fetchUpdateInfo(): Promise<any> {
         try {
-            const response = await fetch('https://api.github.com/repos/zxcnoname666/SoundCloud-Desktop/releases/latest');
+            const response = await fetch(
+                'https://api.github.com/repos/zxcnoname666/SoundCloud-Desktop/releases/latest'
+            );
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -93,11 +95,11 @@ export class Version {
             detail: `${translations.updater_notes}\n${updateInfo.body || 'No release notes available'}`,
             buttons: [translations.updater_install, translations.updater_later],
             defaultId: 0,
-            cancelId: 1
+            cancelId: 1,
         });
 
         if (result.response === 0) {
-            return await this.downloadAndInstallUpdate(updateInfo);
+            return await Version.downloadAndInstallUpdate(updateInfo);
         }
 
         return false;
@@ -105,24 +107,23 @@ export class Version {
 
     private static async downloadAndInstallUpdate(updateInfo: any): Promise<boolean> {
         try {
-            const asset = this.findAssetForPlatform(updateInfo.assets);
+            const asset = Version.findAssetForPlatform(updateInfo.assets);
 
             if (!asset) {
                 throw new Error(`No installer found for platform: ${process.platform}`);
             }
 
-            const filePath = await this.downloadFile(asset.browser_download_url, asset.name);
+            const filePath = await Version.downloadFile(asset.browser_download_url, asset.name);
 
-            if (await this.verifyFileHash(filePath, this.getExpectedHash(updateInfo, asset.name))) {
-                return await this.installUpdate(filePath);
-            } else {
-                const translations = Extensions.getTranslations().updater;
-                dialog.showErrorBox(
-                    translations.updater_missing_hash,
-                    translations.updater_missing_hash_message
-                );
-                return false;
+            if (await Version.verifyFileHash(filePath, Version.getExpectedHash(updateInfo, asset.name))) {
+                return await Version.installUpdate(filePath);
             }
+            const translations = Extensions.getTranslations().updater;
+            dialog.showErrorBox(
+                translations.updater_missing_hash,
+                translations.updater_missing_hash_message
+            );
+            return false;
         } catch (error) {
             console.error('Update installation failed:', error);
             const translations = Extensions.getTranslations().updater;
@@ -135,7 +136,7 @@ export class Version {
     }
 
     private static async downloadFile(url: string, filename: string): Promise<string> {
-        const filePath = require('path').join(require('os').tmpdir(), filename);
+        const filePath = require('node:path').join(require('node:os').tmpdir(), filename);
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -179,7 +180,7 @@ export class Version {
                     /.*-win.*\.exe$/i,
                     /.*-windows.*\.exe$/i,
                     /.*setup.*\.exe$/i,
-                    /.*installer.*\.exe$/i
+                    /.*installer.*\.exe$/i,
                 ];
                 break;
             case 'darwin':
@@ -187,7 +188,7 @@ export class Version {
                     /soundcloud.*\.dmg$/i,
                     /.*-mac.*\.dmg$/i,
                     /.*-darwin.*\.dmg$/i,
-                    /.*-macos.*\.dmg$/i
+                    /.*-macos.*\.dmg$/i,
                 ];
                 break;
             case 'linux':
@@ -196,7 +197,7 @@ export class Version {
                     /.*-linux.*\.AppImage$/i,
                     /.*\.AppImage$/i,
                     /soundcloud.*\.deb$/i,
-                    /.*-linux.*\.deb$/i
+                    /.*-linux.*\.deb$/i,
                 ];
                 break;
         }
@@ -213,7 +214,9 @@ export class Version {
     private static getExpectedHash(updateInfo: any, fileName: string): string | undefined {
         // Ищем хеш в GitHub Release body (формат: SHA256: hash)
         if (updateInfo.body) {
-            const hashMatch = updateInfo.body.match(new RegExp(`${fileName}.*?SHA256:\\s*([a-f0-9]{64})`, 'i'));
+            const hashMatch = updateInfo.body.match(
+                new RegExp(`${fileName}.*?SHA256:\\s*([a-f0-9]{64})`, 'i')
+            );
             if (hashMatch) return hashMatch[1];
 
             // Альтернативный формат: fileName SHA256
@@ -227,28 +230,28 @@ export class Version {
 
     private static async installUpdate(filePath: string): Promise<boolean> {
         try {
-            const {spawn} = require('child_process');
+            const {spawn} = require('node:child_process');
             const platform = process.platform;
 
             if (platform === 'win32') {
                 // Windows - запускаем exe
                 spawn(filePath, [], {
                     detached: true,
-                    stdio: 'ignore'
+                    stdio: 'ignore',
                 });
             } else if (platform === 'darwin') {
                 // macOS - монтируем DMG и запускаем установщик
                 spawn('open', [filePath], {
                     detached: true,
-                    stdio: 'ignore'
+                    stdio: 'ignore',
                 });
             } else if (platform === 'linux') {
                 if (filePath.endsWith('.AppImage')) {
                     // AppImage - делаем исполняемым и запускаем
-                    require('fs').chmodSync(filePath, '755');
+                    require('node:fs').chmodSync(filePath, '755');
                     spawn(filePath, [], {
                         detached: true,
-                        stdio: 'ignore'
+                        stdio: 'ignore',
                     });
                 } else if (filePath.endsWith('.deb')) {
                     // DEB пакет - используем dpkg или показываем инструкции
@@ -256,7 +259,7 @@ export class Version {
                         type: 'info',
                         title: 'Manual Installation Required',
                         message: `Please install manually using: sudo dpkg -i ${filePath}`,
-                        buttons: ['OK']
+                        buttons: ['OK'],
                     });
                     return false;
                 }

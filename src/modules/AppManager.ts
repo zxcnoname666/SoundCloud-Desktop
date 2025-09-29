@@ -1,7 +1,7 @@
 import {app, BrowserWindow, ipcMain, webContents} from 'electron';
 import {ConfigManager} from '../utils/config.js';
-import {Version} from './Version.js';
 import {Server} from './Server.js';
+import {Version} from './Version.js';
 
 export class AppManager {
     private isPlaying = false;
@@ -33,7 +33,7 @@ export class AppManager {
     }
 
     getStartArgsUrl(): string {
-        const urlArg = process.argv.find(arg => arg.startsWith('sc://'));
+        const urlArg = process.argv.find((arg) => arg.startsWith('sc://'));
         return urlArg || '';
     }
 
@@ -97,33 +97,36 @@ export class AppManager {
             const focusedWindow = BrowserWindow.getFocusedWindow();
             if (focusedWindow) {
                 // Найти webview в окне и отправить событие туда
-                const webviews = webContents.getAllWebContents()
+                const webviews = webContents
+                    .getAllWebContents()
                     .filter((wc: Electron.WebContents) => wc.getType() === 'webview');
-                webviews.forEach((webview: Electron.WebContents) => {
+                for (const webview of webviews) {
                     webview.send('webview:back');
-                });
+                }
             }
         });
 
         ipcMain.on('webview:forward', () => {
             const focusedWindow = BrowserWindow.getFocusedWindow();
             if (focusedWindow) {
-                const webviews = webContents.getAllWebContents()
+                const webviews = webContents
+                    .getAllWebContents()
                     .filter((wc: Electron.WebContents) => wc.getType() === 'webview');
-                webviews.forEach((webview: Electron.WebContents) => {
+                for (const webview of webviews) {
                     webview.send('webview:forward');
-                });
+                }
             }
         });
 
         ipcMain.on('webview:reload', () => {
             const focusedWindow = BrowserWindow.getFocusedWindow();
             if (focusedWindow) {
-                const webviews = webContents.getAllWebContents()
+                const webviews = webContents
+                    .getAllWebContents()
                     .filter((wc: Electron.WebContents) => wc.getType() === 'webview');
-                webviews.forEach((webview: Electron.WebContents) => {
+                for (const webview of webviews) {
                     webview.send('webview:reload');
-                });
+                }
             }
         });
 

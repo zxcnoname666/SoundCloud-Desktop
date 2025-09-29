@@ -1,4 +1,4 @@
-import {createConnection} from 'net';
+import {createConnection} from 'node:net';
 
 export class TCPPortChecker {
     static async isPortInUse(port: number, host = 'localhost'): Promise<boolean> {
@@ -21,9 +21,13 @@ export class TCPPortChecker {
         });
     }
 
-    static async findAvailablePort(startPort: number, endPort: number, host = 'localhost'): Promise<number> {
+    static async findAvailablePort(
+        startPort: number,
+        endPort: number,
+        host = 'localhost'
+    ): Promise<number> {
         for (let port = startPort; port <= endPort; port++) {
-            const inUse = await this.isPortInUse(port, host);
+            const inUse = await TCPPortChecker.isPortInUse(port, host);
             if (!inUse) {
                 return port;
             }

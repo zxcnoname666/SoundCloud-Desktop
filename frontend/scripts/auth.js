@@ -1,4 +1,4 @@
-// Authentication Modal JavaScript  
+// Authentication Modal JavaScript
 let maskedToken = null;
 
 // Initialize when DOM is loaded
@@ -70,7 +70,6 @@ async function saveToken() {
         showStatus(`Error: ${error.message}`, 'error');
     }
 }
-
 
 function showStatus(message, type) {
     const statusDiv = document.getElementById('authStatus');

@@ -1,8 +1,8 @@
-import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray} from 'electron';
-import {join} from 'path';
+import {join} from 'node:path';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import {ProxyManager} from './ProxyManager.js';
 import type {WindowBounds} from '../types/config.js';
+import {ProxyManager} from './ProxyManager.js';
 
 export class WindowSetup {
     private static tray: Tray | null = null;
@@ -10,7 +10,7 @@ export class WindowSetup {
     private static proxyInitialized = false;
 
     static async createMainWindow(): Promise<BrowserWindow> {
-        const bounds = this.getWindowBounds();
+        const bounds = WindowSetup.getWindowBounds();
 
         const window = new BrowserWindow({
             ...bounds,
@@ -61,7 +61,7 @@ export class WindowSetup {
     static setupTray(window: BrowserWindow): void {
         try {
             const icon = nativeImage.createFromPath(join(__dirname, 'icons/appLogo.png'));
-            this.tray = new Tray(icon.resize({width: 16, height: 16}));
+            WindowSetup.tray = new Tray(icon.resize({width: 16, height: 16}));
 
             const contextMenu = Menu.buildFromTemplate([
                 {
@@ -74,11 +74,15 @@ export class WindowSetup {
                 },
             ]);
 
-            this.tray.setContextMenu(contextMenu);
-            this.tray.setToolTip('SoundCloud Desktop');
+            WindowSetup.tray.setContextMenu(contextMenu);
+            WindowSetup.tray.setToolTip('SoundCloud Desktop');
 
-            this.tray.on('double-click', () => {
-                window.isVisible() ? window.hide() : window.show();
+            WindowSetup.tray.on('double-click', () => {
+                if (window.isVisible()) {
+                    window.hide();
+                } else {
+                    window.show();
+                }
             });
         } catch (error) {
             console.warn('Failed to setup tray:', error);
@@ -87,83 +91,78 @@ export class WindowSetup {
 
     static setupCors(windowSession: Electron.Session): void {
         // Адблок - блокируем рекламные запросы
-        windowSession.webRequest.onBeforeRequest(
-            {urls: ['*://*/*']},
-            (details, callback) => {
-                try {
-                    const parsedUrl = new URL(details.url);
+        windowSession.webRequest.onBeforeRequest({urls: ['*://*/*']}, (details, callback) => {
+            try {
+                const parsedUrl = new URL(details.url);
 
-                    // Проверяем адблок
-                    if (this.checkAdBlock(parsedUrl)) {
-                        callback({cancel: true});
-                        return;
-                    }
-
-                    // Блокируем страницу ожидания SoundCloud
-                    if (
-                        parsedUrl.host === 'soundcloud.com' &&
-                        parsedUrl.pathname.startsWith('/n/pages/standby')
-                    ) {
-                        callback({cancel: true});
-                        return;
-                    }
-
-                    // Редирект на главную при ошибках Chrome
-                    if (details.url.includes('chrome-error://')) {
-                        callback({redirectURL: 'https://soundcloud.com/'});
-                        return;
-                    }
-
-                    callback({});
-                } catch (error) {
-                    console.warn('Error in onBeforeRequest:', error);
-                    callback({});
+                // Проверяем адблок
+                if (WindowSetup.checkAdBlock(parsedUrl)) {
+                    callback({cancel: true});
+                    return;
                 }
-            }
-        );
 
-        windowSession.webRequest.onBeforeSendHeaders(
-            {urls: ['*://*/*']},
-            (details, callback) => {
-                try {
-                    const headers = {...details.requestHeaders};
-                    const parsedUrl = new URL(details.url);
-
-                    // Устанавливаем User-Agent для всех запросов
-                    headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36';
-                    headers['sec-ch-ua'] = '"Google Chrome";v="136", "Chromium";v="136", "Not_A Brand";v="24"';
-
-                    // Дополнительная проверка адблока
-                    if (this.checkAdBlock(parsedUrl)) {
-                        callback({cancel: true});
-                        return;
-                    }
-
-                    // Блокируем сторонние домены (кроме разрешенных)
-                    if (
-                        !parsedUrl.host.endsWith('soundcloud.com') &&
-                        !parsedUrl.host.endsWith('sndcdn.com') &&
-                        !parsedUrl.host.endsWith('soundcloud.cloud') &&
-                        !parsedUrl.host.endsWith('.captcha-delivery.com') &&
-                        !parsedUrl.host.endsWith('js.datadome.co') &&
-                        !parsedUrl.host.endsWith('google.com') &&
-                        !parsedUrl.host.endsWith('gstatic.com') &&
-                        parsedUrl.host !== 'lh3.googleusercontent.com' &&
-                        !parsedUrl.host.endsWith('apple.com') &&
-                        !parsedUrl.host.endsWith('-ssl.mzstatic.com') &&
-                        parsedUrl.host !== 'soundcloud-upload.s3.amazonaws.com'
-                    ) {
-                        callback({cancel: true});
-                        return;
-                    }
-
-                    callback({requestHeaders: headers});
-                } catch (error) {
-                    console.warn('Error in onBeforeSendHeaders:', error);
-                    callback({requestHeaders: details.requestHeaders});
+                // Блокируем страницу ожидания SoundCloud
+                if (
+                    parsedUrl.host === 'soundcloud.com' &&
+                    parsedUrl.pathname.startsWith('/n/pages/standby')
+                ) {
+                    callback({cancel: true});
+                    return;
                 }
+
+                // Редирект на главную при ошибках Chrome
+                if (details.url.includes('chrome-error://')) {
+                    callback({redirectURL: 'https://soundcloud.com/'});
+                    return;
+                }
+
+                callback({});
+            } catch (error) {
+                console.warn('Error in onBeforeRequest:', error);
+                callback({});
             }
-        );
+        });
+
+        windowSession.webRequest.onBeforeSendHeaders({urls: ['*://*/*']}, (details, callback) => {
+            try {
+                const headers = {...details.requestHeaders};
+                const parsedUrl = new URL(details.url);
+
+                // Устанавливаем User-Agent для всех запросов
+                headers['User-Agent'] =
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36';
+                headers['sec-ch-ua'] = '"Google Chrome";v="136", "Chromium";v="136", "Not_A Brand";v="24"';
+
+                // Дополнительная проверка адблока
+                if (WindowSetup.checkAdBlock(parsedUrl)) {
+                    callback({cancel: true});
+                    return;
+                }
+
+                // Блокируем сторонние домены (кроме разрешенных)
+                if (
+                    !parsedUrl.host.endsWith('soundcloud.com') &&
+                    !parsedUrl.host.endsWith('sndcdn.com') &&
+                    !parsedUrl.host.endsWith('soundcloud.cloud') &&
+                    !parsedUrl.host.endsWith('.captcha-delivery.com') &&
+                    !parsedUrl.host.endsWith('js.datadome.co') &&
+                    !parsedUrl.host.endsWith('google.com') &&
+                    !parsedUrl.host.endsWith('gstatic.com') &&
+                    parsedUrl.host !== 'lh3.googleusercontent.com' &&
+                    !parsedUrl.host.endsWith('apple.com') &&
+                    !parsedUrl.host.endsWith('-ssl.mzstatic.com') &&
+                    parsedUrl.host !== 'soundcloud-upload.s3.amazonaws.com'
+                ) {
+                    callback({cancel: true});
+                    return;
+                }
+
+                callback({requestHeaders: headers});
+            } catch (error) {
+                console.warn('Error in onBeforeSendHeaders:', error);
+                callback({requestHeaders: details.requestHeaders});
+            }
+        });
     }
 
     static hookNewWindow(contents: Electron.WebContents): void {
@@ -198,12 +197,12 @@ export class WindowSetup {
     }
 
     static async initializeProxyHandler(): Promise<void> {
-        if (this.proxyInitialized) {
+        if (WindowSetup.proxyInitialized) {
             return;
         }
 
         console.log('🔄 Initializing proxy handler...');
-        this.setupProxyHandler();
+        WindowSetup.setupProxyHandler();
 
         // Ждем пока прокси инициализируется и включится
         const maxWaitTime = 10000; // 10 секунд максимум
@@ -214,19 +213,19 @@ export class WindowSetup {
             const proxyManager = ProxyManager.getInstance();
             const hasProxy = !!proxyManager.getCurrentProxy();
 
-            if (hasProxy && this.proxyRegistered) {
+            if (hasProxy && WindowSetup.proxyRegistered) {
                 console.log('✅ Proxy handler initialized and enabled');
-                this.proxyInitialized = true;
+                WindowSetup.proxyInitialized = true;
                 return;
             }
 
-            await new Promise(resolve => setTimeout(resolve, checkInterval));
+            await new Promise((resolve) => setTimeout(resolve, checkInterval));
             waited += checkInterval;
         }
 
         // Если прокси не найден, это не критично - продолжаем загрузку
         console.log('⚠️  Proxy not found or failed to initialize, continuing without proxy');
-        this.proxyInitialized = true;
+        WindowSetup.proxyInitialized = true;
     }
 
     private static getWindowBounds(): WindowBounds {
@@ -238,7 +237,7 @@ export class WindowSetup {
 
     private static setupProxyHandler(): void {
         const httpsHandleMethod = async (request: Request): Promise<Response> => {
-            return await this.getProxyResponse(request);
+            return await WindowSetup.getProxyResponse(request);
         };
 
         // Проверяем каждые 5 секунд, нужно ли включать/выключать прокси
@@ -246,13 +245,13 @@ export class WindowSetup {
             const proxyManager = ProxyManager.getInstance();
             const hasProxy = !!proxyManager.getCurrentProxy();
 
-            if (!hasProxy && this.proxyRegistered) {
+            if (!hasProxy && WindowSetup.proxyRegistered) {
                 protocol.unhandle('https');
-                this.proxyRegistered = false;
+                WindowSetup.proxyRegistered = false;
                 console.log('🚫 Proxy handler disabled');
-            } else if (hasProxy && !this.proxyRegistered) {
+            } else if (hasProxy && !WindowSetup.proxyRegistered) {
                 protocol.handle('https', httpsHandleMethod);
-                this.proxyRegistered = true;
+                WindowSetup.proxyRegistered = true;
                 console.log('✅ Proxy handler enabled');
             }
         }, 5000);
@@ -264,13 +263,13 @@ export class WindowSetup {
         try {
             // Проверяем, нужно ли проксировать этот домен
             const url = new URL(request.url);
-            if (!this.shouldProxyDomain(url.hostname)) {
+            if (!WindowSetup.shouldProxyDomain(url.hostname)) {
                 // Делаем обычный запрос без прокси
                 const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
                 const response = await fetch(request.url, {
                     method: request.method,
                     headers: Object.fromEntries(request.headers.entries()),
-                    body: requestBody
+                    body: requestBody,
                 });
 
                 // Конвертируем в web Response
@@ -283,7 +282,7 @@ export class WindowSetup {
                 return new Response(bodyBuffer, {
                     status: response.status,
                     statusText: response.statusText,
-                    headers: responseHeaders
+                    headers: responseHeaders,
                 });
             }
 
@@ -291,7 +290,7 @@ export class WindowSetup {
             const response = await proxyManager.sendRequest(request.url, {
                 method: request.method,
                 headers: Object.fromEntries(request.headers.entries()),
-                body: requestBody
+                body: requestBody,
             });
 
             // Конвертируем node-fetch Response в web Response
@@ -306,7 +305,7 @@ export class WindowSetup {
             return new Response(bodyBuffer, {
                 status: response.status,
                 statusText: response.statusText,
-                headers: responseHeaders
+                headers: responseHeaders,
             });
         } catch (error) {
             console.warn('Proxy request failed:', error);
@@ -319,19 +318,19 @@ export class WindowSetup {
             'soundcloud.com',
             'sndcdn.com',
             'api.soundcloud.com',
-            'api-v2.soundcloud.com'
+            'api-v2.soundcloud.com',
         ];
 
-        return proxyDomains.some(domain =>
-            hostname === domain || hostname.endsWith('.' + domain)
-        );
+        return proxyDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
     }
 
     private static checkAdBlock(parsedUrl: URL): boolean {
-        return parsedUrl.host === 'promoted.soundcloud.com' ||
+        return (
+            parsedUrl.host === 'promoted.soundcloud.com' ||
             parsedUrl.host.endsWith('.adswizz.com') ||
             parsedUrl.host.endsWith('.adsrvr.org') ||
             parsedUrl.host.endsWith('.doubleclick.net') ||
-            parsedUrl.href.includes('audio-ads');
+            parsedUrl.href.includes('audio-ads')
+        );
     }
 }

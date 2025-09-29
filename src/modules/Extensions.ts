@@ -15,12 +15,12 @@ export class Extensions {
             const possiblePaths = [
                 '../../bins/native_utils.node',
                 '../bins/native_utils.node',
-                './bins/native_utils.node'
+                './bins/native_utils.node',
             ];
 
             for (const path of possiblePaths) {
                 try {
-                    this.nativeUtils = require(path);
+                    Extensions.nativeUtils = require(path);
                     console.log(`✅ Native utils loaded from: ${path}`);
                     break;
                 } catch {
@@ -28,23 +28,23 @@ export class Extensions {
                 }
             }
 
-            if (!this.nativeUtils) {
+            if (!Extensions.nativeUtils) {
                 console.warn('⚠️  Native utils module not found - protocol registration will be skipped');
             }
         } catch (error) {
             console.warn('⚠️  Native utils module loading failed:', error);
-            this.nativeUtils = null;
+            Extensions.nativeUtils = null;
         }
     }
 
     static protocolInject(): boolean {
-        if (!this.nativeUtils) {
+        if (!Extensions.nativeUtils) {
             console.warn('⚠️  Cannot inject protocol: native utils not available');
             return false;
         }
 
         try {
-            const result = this.nativeUtils.protocolInject(app.getPath('exe'));
+            const result = Extensions.nativeUtils.protocolInject(app.getPath('exe'));
             if (result) {
                 console.log('✅ Protocol injection successful');
             } else {
@@ -65,24 +65,24 @@ export class Extensions {
         try {
             const configManager = ConfigManager.getInstance();
             const config = configManager.getConfig();
-            const locale = this.getLocale();
-            const isRussian = this.isRussianLocale(locale);
+            const locale = Extensions.getLocale();
+            const isRussian = Extensions.isRussianLocale(locale);
 
             const selectedTranslation = isRussian
-                ? config.translations['ru']
-                : (config.translations[locale] ?? config.translations['en']);
+                ? config.translations.ru
+                : (config.translations[locale] ?? config.translations.en);
 
             return {
-                proxy: this.getProxyTranslations(selectedTranslation || {} as Translation),
-                updater: this.getUpdaterTranslations(selectedTranslation || {} as Translation),
-                tasks: this.getTasksTranslations(selectedTranslation || {} as Translation)
+                proxy: Extensions.getProxyTranslations(selectedTranslation || ({} as Translation)),
+                updater: Extensions.getUpdaterTranslations(selectedTranslation || ({} as Translation)),
+                tasks: Extensions.getTasksTranslations(selectedTranslation || ({} as Translation)),
             };
         } catch (error) {
             console.warn('Failed to load translations, using defaults:', error);
             return {
-                proxy: this.getProxyTranslations({} as Translation),
-                updater: this.getUpdaterTranslations({} as Translation),
-                tasks: this.getTasksTranslations({} as Translation)
+                proxy: Extensions.getProxyTranslations({} as Translation),
+                updater: Extensions.getUpdaterTranslations({} as Translation),
+                tasks: Extensions.getTasksTranslations({} as Translation),
             };
         }
     }
@@ -92,7 +92,7 @@ export class Extensions {
     }
 
     private static isRussianLocale(locale: string): boolean {
-        return ['ru', 'kk', 'ky', 'be'].some(lang => locale.includes(lang));
+        return ['ru', 'kk', 'ky', 'be'].some((lang) => locale.includes(lang));
     }
 
     private static getProxyTranslations(translation: Translation): Translation {
@@ -104,25 +104,27 @@ export class Extensions {
 
         return {
             ...defaults,
-            ...translation
+            ...translation,
         } as Translation;
     }
 
     private static getUpdaterTranslations(translation: Translation): Translation {
         const defaults = {
             updater_title: 'Application Update',
-            updater_details: 'A new version of the app is available. Click on the button below to select your choice.',
+            updater_details:
+                'A new version of the app is available. Click on the button below to select your choice.',
             updater_notes: 'Update Notes:',
             updater_install: 'Install',
             updater_later: 'Later',
             updater_installation_error: 'Installation error',
             updater_missing_hash: 'Missing hash',
-            updater_missing_hash_message: 'The hash of the downloaded update differs from the hash specified in the config. Most likely, the traffic was intercepted (or someone forgot to update the hash)',
+            updater_missing_hash_message:
+                'The hash of the downloaded update differs from the hash specified in the config. Most likely, the traffic was intercepted (or someone forgot to update the hash)',
         };
 
         return {
             ...defaults,
-            ...translation
+            ...translation,
         } as Translation;
     }
 
@@ -134,7 +136,7 @@ export class Extensions {
 
         return {
             ...defaults,
-            ...translation
+            ...translation,
         } as Translation;
     }
 }

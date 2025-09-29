@@ -1,8 +1,8 @@
 #!/usr/bin/env tsx
 
-import {execSync} from 'child_process';
-import {cpSync, existsSync, mkdirSync, rmSync} from 'fs';
-import {join} from 'path';
+import {execSync} from 'node:child_process';
+import {cpSync, existsSync, mkdirSync, rmSync} from 'node:fs';
+import {join} from 'node:path';
 import {build as esbuild} from 'esbuild';
 
 interface BuildOptions {
@@ -78,8 +78,8 @@ class Builder {
                 logLevel: 'info',
                 treeShaking: true,
                 define: {
-                    'process.env.NODE_ENV': isProduction ? '"production"' : '"development"'
-                }
+                    'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
+                },
             });
 
             console.log('✅ Bundle created successfully');
@@ -103,7 +103,7 @@ class Builder {
             execSync(`node "${nativeScriptPath}"`, {
                 stdio: 'inherit',
                 cwd: this.rootDir,
-                shell: true
+                shell: true,
             });
         } catch (error) {
             console.error('❌ Native build failed:', error);
@@ -145,7 +145,7 @@ const args = process.argv.slice(2);
 const options: BuildOptions = {
     skipTypeCheck: args.includes('--skip-type-check'),
     skipCopy: args.includes('--skip-copy'),
-    production: args.includes('--production') || process.env['NODE_ENV'] === 'production',
+    production: args.includes('--production') || process.env.NODE_ENV === 'production',
 };
 
 const builder = new Builder(options);

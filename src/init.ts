@@ -1,15 +1,15 @@
+import {join} from 'node:path';
 import {app, BrowserWindow} from 'electron';
 import {Client} from 'qurre-socket';
-import {join} from 'path';
 import {AppManager} from './modules/AppManager.js';
-import {ProxyManager} from './modules/ProxyManager.js';
+import {AuthManager} from './modules/AuthManager.js';
 import {Extensions} from './modules/Extensions.js';
+import {NotificationManager} from './modules/NotificationManager.js';
+import {ProxyManager} from './modules/ProxyManager.js';
 import {TCPPortChecker} from './modules/TCPPortChecker.js';
 import {WindowSetup} from './modules/WindowSetup.js';
-import {NotificationManager} from './modules/NotificationManager.js';
-import {AuthManager} from './modules/AuthManager.js';
-import {ConfigManager} from './utils/config.js';
 import type {AppContext} from './types/global.js';
+import {ConfigManager} from './utils/config.js';
 
 class SoundCloudApp {
     private context: AppContext;
@@ -18,7 +18,7 @@ class SoundCloudApp {
 
     constructor() {
         this.context = {
-            isDev: process.env['NODE_ENV'] === 'development' || process.argv.includes('--dev'),
+            isDev: process.env.NODE_ENV === 'development' || process.argv.includes('--dev'),
             port: 0, // Will be set after initialization
         };
 
@@ -92,7 +92,10 @@ class SoundCloudApp {
 
         // Логируем создание webview для отладки
         if (contents.getType() === 'webview') {
-            console.log('🌐 Webview created, session:', contents.session === require('electron').session.defaultSession ? 'default' : 'separate');
+            console.log(
+                '🌐 Webview created, session:',
+                contents.session === require('electron').session.defaultSession ? 'default' : 'separate'
+            );
         }
 
         if (this.context.isDev) {
@@ -176,7 +179,6 @@ class SoundCloudApp {
 
             await this.appManager.startServer(this.context.port, mainWindow);
             await this.loadMainContent(mainWindow);
-
         } catch (error) {
             console.error('Startup failed:', error);
             app.quit();

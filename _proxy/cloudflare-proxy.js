@@ -16,7 +16,7 @@ export default {
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                     'Access-Control-Allow-Headers': '*',
                     'Access-Control-Max-Age': '86400',
-                }
+                },
             });
         }
 
@@ -30,7 +30,7 @@ export default {
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                     'Access-Control-Allow-Headers': '*',
-                }
+                },
             });
         }
 
@@ -42,7 +42,8 @@ export default {
 
             // Copy all headers except proxy-specific ones
             for (const [key, value] of request.headers) {
-                if (key.toLowerCase() !== 'x-proxy-target-url' &&
+                if (
+                    key.toLowerCase() !== 'x-proxy-target-url' &&
                     key.toLowerCase() !== 'host' &&
                     key.toLowerCase() !== 'cf-connecting-ip' &&
                     key.toLowerCase() !== 'cf-ipcountry' &&
@@ -50,7 +51,8 @@ export default {
                     key.toLowerCase() !== 'cf-visitor' &&
                     key.toLowerCase() !== 'x-forwarded-for' &&
                     key.toLowerCase() !== 'x-forwarded-proto' &&
-                    key.toLowerCase() !== 'x-real-ip') {
+                    key.toLowerCase() !== 'x-real-ip'
+                ) {
                     targetHeaders.set(key, value);
                 }
             }
@@ -71,7 +73,7 @@ export default {
             const requestOptions = {
                 method: request.method,
                 headers: targetHeaders,
-                redirect: 'manual' // Handle redirects manually
+                redirect: 'manual', // Handle redirects manually
             };
 
             // Add body for non-GET requests
@@ -80,7 +82,7 @@ export default {
             }
 
             // Make request to target URL
-            let response = await fetch(targetUrl, requestOptions);
+            const response = await fetch(targetUrl, requestOptions);
 
             // Handle redirects by updating Location header to point to actual destination
             if (response.status >= 300 && response.status < 400) {
@@ -120,7 +122,7 @@ export default {
                     return new Response(response.body, {
                         status: response.status,
                         statusText: response.statusText,
-                        headers: newHeaders
+                        headers: newHeaders,
                     });
                 }
             }
@@ -138,9 +140,8 @@ export default {
             return new Response(response.body, {
                 status: response.status,
                 statusText: response.statusText,
-                headers: responseHeaders
+                headers: responseHeaders,
             });
-
         } catch (error) {
             console.error('Proxy error:', error);
 
@@ -150,8 +151,8 @@ export default {
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                     'Access-Control-Allow-Headers': '*',
-                }
+                },
             });
         }
-    }
+    },
 };

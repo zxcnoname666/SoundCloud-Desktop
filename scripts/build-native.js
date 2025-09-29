@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const {execSync} = require('child_process');
-const {existsSync, mkdirSync, cpSync, readdirSync} = require('fs');
-const {join} = require('path');
+const {execSync} = require('node:child_process');
+const {existsSync, mkdirSync, cpSync, readdirSync} = require('node:fs');
+const {join} = require('node:path');
 
 class NativeBuilder {
     constructor() {
@@ -42,7 +42,7 @@ class NativeBuilder {
 
             execSync('cargo build --release', {
                 cwd: this.nativeDir,
-                stdio: 'inherit'
+                stdio: 'inherit',
             });
 
             console.log('✅ Rust compilation completed');

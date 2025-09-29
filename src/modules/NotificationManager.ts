@@ -1,5 +1,5 @@
+import {join} from 'node:path';
 import {Notification} from 'electron';
-import {join} from 'path';
 
 export interface NotificationOptions {
     title: string;
@@ -69,7 +69,6 @@ export class NotificationManager {
 
             // Показываем уведомление
             notification.show();
-
         } catch (error) {
             console.error('Failed to show notification:', error);
         }
@@ -79,7 +78,7 @@ export class NotificationManager {
         this.showNotification({
             title: 'SoundCloud Proxy',
             body: message,
-            urgency: 'normal'
+            urgency: 'normal',
         });
     }
 
@@ -87,7 +86,7 @@ export class NotificationManager {
         this.showNotification({
             title,
             body: message,
-            urgency: 'critical'
+            urgency: 'critical',
         });
     }
 
@@ -95,7 +94,7 @@ export class NotificationManager {
         this.showNotification({
             title,
             body: message,
-            urgency: 'critical'
+            urgency: 'critical',
         });
     }
 }
