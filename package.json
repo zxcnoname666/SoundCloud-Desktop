@@ -55,6 +55,9 @@
     "directories": {
       "app": "dist"
     },
+    "asarUnpack": [
+      "bins/**/*"
+    ],
     "files": [
       "!.build/*",
       "!.git/*",
