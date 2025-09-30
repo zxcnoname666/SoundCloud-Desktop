@@ -3,30 +3,41 @@
 <img src="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png" width="200px" align="right" style="border-radius: 50%;" />
 </a>
 
-# SoundCloud Desktop
+# 🎵 SoundCloud Desktop - Unofficial Desktop Client
 
-<p align="center">
-<a href="https://soundcloud.com" alt="soundcloud">
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&pause=1000&color=F76000&center=true&vCenter=true&repeat=false&width=435&height=25&lines=SoundCloud+Desktop">
-</a>
-</p>
-<p align="center">
-The unofficial SoundCloud desktop app for Windows, Linux & macOS
-</p>
+[![Downloads](https://img.shields.io/github/downloads/zxcnoname666/SoundCloud-Desktop/total)](https://github.com/zxcnoname666/SoundCloud-Desktop/releases)
+[![Stars](https://img.shields.io/github/stars/zxcnoname666/SoundCloud-Desktop)](https://github.com/zxcnoname666/SoundCloud-Desktop/stargazers)
+[![License](https://img.shields.io/github/license/zxcnoname666/SoundCloud-Desktop)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/zxcnoname666/SoundCloud-Desktop)](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+
+> **The best unofficial SoundCloud desktop application** for Windows, Linux & macOS with built-in ad-blocking, geo-unblocking, and proxy support.
+
+[⬇️ Download Latest Release](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest) | [📖 Documentation](https://github.com/zxcnoname666/SoundCloud-Desktop/wiki) | [🐛 Report Bug](https://github.com/zxcnoname666/SoundCloud-Desktop/issues)
 
 # Select language
 
 ### EN [RU](https://github.com/zxcnoname666/SoundCloud-Desktop/blob/main/README-RU.md)
 
-# ✨ Features
+## Why Choose SoundCloud Desktop?
 
-- **🌙 Dark theme** - Modern dark interface
-- **🌍 Bypass geo-blocking** - Access blocked tracks from any region
-- **🚫 AdBlock** - Built-in ad blocking for clean experience
-- **⚡ Fast & lightweight** - Optimized TypeScript codebase with bundling
-- **🔒 Proxy support** - Built-in proxy for unrestricted access
-- **🔗 Protocol support** - Open SoundCloud links directly with `sc://` protocol
-- **🖥️ Cross-platform** - Available for Windows, Linux & macOS
+- **🎧 Native Desktop Experience** - Full-featured SoundCloud desktop client
+- **🌙 Beautiful Dark Theme** - Eye-friendly interface for music lovers
+- **🌍 Access Anywhere** - Bypass geographical restrictions and geo-blocking
+- **🚫 Zero Ads** - Built-in ad blocker for uninterrupted music streaming
+- **⚡ Lightning Fast** - Optimized TypeScript codebase, faster than web version
+- **🔒 Privacy Focused** - Proxy support for secure and private listening
+- **🖥️ Cross-Platform** - Works on Windows 10/11, Linux, and macOS
+- **💾 Lightweight** - Small footprint, minimal system resources
+
+## Keywords & Use Cases
+
+Perfect for:
+- Music producers and DJs looking for a dedicated SoundCloud desktop player
+- Users in restricted regions needing geo-unblocking
+- Anyone tired of SoundCloud web ads
+- Musicians managing multiple SoundCloud accounts
+- Podcast listeners preferring desktop apps
+- Streaming enthusiasts wanting offline-capable music player
 
 # App Protocol
 
@@ -127,14 +138,10 @@ Names and images own by [SoundCloud](https://soundcloud.com)
 
 This app was created out of personal necessity.
 
+Also known as: SoundCloud Desktop Client, SoundCloud App, Unofficial SoundCloud, Desktop SoundCloud Player
+
 <p align="center">
 <a href="javascript:void(0)">
 <img src="https://count.getloli.com/get/@soundcloud-desktop" width="200px" />
-</a>
-</p>
-<p align="center">
-<a href="javascript:void(0)">
-<img src="https://img.shields.io/github/downloads/zxcnoname666/SoundCloud-Desktop/total?color=fd4313&style=plastic" />
-<img src="https://img.shields.io/github/v/release/zxcnoname666/SoundCloud-Desktop.svg?color=#fd4313&style=plastic" />
 </a>
 </p>
