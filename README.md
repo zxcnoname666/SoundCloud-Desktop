@@ -12,7 +12,7 @@
 
 > **The best unofficial SoundCloud desktop application** for Windows, Linux & macOS with built-in ad-blocking, geo-unblocking, and proxy support.
 
-[⬇️ Download Latest Release](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest) | [📖 Documentation](https://github.com/zxcnoname666/SoundCloud-Desktop/wiki) | [🐛 Report Bug](https://github.com/zxcnoname666/SoundCloud-Desktop/issues)
+[⬇️ Download Latest Release](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest) | [📖 Discussions](https://github.com/zxcnoname666/SoundCloud-Desktop/discussions) | [🐛 Report Bug](https://github.com/zxcnoname666/SoundCloud-Desktop/issues)
 
 # Select language
 
