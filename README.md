@@ -140,8 +140,14 @@ This app was created out of personal necessity.
 
 Also known as: SoundCloud Desktop Client, SoundCloud App, Unofficial SoundCloud, Desktop SoundCloud Player
 
+
 <p align="center">
-<a href="javascript:void(0)">
-<img src="https://count.getloli.com/get/@soundcloud-desktop" width="200px" />
+<a href="javascript:void(0)" align="center">
+  <img src="https://api.star-history.com/svg?repos=zxcnoname666/Soundcloud-Desktop&type=Date"/>
+</a>
+</p>
+<p align="center">
+<a href="javascript:void(0)" align="center">
+   <img src="https://count.getloli.com/get/@soundcloud-desktop">
 </a>
 </p>
