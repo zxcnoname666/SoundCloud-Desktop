@@ -1,8 +1,17 @@
-import {join} from 'node:path';
-import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
+import { join } from 'node:path';
+import {
+  BrowserWindow,
+  Menu,
+  Tray,
+  app,
+  globalShortcut,
+  nativeImage,
+  protocol,
+  shell,
+} from 'electron';
 import fetch from 'node-fetch';
-import type {WindowBounds} from '../types/config.js';
-import {ProxyManager} from './ProxyManager.js';
+import type { WindowBounds } from '../types/config.js';
+import { ProxyManager } from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
@@ -101,23 +110,23 @@ export class WindowSetup {
           return;
         }
 
-          // Блокируем сторонние домены (кроме разрешенных)
-          if (
-              !parsedUrl.host.endsWith('soundcloud.com') &&
-              !parsedUrl.host.endsWith('sndcdn.com') &&
-              !parsedUrl.host.endsWith('soundcloud.cloud') &&
-              !parsedUrl.host.endsWith('.captcha-delivery.com') &&
-              !parsedUrl.host.endsWith('js.datadome.co') &&
-              !parsedUrl.host.endsWith('google.com') &&
-              !parsedUrl.host.endsWith('gstatic.com') &&
-              parsedUrl.host !== 'lh3.googleusercontent.com' &&
-              !parsedUrl.host.endsWith('apple.com') &&
-              !parsedUrl.host.endsWith('-ssl.mzstatic.com') &&
-              parsedUrl.host !== 'soundcloud-upload.s3.amazonaws.com'
-          ) {
-              callback({cancel: true});
-              return;
-          }
+        // Блокируем сторонние домены (кроме разрешенных)
+        if (
+          !parsedUrl.host.endsWith('soundcloud.com') &&
+          !parsedUrl.host.endsWith('sndcdn.com') &&
+          !parsedUrl.host.endsWith('soundcloud.cloud') &&
+          !parsedUrl.host.endsWith('.captcha-delivery.com') &&
+          !parsedUrl.host.endsWith('js.datadome.co') &&
+          !parsedUrl.host.endsWith('google.com') &&
+          !parsedUrl.host.endsWith('gstatic.com') &&
+          parsedUrl.host !== 'lh3.googleusercontent.com' &&
+          !parsedUrl.host.endsWith('apple.com') &&
+          !parsedUrl.host.endsWith('-ssl.mzstatic.com') &&
+          parsedUrl.host !== 'soundcloud-upload.s3.amazonaws.com'
+        ) {
+          callback({ cancel: true });
+          return;
+        }
 
         // Блокируем страницу ожидания SoundCloud
         if (
