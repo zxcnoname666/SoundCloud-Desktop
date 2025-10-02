@@ -1,17 +1,8 @@
-import { join } from 'node:path';
-import {
-  BrowserWindow,
-  Menu,
-  Tray,
-  app,
-  globalShortcut,
-  nativeImage,
-  protocol,
-  shell,
-} from 'electron';
+import {join} from 'node:path';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import type { WindowBounds } from '../types/config.js';
-import { ProxyManager } from './ProxyManager.js';
+import type {WindowBounds} from '../types/config.js';
+import {ProxyManager} from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
@@ -110,6 +101,24 @@ export class WindowSetup {
           return;
         }
 
+          // Блокируем сторонние домены (кроме разрешенных)
+          if (
+              !parsedUrl.host.endsWith('soundcloud.com') &&
+              !parsedUrl.host.endsWith('sndcdn.com') &&
+              !parsedUrl.host.endsWith('soundcloud.cloud') &&
+              !parsedUrl.host.endsWith('.captcha-delivery.com') &&
+              !parsedUrl.host.endsWith('js.datadome.co') &&
+              !parsedUrl.host.endsWith('google.com') &&
+              !parsedUrl.host.endsWith('gstatic.com') &&
+              parsedUrl.host !== 'lh3.googleusercontent.com' &&
+              !parsedUrl.host.endsWith('apple.com') &&
+              !parsedUrl.host.endsWith('-ssl.mzstatic.com') &&
+              parsedUrl.host !== 'soundcloud-upload.s3.amazonaws.com'
+          ) {
+              callback({cancel: true});
+              return;
+          }
+
         // Блокируем страницу ожидания SoundCloud
         if (
           parsedUrl.host === 'soundcloud.com' &&
@@ -135,36 +144,11 @@ export class WindowSetup {
     windowSession.webRequest.onBeforeSendHeaders({ urls: ['*://*/*'] }, (details, callback) => {
       try {
         const headers = { ...details.requestHeaders };
-        const parsedUrl = new URL(details.url);
 
         // Устанавливаем User-Agent для всех запросов
         headers['User-Agent'] =
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36';
         headers['sec-ch-ua'] = '"Google Chrome";v="136", "Chromium";v="136", "Not_A Brand";v="24"';
-
-        // Дополнительная проверка адблока
-        if (WindowSetup.checkAdBlock(parsedUrl)) {
-          callback({ cancel: true });
-          return;
-        }
-
-        // Блокируем сторонние домены (кроме разрешенных)
-        if (
-          !parsedUrl.host.endsWith('soundcloud.com') &&
-          !parsedUrl.host.endsWith('sndcdn.com') &&
-          !parsedUrl.host.endsWith('soundcloud.cloud') &&
-          !parsedUrl.host.endsWith('.captcha-delivery.com') &&
-          !parsedUrl.host.endsWith('js.datadome.co') &&
-          !parsedUrl.host.endsWith('google.com') &&
-          !parsedUrl.host.endsWith('gstatic.com') &&
-          parsedUrl.host !== 'lh3.googleusercontent.com' &&
-          !parsedUrl.host.endsWith('apple.com') &&
-          !parsedUrl.host.endsWith('-ssl.mzstatic.com') &&
-          parsedUrl.host !== 'soundcloud-upload.s3.amazonaws.com'
-        ) {
-          callback({ cancel: true });
-          return;
-        }
 
         callback({ requestHeaders: headers });
       } catch (error) {
