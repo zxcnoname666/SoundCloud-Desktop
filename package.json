@@ -1,6 +1,6 @@
 {
   "name": "soundcloud",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "SoundCloud Desktop App",
   "type": "module",
   "main": "dist/init.js",
@@ -38,7 +38,7 @@
     "@types/node": "^24.5.2",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
-    "electron": "^38.1.2",
+    "electron": "^38.2.0",
     "electron-builder": "^26.0.12",
     "esbuild": "^0.25.10",
     "eslint": "^9.36.0",
