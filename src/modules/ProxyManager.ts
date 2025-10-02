@@ -1,10 +1,10 @@
-import {URL} from 'node:url';
+import { URL } from 'node:url';
 import fetch from 'node-fetch';
-import type {ProxyManagerInterface} from '../types/global.js';
-import {ConfigManager} from '../utils/config.js';
-import {Extensions} from './Extensions.js';
-import type {NotificationManager} from './NotificationManager.js';
-import {WindowSetup} from "./WindowSetup";
+import type { ProxyManagerInterface } from '../types/global.js';
+import { ConfigManager } from '../utils/config.js';
+import { Extensions } from './Extensions.js';
+import type { NotificationManager } from './NotificationManager.js';
+import { WindowSetup } from './WindowSetup';
 
 interface ProxyInfo {
   source: string;
@@ -54,9 +54,9 @@ export class ProxyManager implements ProxyManagerInterface {
   }
 
   async sendRequest(url: string, options: any = {}, useProxy = true): Promise<any> {
-      if (WindowSetup.checkAdBlock(new URL(url))) {
-          return new Response(null, {status: 403, statusText: 'Ad Blocker Detected'});
-      }
+    if (WindowSetup.checkAdBlock(new URL(url))) {
+      return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
+    }
 
     if (!useProxy || !this.currentProxy) {
       return fetch(url, options);

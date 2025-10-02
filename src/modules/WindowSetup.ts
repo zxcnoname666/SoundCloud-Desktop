@@ -1,8 +1,17 @@
-import {join} from 'node:path';
-import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
+import { join } from 'node:path';
+import {
+  BrowserWindow,
+  Menu,
+  Tray,
+  app,
+  globalShortcut,
+  nativeImage,
+  protocol,
+  shell,
+} from 'electron';
 import fetch from 'node-fetch';
-import type {WindowBounds} from '../types/config.js';
-import {ProxyManager} from './ProxyManager.js';
+import type { WindowBounds } from '../types/config.js';
+import { ProxyManager } from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
@@ -91,7 +100,7 @@ export class WindowSetup {
 
   static setupCors(windowSession: Electron.Session): void {
     // Адблок - блокируем рекламные запросы
-      windowSession.webRequest.onBeforeRequest({urls: ["*://*/*"]}, (details, callback) => {
+    windowSession.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
       try {
         const parsedUrl = new URL(details.url);
 
@@ -317,7 +326,7 @@ export class WindowSetup {
     return proxyDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
   }
 
-    public static checkAdBlock(parsedUrl: URL): boolean {
+  public static checkAdBlock(parsedUrl: URL): boolean {
     return (
       parsedUrl.host === 'promoted.soundcloud.com' ||
       parsedUrl.host.endsWith('.adswizz.com') ||
