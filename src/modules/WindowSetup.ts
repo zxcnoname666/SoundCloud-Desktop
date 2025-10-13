@@ -1,17 +1,8 @@
-import { join } from 'node:path';
-import {
-  BrowserWindow,
-  Menu,
-  Tray,
-  app,
-  globalShortcut,
-  nativeImage,
-  protocol,
-  shell,
-} from 'electron';
+import {join} from 'node:path';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import type { WindowBounds } from '../types/config.js';
-import { ProxyManager } from './ProxyManager.js';
+import type {WindowBounds} from '../types/config.js';
+import {ProxyManager} from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
@@ -79,7 +70,7 @@ export class WindowSetup {
         },
         {
           label: 'Quit',
-          click: () => app.quit(),
+            click: () => app.exit(0),
         },
       ]);
 
