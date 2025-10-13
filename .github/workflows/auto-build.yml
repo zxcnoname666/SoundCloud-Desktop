@@ -7,7 +7,24 @@ permissions:
   contents: write
 
 jobs:
+  version:
+    if: contains(github.event.head_commit.message, '!release')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bump version
+        run: |
+          RELEASE_TYPE=$(echo "${{ github.event.head_commit.message }}" | grep -oP '!release:\s*\K(major|minor|patch)' || echo "patch")
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          npm version $RELEASE_TYPE -m "chore: bump version to %s [skip ci]"
+          git push origin HEAD:main --follow-tags
+
   build:
+    needs: version
     if: contains(github.event.head_commit.message, '!release')
     strategy:
       matrix:
@@ -19,12 +36,13 @@ jobs:
             asset_name: "soundcloud-*.AppImage"
           - os: macos-latest
             asset_name: "soundcloud-*.dmg"
-    
+
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
