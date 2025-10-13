@@ -1,17 +1,8 @@
-import { join } from 'node:path';
-import {
-  BrowserWindow,
-  Menu,
-  Tray,
-  app,
-  globalShortcut,
-  nativeImage,
-  protocol,
-  shell,
-} from 'electron';
+import {join} from 'node:path';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import type { WindowBounds } from '../types/config.js';
-import { ProxyManager } from './ProxyManager.js';
+import type {WindowBounds} from '../types/config.js';
+import {ProxyManager} from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
@@ -259,12 +250,37 @@ export class WindowSetup {
     }, 5000);
   }
 
+  public static checkAdBlock(parsedUrl: URL): boolean {
+    return (
+      parsedUrl.host === 'promoted.soundcloud.com' ||
+      parsedUrl.host.endsWith('.adswizz.com') ||
+      parsedUrl.host.endsWith('.adsrvr.org') ||
+      parsedUrl.host.endsWith('.doubleclick.net') ||
+      parsedUrl.href.includes('audio-ads') ||
+      parsedUrl.host.endsWith('nr-data.net') // flood
+    );
+  }
+
+  private static shouldProxyDomain(hostname: string): boolean {
+    const proxyDomains = [
+      'soundcloud.com',
+      'sndcdn.com',
+      'api.soundcloud.com',
+      'api-v2.soundcloud.com',
+    ];
+
+    return proxyDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+  }
+
   private static async getProxyResponse(request: Request): Promise<Response> {
     const proxyManager = ProxyManager.getInstance();
 
     try {
       // Проверяем, нужно ли проксировать этот домен
       const url = new URL(request.url);
+        if (WindowSetup.checkAdBlock(new URL(url))) {
+            return new Response(null, {status: 403, statusText: 'Ad Blocker Detected'});
+        }
       if (!WindowSetup.shouldProxyDomain(url.hostname)) {
         // Делаем обычный запрос без прокси
         const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
@@ -313,26 +329,5 @@ export class WindowSetup {
       console.warn('Proxy request failed:', error);
       return new Response('Proxy Error', { status: 500 });
     }
-  }
-
-  private static shouldProxyDomain(hostname: string): boolean {
-    const proxyDomains = [
-      'soundcloud.com',
-      'sndcdn.com',
-      'api.soundcloud.com',
-      'api-v2.soundcloud.com',
-    ];
-
-    return proxyDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
-  }
-
-  public static checkAdBlock(parsedUrl: URL): boolean {
-    return (
-      parsedUrl.host === 'promoted.soundcloud.com' ||
-      parsedUrl.host.endsWith('.adswizz.com') ||
-      parsedUrl.host.endsWith('.adsrvr.org') ||
-      parsedUrl.host.endsWith('.doubleclick.net') ||
-      parsedUrl.href.includes('audio-ads')
-    );
   }
 }

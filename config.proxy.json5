@@ -14,6 +14,8 @@
     // Add your web proxy URLs here
     // "https://cloudflare-proxy-domain.example.com/",
     // "https://proxy.example.com/api/tunnel"
-    "https://soundcloud-desktop-proxy.sexy-loli.workers.dev"
+    "https://soundcloud-desktop-proxy.sexy-loli.workers.dev",
+    "https://sc-proxy.zxcghoul.workers.dev",
+    "https://soundcloud-proxy.loli-hard.workers.dev"
   ]
 }
