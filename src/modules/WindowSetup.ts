@@ -1,8 +1,17 @@
-import {join} from 'node:path';
-import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
+import { join } from 'node:path';
+import {
+  BrowserWindow,
+  Menu,
+  Tray,
+  app,
+  globalShortcut,
+  nativeImage,
+  protocol,
+  shell,
+} from 'electron';
 import fetch from 'node-fetch';
-import type {WindowBounds} from '../types/config.js';
-import {ProxyManager} from './ProxyManager.js';
+import type { WindowBounds } from '../types/config.js';
+import { ProxyManager } from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
@@ -278,9 +287,9 @@ export class WindowSetup {
     try {
       // Проверяем, нужно ли проксировать этот домен
       const url = new URL(request.url);
-        if (WindowSetup.checkAdBlock(new URL(url))) {
-            return new Response(null, {status: 403, statusText: 'Ad Blocker Detected'});
-        }
+      if (WindowSetup.checkAdBlock(new URL(url))) {
+        return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
+      }
       if (!WindowSetup.shouldProxyDomain(url.hostname)) {
         // Делаем обычный запрос без прокси
         const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;

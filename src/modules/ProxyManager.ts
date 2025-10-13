@@ -1,10 +1,10 @@
-import {URL} from 'node:url';
+import { URL } from 'node:url';
 import fetch from 'node-fetch';
-import type {ProxyManagerInterface} from '../types/global.js';
-import {ConfigManager} from '../utils/config.js';
-import {Extensions} from './Extensions.js';
-import type {NotificationManager} from './NotificationManager.js';
-import {WindowSetup} from './WindowSetup';
+import type { ProxyManagerInterface } from '../types/global.js';
+import { ConfigManager } from '../utils/config.js';
+import { Extensions } from './Extensions.js';
+import type { NotificationManager } from './NotificationManager.js';
+import { WindowSetup } from './WindowSetup';
 
 interface ProxyInfo {
   source: string;
@@ -36,23 +36,23 @@ export class ProxyManager implements ProxyManagerInterface {
   async init(): Promise<void> {
     try {
       const configManager = ConfigManager.getInstance();
-        const proxyConfig = configManager.loadProxyConfig();
+      const proxyConfig = configManager.loadProxyConfig();
 
       this.proxies = this.parseProxies(proxyConfig.proxy || []);
 
-        if (this.proxies.length === 0) {
-            this.showNotification('proxy_available_not_found');
-        } else {
-            console.log(`Loaded ${this.proxies.length} proxies`);
-            this.showNotification('proxy_connected', `${this.proxies.length} proxies loaded`);
-        }
+      if (this.proxies.length === 0) {
+        this.showNotification('proxy_available_not_found');
+      } else {
+        console.log(`Loaded ${this.proxies.length} proxies`);
+        this.showNotification('proxy_connected', `${this.proxies.length} proxies loaded`);
+      }
     } catch (error) {
       console.warn('Failed to initialize proxy manager:', error);
     }
   }
 
   getCurrentProxy(): string | null {
-      return this.proxies[0]?.source || null;
+    return this.proxies[0]?.source || null;
   }
 
   async sendRequest(url: string, options: any = {}, useProxy = true): Promise<any> {
@@ -60,59 +60,59 @@ export class ProxyManager implements ProxyManagerInterface {
       return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
     }
 
-      if (!useProxy || this.proxies.length === 0) {
+    if (!useProxy || this.proxies.length === 0) {
       return fetch(url, options);
     }
 
-      // Всегда пробуем прокси с первого по списку
+    // Всегда пробуем прокси с первого по списку
     const method = options.method || 'GET';
     const headers = options.headers || {};
-      let lastError: string | null = null;
+    let lastError: string | null = null;
 
-      for (const proxy of this.proxies) {
-          try {
-              const proxyUrl = this.buildProxyUrl(proxy);
-
-              const proxyOptions: any = {
-                  method: method,
-                  signal: AbortSignal.timeout(15000),
-                  headers: {
-                      ...proxy.headers,
-                      ...headers,
-                      'X-Proxy-Target-URL': url,
-                  },
-              };
-
-              if (options.body) {
-                  proxyOptions.body = options.body;
-              }
-
-              const response = await fetch(proxyUrl, proxyOptions);
-
-              // Проверяем успешность ответа
-              if (!response.ok) {
-                  console.warn(`Proxy ${proxy.domain} returned ${response.status}: ${response.statusText}`);
-                  lastError = `${response.status} ${response.statusText}`;
-                  continue;
-              }
-
-              return response;
-          } catch (error) {
-              console.warn(`Proxy ${proxy.domain} failed:`, error);
-              lastError = error instanceof Error ? error.message : String(error);
-              // Пробуем следующий прокси
-          }
-      }
-
-      // Если все прокси не работают, пробуем без прокси
-      console.warn('All proxies failed, trying direct connection');
+    for (const proxy of this.proxies) {
       try {
-          return await fetch(url, options);
-      } catch (directError) {
-          throw new Error(
-              `All proxies failed and direct connection failed. Last proxy error: ${lastError || 'Unknown'}. Direct error: ${directError}`
-          );
+        const proxyUrl = this.buildProxyUrl(proxy);
+
+        const proxyOptions: any = {
+          method: method,
+          signal: AbortSignal.timeout(15000),
+          headers: {
+            ...proxy.headers,
+            ...headers,
+            'X-Proxy-Target-URL': url,
+          },
+        };
+
+        if (options.body) {
+          proxyOptions.body = options.body;
+        }
+
+        const response = await fetch(proxyUrl, proxyOptions);
+
+        // Проверяем успешность ответа
+        if (!response.ok) {
+          console.warn(`Proxy ${proxy.domain} returned ${response.status}: ${response.statusText}`);
+          lastError = `${response.status} ${response.statusText}`;
+          continue;
+        }
+
+        return response;
+      } catch (error) {
+        console.warn(`Proxy ${proxy.domain} failed:`, error);
+        lastError = error instanceof Error ? error.message : String(error);
+        // Пробуем следующий прокси
       }
+    }
+
+    // Если все прокси не работают, пробуем без прокси
+    console.warn('All proxies failed, trying direct connection');
+    try {
+      return await fetch(url, options);
+    } catch (directError) {
+      throw new Error(
+        `All proxies failed and direct connection failed. Last proxy error: ${lastError || 'Unknown'}. Direct error: ${directError}`
+      );
+    }
   }
 
   private parseProxies(proxyStrings: string[]): ProxyInfo[] {

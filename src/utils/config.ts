@@ -1,8 +1,8 @@
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
-import {dirname, join} from 'node:path';
-import {app} from 'electron';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { app } from 'electron';
 import JSON5 from 'json5';
-import type {AppConfig, ProxyConfig} from '../types/config.js';
+import type { AppConfig, ProxyConfig } from '../types/config.js';
 
 interface CookieInfo {
   name: string;
@@ -41,9 +41,9 @@ export class ConfigManager {
       // Используем app.getAppPath() для работы с ASAR
       const appPath = app.getAppPath();
       const possiblePaths = [
-          join(app.getPath('appData'), 'soundcloud', 'config.json5'),
-          join(app.getPath('appData'), 'soundcloud', 'config.js'),
-          join(app.getPath('appData'), 'soundcloud', 'config.json'),
+        join(app.getPath('appData'), 'soundcloud', 'config.json5'),
+        join(app.getPath('appData'), 'soundcloud', 'config.js'),
+        join(app.getPath('appData'), 'soundcloud', 'config.json'),
 
         join(appPath, 'config.json5'),
         join(appPath, 'config.js'),
@@ -97,33 +97,33 @@ export class ConfigManager {
     return this.config;
   }
 
-    loadProxyConfig(): ProxyConfig {
-        // Try to find proxy config in order of preference
-        const appDataPath = app.getPath('appData')
-        const actualFallbackPath = app.getAppPath();
-        const possiblePaths = [
-            join(appDataPath, 'soundcloud', 'config.proxy.json5'),
-            join(appDataPath, 'soundcloud', 'config.proxy.js'),
-            join(appDataPath, 'soundcloud', 'config.proxy.json'),
+  loadProxyConfig(): ProxyConfig {
+    // Try to find proxy config in order of preference
+    const appDataPath = app.getPath('appData');
+    const actualFallbackPath = app.getAppPath();
+    const possiblePaths = [
+      join(appDataPath, 'soundcloud', 'config.proxy.json5'),
+      join(appDataPath, 'soundcloud', 'config.proxy.js'),
+      join(appDataPath, 'soundcloud', 'config.proxy.json'),
 
-            join(actualFallbackPath, 'config.proxy.json5'),
-            join(actualFallbackPath, 'config.proxy.js'),
-            join(actualFallbackPath, 'config.proxy.json'),
+      join(actualFallbackPath, 'config.proxy.json5'),
+      join(actualFallbackPath, 'config.proxy.js'),
+      join(actualFallbackPath, 'config.proxy.json'),
 
-            join(app.getAppPath(), 'config.proxy.json5'),
-            join(app.getAppPath(), 'config.proxy.js'),
-            join(app.getAppPath(), 'config.proxy.json'),
-        ];
+      join(app.getAppPath(), 'config.proxy.json5'),
+      join(app.getAppPath(), 'config.proxy.js'),
+      join(app.getAppPath(), 'config.proxy.json'),
+    ];
 
-        let configPath: string | undefined;
-        for (const path of possiblePaths) {
-            if (existsSync(path)) {
-                configPath = path;
-                break;
-            }
+    let configPath: string | undefined;
+    for (const path of possiblePaths) {
+      if (existsSync(path)) {
+        configPath = path;
+        break;
+      }
     }
 
-        if (!configPath) {
+    if (!configPath) {
       return { proxy: [] };
     }
 
