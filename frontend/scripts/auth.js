@@ -5,13 +5,16 @@ let maskedToken = null;
 document.addEventListener('DOMContentLoaded', () => {
   initializeModal();
 
-    // Listen for invalid token events from webview
-    if (typeof ipcRenderer !== 'undefined') {
-        ipcRenderer.on('auth:token-invalid', () => {
-            openAuthModal();
-            showStatus('Your authentication token was invalid and has been cleared. Please enter a valid token.', 'error');
-        });
-    }
+  // Listen for invalid token events from webview
+  if (typeof ipcRenderer !== 'undefined') {
+    ipcRenderer.on('auth:token-invalid', () => {
+      openAuthModal();
+      showStatus(
+        'Your authentication token was invalid and has been cleared. Please enter a valid token.',
+        'error'
+      );
+    });
+  }
 });
 
 function initializeModal() {
@@ -85,19 +88,19 @@ function showStatus(message, type) {
   if (!message) {
     statusDiv.style.display = 'none';
     statusDiv.className = 'auth-status';
-      statusDiv.innerHTML = '';
+    statusDiv.innerHTML = '';
     return;
   }
 
-    // Determine icon based on type
-    let icon = '🔔';
-    if (type === 'success') icon = '✨';
-    else if (type === 'error') icon = '⚠️';
-    else if (type === 'info') icon = 'ℹ️';
+  // Determine icon based on type
+  let icon = '🔔';
+  if (type === 'success') icon = '✨';
+  else if (type === 'error') icon = '⚠️';
+  else if (type === 'info') icon = 'ℹ️';
 
   statusDiv.style.display = 'block';
   statusDiv.className = `auth-status ${type}`;
-    statusDiv.innerHTML = `
+  statusDiv.innerHTML = `
     <div class="auth-status-content">
       <div class="auth-status-icon">${icon}</div>
       <div class="auth-status-text">${message}</div>

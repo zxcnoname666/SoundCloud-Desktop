@@ -64,7 +64,7 @@ const checkChromeError = () => {
 
 const sendUpdatedUrl = () => {
   let lastUrlCache = '';
-    let logoutLoopDetected = false;
+  let logoutLoopDetected = false;
 
   setInterval(() => {
     const href = window.location.href;
@@ -77,23 +77,23 @@ const sendUpdatedUrl = () => {
     ipcRenderer.send('webview:url-changed', href);
     ipcRenderer.send('webview:navigation-state-changed');
 
-      // Detect logout page - indicates invalid token
-      if (href.includes('/logout') && !logoutLoopDetected) {
-          logoutLoopDetected = true;
-          console.warn('Logout detected - clearing invalid auth token');
+    // Detect logout page - indicates invalid token
+    if (href.includes('/logout') && !logoutLoopDetected) {
+      logoutLoopDetected = true;
+      console.warn('Logout detected - clearing invalid auth token');
 
-          // Clear the invalid token
-          ipcRenderer.invoke('clear-auth-token').then(() => {
-              // Notify user about invalid token
-              ipcRenderer.send('auth:token-invalid');
+      // Clear the invalid token
+      ipcRenderer.invoke('clear-auth-token').then(() => {
+        // Notify user about invalid token
+        ipcRenderer.send('auth:token-invalid');
 
-              // Redirect to main page after clearing token
-              setTimeout(() => {
-                  window.location.href = 'https://soundcloud.com/';
-                  logoutLoopDetected = false;
-              }, 500);
-          });
-      }
+        // Redirect to main page after clearing token
+        setTimeout(() => {
+          window.location.href = 'https://soundcloud.com/';
+          logoutLoopDetected = false;
+        }, 500);
+      });
+    }
   }, 200);
 
   ipcRenderer.send('webview:navigation-state-changed');

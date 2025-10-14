@@ -1,5 +1,5 @@
-import {BrowserWindow, ipcMain} from 'electron';
-import {ConfigManager} from '../utils/config.js';
+import { BrowserWindow, ipcMain } from 'electron';
+import { ConfigManager } from '../utils/config.js';
 
 interface CookieInfo {
   name: string;
@@ -66,20 +66,20 @@ export class AuthManager {
       }
     });
 
-      ipcMain.handle('clear-auth-token', async () => {
-          try {
-              const configManager = ConfigManager.getInstance();
-              configManager.setAuthToken('');
+    ipcMain.handle('clear-auth-token', async () => {
+      try {
+        const configManager = ConfigManager.getInstance();
+        configManager.setAuthToken('');
 
-              // Clear cookies from session
-              await this.clearCookiesFromSession();
+        // Clear cookies from session
+        await this.clearCookiesFromSession();
 
-              return {success: true};
-          } catch (error) {
-              console.error('Failed to clear auth token:', error);
-              return {success: false, error: error instanceof Error ? error.message : String(error)};
-          }
-      });
+        return { success: true };
+      } catch (error) {
+        console.error('Failed to clear auth token:', error);
+        return { success: false, error: error instanceof Error ? error.message : String(error) };
+      }
+    });
   }
 
   private parseTokenToCookies(token: string): CookieInfo[] {
@@ -135,21 +135,21 @@ export class AuthManager {
     }
   }
 
-    private async clearCookiesFromSession(): Promise<void> {
-        try {
-            const mainWindow = BrowserWindow.getAllWindows()[0];
-            if (!mainWindow) {
-                throw new Error('No main window found');
-            }
+  private async clearCookiesFromSession(): Promise<void> {
+    try {
+      const mainWindow = BrowserWindow.getAllWindows()[0];
+      if (!mainWindow) {
+        throw new Error('No main window found');
+      }
 
-            const session = mainWindow.webContents.session;
+      const session = mainWindow.webContents.session;
 
-            // Remove oauth_token cookie from SoundCloud domain
-            await session.cookies.remove('https://soundcloud.com', 'oauth_token');
+      // Remove oauth_token cookie from SoundCloud domain
+      await session.cookies.remove('https://soundcloud.com', 'oauth_token');
 
-            console.log('Cleared authentication cookies from session');
-        } catch (error) {
-            console.error('Failed to clear cookies from session:', error);
-        }
+      console.log('Cleared authentication cookies from session');
+    } catch (error) {
+      console.error('Failed to clear cookies from session:', error);
     }
+  }
 }

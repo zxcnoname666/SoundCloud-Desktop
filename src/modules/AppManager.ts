@@ -1,7 +1,7 @@
-import {app, BrowserWindow, ipcMain, webContents} from 'electron';
-import {ConfigManager} from '../utils/config.js';
-import {Server} from './Server.js';
-import {Version} from './Version.js';
+import { BrowserWindow, app, ipcMain, webContents } from 'electron';
+import { ConfigManager } from '../utils/config.js';
+import { Server } from './Server.js';
+import { Version } from './Version.js';
 
 export class AppManager {
   private isPlaying = false;
@@ -153,13 +153,13 @@ export class AppManager {
       }
     });
 
-      // Forward auth events from webview to main window
-      ipcMain.on('auth:token-invalid', () => {
-          const focusedWindow = BrowserWindow.getFocusedWindow();
-          if (focusedWindow) {
-              focusedWindow.webContents.send('auth:token-invalid');
-          }
-      });
+    // Forward auth events from webview to main window
+    ipcMain.on('auth:token-invalid', () => {
+      const focusedWindow = BrowserWindow.getFocusedWindow();
+      if (focusedWindow) {
+        focusedWindow.webContents.send('auth:token-invalid');
+      }
+    });
   }
 
   async performAutoUpdate(): Promise<void> {
