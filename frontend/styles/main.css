@@ -339,26 +339,123 @@ webview {
 }
 
 .auth-status {
-  padding: 15px 30px;
-  margin-top: 20px;
-  border-top: 1px solid #333;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 0 0 20px 20px;
+    padding: 0;
+    margin: 20px 30px 15px 30px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: slideInDown 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: none;
+}
+
+.auth-status::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: currentColor;
+    animation: pulse 2s ease-in-out infinite;
 }
 
 .auth-status.success {
   color: #4caf50;
-  background: rgba(76, 175, 80, 0.1);
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.05) 100%);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.auth-status.success::before {
+    background: linear-gradient(180deg, #4caf50 0%, #81c784 100%);
 }
 
 .auth-status.error {
-  color: #f44336;
-  background: rgba(244, 67, 54, 0.1);
+    color: #ff5252;
+    background: linear-gradient(135deg, rgba(255, 82, 82, 0.15) 0%, rgba(255, 82, 82, 0.05) 100%);
+    border: 1px solid rgba(255, 82, 82, 0.3);
+    animation: slideInDown 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), errorShake 0.5s ease-in-out 0.3s;
+}
+
+.auth-status.error::before {
+    background: linear-gradient(180deg, #ff5252 0%, #ff8a80 100%);
 }
 
 .auth-status.info {
-  color: #2196f3;
-  background: rgba(33, 150, 243, 0.1);
+    color: #42a5f5;
+    background: linear-gradient(135deg, rgba(66, 165, 245, 0.15) 0%, rgba(66, 165, 245, 0.05) 100%);
+    border: 1px solid rgba(66, 165, 245, 0.3);
+}
+
+.auth-status.info::before {
+    background: linear-gradient(180deg, #42a5f5 0%, #90caf9 100%);
+}
+
+.auth-status-content {
+    padding: 16px 20px 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-status-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    animation: iconPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s backwards;
+}
+
+.auth-status-text {
+    flex: 1;
+    line-height: 1.5;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 200px;
+    }
+}
+
+@keyframes errorShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 10px currentColor;
+    }
+    50% {
+        opacity: 0.6;
+        box-shadow: 0 0 20px currentColor;
+    }
+}
+
+@keyframes iconPop {
+    from {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
 }
 
 /* AuthButton in navbar */

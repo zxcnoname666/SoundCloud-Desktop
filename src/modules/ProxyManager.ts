@@ -1,10 +1,10 @@
-import { URL } from 'node:url';
+import {URL} from 'node:url';
 import fetch from 'node-fetch';
-import type { ProxyManagerInterface } from '../types/global.js';
-import { ConfigManager } from '../utils/config.js';
-import { Extensions } from './Extensions.js';
-import type { NotificationManager } from './NotificationManager.js';
-import { WindowSetup } from './WindowSetup';
+import type {ProxyManagerInterface} from '../types/global.js';
+import {ConfigManager} from '../utils/config.js';
+import {Extensions} from './Extensions.js';
+import type {NotificationManager} from './NotificationManager.js';
+import {WindowSetup} from './WindowSetup';
 
 interface ProxyInfo {
   source: string;
@@ -90,7 +90,7 @@ export class ProxyManager implements ProxyManagerInterface {
         const response = await fetch(proxyUrl, proxyOptions);
 
         // Проверяем успешность ответа
-        if (!response.ok) {
+          if (!response.ok && response.status === 429) {
           console.warn(`Proxy ${proxy.domain} returned ${response.status}: ${response.statusText}`);
           lastError = `${response.status} ${response.statusText}`;
           continue;
