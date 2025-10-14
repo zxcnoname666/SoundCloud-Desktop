@@ -20,8 +20,10 @@ jobs:
           RELEASE_TYPE=$(echo "${{ github.event.head_commit.message }}" | grep -oP '!release:\s*\K(major|minor|patch)' || echo "patch")
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          npm version $RELEASE_TYPE -m "chore: bump version to %s [skip ci]"
-          git push origin HEAD:main --follow-tags
+          npm version $RELEASE_TYPE --no-git-tag-version
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to $(node -p "require('./package.json').version") [skip ci]"
+          git push origin HEAD:main
 
   build:
     needs: version
