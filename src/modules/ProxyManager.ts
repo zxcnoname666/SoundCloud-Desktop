@@ -1,10 +1,10 @@
-import {URL} from 'node:url';
+import { URL } from 'node:url';
 import fetch from 'node-fetch';
-import type {ProxyManagerInterface} from '../types/global.js';
-import {ConfigManager} from '../utils/config.js';
-import {Extensions} from './Extensions.js';
-import type {NotificationManager} from './NotificationManager.js';
-import {WindowSetup} from './WindowSetup';
+import type { ProxyManagerInterface } from '../types/global.js';
+import { ConfigManager } from '../utils/config.js';
+import { Extensions } from './Extensions.js';
+import type { NotificationManager } from './NotificationManager.js';
+import { WindowSetup } from './WindowSetup';
 
 interface ProxyInfo {
   source: string;
@@ -44,7 +44,7 @@ export class ProxyManager implements ProxyManagerInterface {
         this.showNotification('proxy_available_not_found');
       } else {
         console.log(`Loaded ${this.proxies.length} proxies`);
-          this.showNotification('proxy_loaded_count', String(this.proxies.length));
+        this.showNotification('proxy_loaded_count', String(this.proxies.length));
       }
     } catch (error) {
       console.warn('Failed to initialize proxy manager:', error);
@@ -141,15 +141,15 @@ export class ProxyManager implements ProxyManagerInterface {
     return `${proxy.domain}${basePath}`;
   }
 
-    private showNotification(messageKey: string, value?: string): void {
+  private showNotification(messageKey: string, value?: string): void {
     if (!this.notifyManager) return;
 
     try {
       const translations = Extensions.getTranslations().proxy;
       let message = translations[messageKey as keyof typeof translations] || messageKey;
 
-        if (value) {
-            message = message.replace('{name}', value).replace('{count}', value);
+      if (value) {
+        message = message.replace('{name}', value).replace('{count}', value);
       }
 
       this.notifyManager?.showNotification({

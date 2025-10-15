@@ -1,8 +1,8 @@
-import {app, BrowserWindow, ipcMain, webContents} from 'electron';
-import {ConfigManager} from '../utils/config.js';
-import {Extensions} from './Extensions.js';
-import {Server} from './Server.js';
-import {Version} from './Version.js';
+import { BrowserWindow, app, ipcMain, webContents } from 'electron';
+import { ConfigManager } from '../utils/config.js';
+import { Extensions } from './Extensions.js';
+import { Server } from './Server.js';
+import { Version } from './Version.js';
 
 export class AppManager {
   private isPlaying = false;
@@ -55,9 +55,9 @@ export class AppManager {
       return app.getLocale();
     });
 
-      ipcMain.handle('app:get-translations', () => {
-          return Extensions.getTranslations();
-      });
+    ipcMain.handle('app:get-translations', () => {
+      return Extensions.getTranslations();
+    });
 
     ipcMain.on('app:set-playing', (_event, playing: boolean) => {
       this.setIsPlaying(playing);
