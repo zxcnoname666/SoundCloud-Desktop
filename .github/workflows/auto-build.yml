@@ -20,7 +20,17 @@ jobs:
           RELEASE_TYPE=$(echo "${{ github.event.head_commit.message }}" | grep -oP '!release:\s*\K(major|minor|patch)' || echo "patch")
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Get last tag version and remove 'v' prefix if present
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+          LAST_VERSION=${LAST_TAG#v}
+
+          # Update package.json to match last tag version
+          npm version $LAST_VERSION --no-git-tag-version --allow-same-version
+
+          # Now bump to new version
           npm version $RELEASE_TYPE --no-git-tag-version
+
           git add package.json
           git commit -m "chore: bump version to $(node -p "require('./package.json').version") [skip ci]"
           git pull --rebase origin ${{ github.head_ref || github.ref_name }}
@@ -99,5 +109,5 @@ jobs:
           BUILD_COMMAND: "echo 'Using pre-built artifacts'"
           ASSET_PATTERNS: "artifacts/*/*"
           OPENAI_API_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
-          OPENAI_API_MODEL: gemini-2.5-flash
+          OPENAI_API_MODEL: gemini-2.5-pro
           OPENAI_API_KEY: ${{ secrets.AI_GEMINI_API_KEY }}
