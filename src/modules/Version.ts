@@ -1,9 +1,9 @@
-import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
-import { app, dialog } from 'electron';
+import {createHash} from 'node:crypto';
+import {createReadStream, createWriteStream} from 'node:fs';
+import {pipeline} from 'node:stream/promises';
+import {app, dialog} from 'electron';
 import fetch from 'node-fetch';
-import { Extensions } from './Extensions.js';
+import {Extensions} from './Extensions.js';
 
 export class Version {
   public major = -1;
@@ -255,10 +255,11 @@ export class Version {
           });
         } else if (filePath.endsWith('.deb')) {
           // DEB пакет - используем dpkg или показываем инструкции
+            const translations = Extensions.getTranslations().updater;
           await dialog.showMessageBox({
             type: 'info',
-            title: 'Manual Installation Required',
-            message: `Please install manually using: sudo dpkg -i ${filePath}`,
+              title: translations.updater_manual_install_title,
+              message: translations.updater_manual_install_message.replace('{path}', filePath),
             buttons: ['OK'],
           });
           return false;
