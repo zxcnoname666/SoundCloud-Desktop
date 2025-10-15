@@ -31,10 +31,15 @@ jobs:
           # Now bump to new version
           npm version $RELEASE_TYPE --no-git-tag-version
 
-          git add package.json
-          git commit -m "chore: bump version to $(node -p "require('./package.json').version") [skip ci]"
-          git pull --rebase origin ${{ github.head_ref || github.ref_name }}
-          git push origin HEAD:main
+          # Check if version changed
+          if git diff --quiet package.json; then
+            echo "Version already up to date, skipping commit"
+          else
+            git add package.json
+            git commit -m "chore: bump version to $(node -p "require('./package.json').version") [skip ci]"
+            git pull --rebase origin ${{ github.head_ref || github.ref_name }}
+            git push origin HEAD:main
+          fi
 
   build:
     needs: version
