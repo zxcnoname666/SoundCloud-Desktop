@@ -23,6 +23,7 @@ jobs:
           npm version $RELEASE_TYPE --no-git-tag-version
           git add package.json
           git commit -m "chore: bump version to $(node -p "require('./package.json').version") [skip ci]"
+          git pull --rebase origin ${{ github.head_ref || github.ref_name }}
           git push origin HEAD:main
 
   build:
