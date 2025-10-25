@@ -178,6 +178,32 @@ export class WindowSetup {
   }
 
   static setupBindings(window: BrowserWindow): void {
+    globalShortcut.register('CommandOrControl+=', zoomIn);
+    globalShortcut.register('CommandOrControl+Shift+=', zoomIn);
+
+    function zoomIn() {
+      const focused = BrowserWindow.getFocusedWindow();
+      if (focused) {
+        const factor = focused.webContents.getZoomFactor();
+        focused.webContents.setZoomFactor(factor + 0.1);
+      }
+    }
+
+    globalShortcut.register('CommandOrControl+-', () => {
+      const focused = BrowserWindow.getFocusedWindow();
+      if (focused) {
+        const factor = focused.webContents.getZoomFactor();
+        focused.webContents.setZoomFactor(factor - 0.1);
+      }
+    });
+
+    globalShortcut.register('CommandOrControl+0', () => {
+      const focused = BrowserWindow.getFocusedWindow();
+      if (focused) {
+        focused.webContents.setZoomFactor(1.0);
+      }
+    });
+
     globalShortcut.register('CommandOrControl+Shift+I', () => {
       const focusedWindow = BrowserWindow.getFocusedWindow();
       if (focusedWindow) {
