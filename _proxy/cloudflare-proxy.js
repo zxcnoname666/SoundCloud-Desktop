@@ -20,26 +20,26 @@ export default {
       });
     }
 
-      // Get target URL from header (base64 encoded)
-      const urlHeader = request.headers.get('X-Target');
+    // Get target URL from header (base64 encoded)
+    const urlHeader = request.headers.get('X-Target');
 
-      if (!urlHeader) {
-          return new Response('Missing X-Target header', {
-              status: 400,
-              headers: {
-                  'Access-Control-Allow-Origin': '*',
-                  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                  'Access-Control-Allow-Headers': '*',
-              },
-          });
-      }
+    if (!urlHeader) {
+      return new Response('Missing X-Target header', {
+        status: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': '*',
+        },
+      });
+    }
 
-      // Decode base64 URL
-      let targetUrl;
-      try {
-          targetUrl = atob(urlHeader);
-      } catch (error) {
-          return new Response('Invalid base64 encoded URL', {
+    // Decode base64 URL
+    let targetUrl;
+    try {
+      targetUrl = atob(urlHeader);
+    } catch (error) {
+      return new Response('Invalid base64 encoded URL', {
         status: 400,
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -58,7 +58,7 @@ export default {
       // Copy all headers except proxy-specific ones
       for (const [key, value] of request.headers) {
         if (
-            key.toLowerCase() !== 'x-target' &&
+          key.toLowerCase() !== 'x-target' &&
           key.toLowerCase() !== 'host' &&
           key.toLowerCase() !== 'cf-connecting-ip' &&
           key.toLowerCase() !== 'cf-ipcountry' &&
@@ -153,7 +153,7 @@ export default {
       console.error('Proxy error:', error);
 
       return new Response(`Proxy Error: ${error.message}`, {
-          status: 503,
+        status: 503,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',

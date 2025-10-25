@@ -1,15 +1,15 @@
-import {join} from 'node:path';
-import {app, BrowserWindow} from 'electron';
-import {Client} from 'qurre-socket';
-import {AppManager} from './modules/AppManager.js';
-import {AuthManager} from './modules/AuthManager.js';
-import {Extensions} from './modules/Extensions.js';
-import {NotificationManager} from './modules/NotificationManager.js';
-import {ProxyManager} from './modules/ProxyManager.js';
-import {TCPPortChecker} from './modules/TCPPortChecker.js';
-import {WindowSetup} from './modules/WindowSetup.js';
-import type {AppContext} from './types/global.js';
-import {ConfigManager} from './utils/config.js';
+import { join } from 'node:path';
+import { BrowserWindow, app } from 'electron';
+import { Client } from 'qurre-socket';
+import { AppManager } from './modules/AppManager.js';
+import { AuthManager } from './modules/AuthManager.js';
+import { Extensions } from './modules/Extensions.js';
+import { NotificationManager } from './modules/NotificationManager.js';
+import { ProxyManager } from './modules/ProxyManager.js';
+import { TCPPortChecker } from './modules/TCPPortChecker.js';
+import { WindowSetup } from './modules/WindowSetup.js';
+import type { AppContext } from './types/global.js';
+import { ConfigManager } from './utils/config.js';
 
 class SoundCloudApp {
   private context: AppContext;
@@ -17,11 +17,11 @@ class SoundCloudApp {
   private notifyManager: NotificationManager;
 
   constructor() {
-      // Отключаем TLS 1.3 ДО инициализации app (критично!)
-      app.commandLine.appendSwitch('--tls-version-max', '1.2');
-      app.commandLine.appendSwitch('--ssl-version-max', 'tls1.2');
-      app.commandLine.appendSwitch('--tls-version-min', '1.0');
-      app.commandLine.appendSwitch('--ssl-version-min', 'tls1');
+    // Отключаем TLS 1.3 ДО инициализации app (критично!)
+    app.commandLine.appendSwitch('--tls-version-max', '1.2');
+    app.commandLine.appendSwitch('--ssl-version-max', 'tls1.2');
+    app.commandLine.appendSwitch('--tls-version-min', '1.0');
+    app.commandLine.appendSwitch('--ssl-version-min', 'tls1');
 
     this.context = {
       isDev: process.env['NODE_ENV'] === 'development' || process.argv.includes('--dev'),

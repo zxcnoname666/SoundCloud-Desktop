@@ -1,11 +1,11 @@
 import https from 'node:https';
-import {URL} from 'node:url';
+import { URL } from 'node:url';
 import fetch from 'node-fetch';
-import type {ProxyManagerInterface} from '../types/global.js';
-import {ConfigManager} from '../utils/config.js';
-import {Extensions} from './Extensions.js';
-import type {NotificationManager} from './NotificationManager.js';
-import {WindowSetup} from './WindowSetup';
+import type { ProxyManagerInterface } from '../types/global.js';
+import { ConfigManager } from '../utils/config.js';
+import { Extensions } from './Extensions.js';
+import type { NotificationManager } from './NotificationManager.js';
+import { WindowSetup } from './WindowSetup';
 
 interface ProxyInfo {
   source: string;
@@ -18,15 +18,15 @@ export class ProxyManager implements ProxyManagerInterface {
   private static instance: ProxyManager;
   private proxies: ProxyInfo[] = [];
   private notifyManager: NotificationManager | null = null;
-    private httpsAgent: https.Agent;
+  private httpsAgent: https.Agent;
 
-    private constructor() {
-        // Создаем https.Agent с отключенным TLS 1.3 для обхода блокировок в России
-        this.httpsAgent = new https.Agent({
-            maxVersion: 'TLSv1.2',
-            minVersion: 'TLSv1',
-        });
-    }
+  private constructor() {
+    // Создаем https.Agent с отключенным TLS 1.3 для обхода блокировок в России
+    this.httpsAgent = new https.Agent({
+      maxVersion: 'TLSv1.2',
+      minVersion: 'TLSv1',
+    });
+  }
 
   static getInstance(): ProxyManager {
     if (!ProxyManager.instance) {
@@ -47,7 +47,7 @@ export class ProxyManager implements ProxyManagerInterface {
     }
 
     if (!useProxy || this.proxies.length === 0) {
-        return fetch(url, {...options, agent: this.httpsAgent});
+      return fetch(url, { ...options, agent: this.httpsAgent });
     }
 
     // Всегда пробуем прокси с первого по списку
@@ -65,9 +65,9 @@ export class ProxyManager implements ProxyManagerInterface {
           headers: {
             ...proxy.headers,
             ...headers,
-              'X-Target': Buffer.from(url).toString('base64'),
+            'X-Target': Buffer.from(url).toString('base64'),
           },
-            agent: this.httpsAgent,
+          agent: this.httpsAgent,
         };
 
         if (options.body) {
@@ -77,7 +77,7 @@ export class ProxyManager implements ProxyManagerInterface {
         const response = await fetch(proxyUrl, proxyOptions);
 
         // Проверяем успешность ответа
-          if (!response.ok && (response.status === 429 || response.status === 500)) {
+        if (!response.ok && (response.status === 429 || response.status === 500)) {
           console.warn(`Proxy ${proxy.domain} returned ${response.status}: ${response.statusText}`);
           lastError = `${response.status} ${response.statusText}`;
           continue;
@@ -94,7 +94,7 @@ export class ProxyManager implements ProxyManagerInterface {
     // Если все прокси не работают, пробуем без прокси
     console.warn('All proxies failed, trying direct connection');
     try {
-        return await fetch(url, {...options, agent: this.httpsAgent});
+      return await fetch(url, { ...options, agent: this.httpsAgent });
     } catch (directError) {
       throw new Error(
         `All proxies failed and direct connection failed. Last proxy error: ${lastError || 'Unknown'}. Direct error: ${directError}`
@@ -102,27 +102,27 @@ export class ProxyManager implements ProxyManagerInterface {
     }
   }
 
-    async init(): Promise<void> {
-        try {
-            const configManager = ConfigManager.getInstance();
-            const proxyConfig = configManager.loadProxyConfig();
+  async init(): Promise<void> {
+    try {
+      const configManager = ConfigManager.getInstance();
+      const proxyConfig = configManager.loadProxyConfig();
 
-            this.proxies = this.parseProxies(proxyConfig.proxy || []);
+      this.proxies = this.parseProxies(proxyConfig.proxy || []);
 
-            if (this.proxies.length === 0) {
-                this.showNotification('proxy_available_not_found');
-            } else {
-                console.log(`Loaded ${this.proxies.length} proxies`);
-                this.showNotification('proxy_loaded_count', String(this.proxies.length));
-            }
-        } catch (error) {
-            console.warn('Failed to initialize proxy manager:', error);
-        }
+      if (this.proxies.length === 0) {
+        this.showNotification('proxy_available_not_found');
+      } else {
+        console.log(`Loaded ${this.proxies.length} proxies`);
+        this.showNotification('proxy_loaded_count', String(this.proxies.length));
+      }
+    } catch (error) {
+      console.warn('Failed to initialize proxy manager:', error);
     }
+  }
 
-    getCurrentProxy(): string | null {
-        return this.proxies[0]?.source || null;
-    }
+  getCurrentProxy(): string | null {
+    return this.proxies[0]?.source || null;
+  }
 
   private parseProxies(proxyStrings: string[]): ProxyInfo[] {
     return proxyStrings
