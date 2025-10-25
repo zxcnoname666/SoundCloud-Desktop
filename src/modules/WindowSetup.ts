@@ -1,17 +1,8 @@
-import { join } from 'node:path';
-import {
-  BrowserWindow,
-  Menu,
-  Tray,
-  app,
-  globalShortcut,
-  nativeImage,
-  protocol,
-  shell,
-} from 'electron';
+import {join} from 'node:path';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import type { WindowBounds } from '../types/config.js';
-import { ProxyManager } from './ProxyManager.js';
+import type {WindowBounds} from '../types/config.js';
+import {ProxyManager} from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
@@ -361,7 +352,7 @@ export class WindowSetup {
         headers: responseHeaders,
       });
     } catch (error) {
-      console.warn('Proxy request failed:', error);
+        console.warn('Proxy request failed:', request.url, error);
       return new Response('Proxy Error', { status: 500 });
     }
   }

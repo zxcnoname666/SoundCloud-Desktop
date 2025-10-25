@@ -1,7 +1,7 @@
 /**
  * Cloudflare Worker Proxy for SoundCloud Desktop
  *
- * This worker acts as a proxy that receives the target URL in the X-Proxy-Target-URL header
+ * This worker acts as a proxy that receives the target URL in the X-Target header
  * and forwards the request to that URL, handling redirects properly.
  */
 
@@ -20,11 +20,26 @@ export default {
       });
     }
 
-    // Get target URL from header
-    const targetUrl = request.headers.get('X-Proxy-Target-URL');
+      // Get target URL from header (base64 encoded)
+      const urlHeader = request.headers.get('X-Target');
 
-    if (!targetUrl) {
-      return new Response('Missing X-Proxy-Target-URL header', {
+      if (!urlHeader) {
+          return new Response('Missing X-Target header', {
+              status: 400,
+              headers: {
+                  'Access-Control-Allow-Origin': '*',
+                  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                  'Access-Control-Allow-Headers': '*',
+              },
+          });
+      }
+
+      // Decode base64 URL
+      let targetUrl;
+      try {
+          targetUrl = atob(urlHeader);
+      } catch (error) {
+          return new Response('Invalid base64 encoded URL', {
         status: 400,
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -43,7 +58,7 @@ export default {
       // Copy all headers except proxy-specific ones
       for (const [key, value] of request.headers) {
         if (
-          key.toLowerCase() !== 'x-proxy-target-url' &&
+            key.toLowerCase() !== 'x-target' &&
           key.toLowerCase() !== 'host' &&
           key.toLowerCase() !== 'cf-connecting-ip' &&
           key.toLowerCase() !== 'cf-ipcountry' &&
@@ -60,14 +75,6 @@ export default {
       // Set proper host header for target
       const targetUrlObj = new URL(targetUrl);
       targetHeaders.set('Host', targetUrlObj.host);
-
-      // Add user agent if not present
-      if (!targetHeaders.has('User-Agent')) {
-        targetHeaders.set('User-Agent', 'SoundCloud-Desktop/1.0');
-      }
-
-      // Add proxy identifier
-      targetHeaders.set('X-Proxied-By', 'SoundCloud-Desktop-Proxy');
 
       // Prepare request options
       const requestOptions = {
@@ -146,7 +153,7 @@ export default {
       console.error('Proxy error:', error);
 
       return new Response(`Proxy Error: ${error.message}`, {
-        status: 500,
+          status: 503,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
