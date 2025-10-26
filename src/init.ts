@@ -8,13 +8,16 @@ import { NotificationManager } from './modules/NotificationManager.js';
 import { ProxyManager } from './modules/ProxyManager.js';
 import { TCPPortChecker } from './modules/TCPPortChecker.js';
 import { WindowSetup } from './modules/WindowSetup.js';
+import { registerDiscordIPCHandlers } from './modules/DiscordIPCHandlers.js';
 import type { AppContext } from './types/global.js';
 import { ConfigManager } from './utils/config.js';
+import {DiscordAuthManager} from "./modules/DiscordAuthManager";
 
 class SoundCloudApp {
   private context: AppContext;
   private appManager: AppManager;
   private notifyManager: NotificationManager;
+  private discordManager: DiscordAuthManager;
 
   constructor() {
     // Отключаем TLS 1.3 ДО инициализации app (критично!)
@@ -32,6 +35,7 @@ class SoundCloudApp {
     this.appManager = new AppManager();
     // NotifyManager будет инициализирован после app.whenReady()
     this.notifyManager = null as any;
+    this.discordManager = null as any;
 
     this.initializeConfig();
   }
@@ -49,9 +53,13 @@ class SoundCloudApp {
     // Инициализируем NotificationManager после того как Electron готов
     this.notifyManager = NotificationManager.getInstance();
 
-    // Инициализируем AuthManager для работы с аутентификацией
+    // Инициализируем AuthManager для работы с аутентификацией SoundCloud
     const authManager = AuthManager.getInstance();
     authManager.initialize();
+
+    this.discordManager = DiscordAuthManager.getInstance();
+
+    registerDiscordIPCHandlers();
 
     this.setupAppEvents();
     await this.startup();
@@ -84,6 +92,12 @@ class SoundCloudApp {
         this.startup().catch(console.error);
       }
     });
+
+    app.on('before-quit', async () => {
+      if (this.discordManager) {
+        await this.discordManager.disconnect();
+      }
+    });
   }
 
   private handleWebContentsCreated(contents: Electron.WebContents): void {
@@ -99,8 +113,8 @@ class SoundCloudApp {
     // Логируем создание webview для отладки
     if (contents.getType() === 'webview') {
       console.log(
-        '🌐 Webview created, session:',
-        contents.session === require('electron').session.defaultSession ? 'default' : 'separate'
+          '🌐 Webview created, session:',
+          contents.session === require('electron').session.defaultSession ? 'default' : 'separate'
       );
     }
 
@@ -178,6 +192,8 @@ class SoundCloudApp {
       // Загружаем сохраненный токен после создания окна
       const authManager = AuthManager.getInstance();
       await authManager.initializeWithWindow();
+
+      this.discordManager.initialize(mainWindow);
 
       if (await this.checkPortUsage()) {
         return;
