@@ -136,11 +136,11 @@ export class DiscordAuthManager {
         this.attemptReconnect();
       });
 
-      // Start login process - errors will be caught by readyPromise or outer catch
-      this.client.login({ clientId: this.CLIENT_ID }).catch((error) => {
-        // Don't throw here - let the outer catch block handle it
-        console.error('Discord login error:', error);
-      });
+      // Start login process
+      // Errors are handled by client.on('error') which rejects readyPromise
+      // If no response, timeout will reject readyPromise and cleanup
+      // Don't add .catch() here as it would suppress errors
+      this.client.login({ clientId: this.CLIENT_ID });
 
       await readyPromise;
     } catch (error) {
