@@ -1,7 +1,6 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import { DiscordPresenceData } from 'discord-rpc';
 import { DiscordAuthManager } from './DiscordAuthManager.js';
-import { DISCORD_CONFIG } from '../config/discord.js';
 
 /**
  * Register IPC handlers for Discord integration

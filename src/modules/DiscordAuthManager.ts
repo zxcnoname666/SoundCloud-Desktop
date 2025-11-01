@@ -19,14 +19,14 @@ export interface DiscordUser {
  */
 interface DiscordRPCActivityPayload {
   type: number;
-  details?: string;
-  state?: string;
-  startTimestamp?: number;
-  endTimestamp?: number;
-  largeImageKey?: string;
-  largeImageText?: string;
-  smallImageKey?: string;
-  smallImageText?: string;
+  details?: string | undefined;
+  state?: string | undefined;
+  startTimestamp?: number | undefined;
+  endTimestamp?: number | undefined;
+  largeImageKey?: string | undefined;
+  largeImageText?: string | undefined;
+  smallImageKey?: string | undefined;
+  smallImageText?: string | undefined;
 }
 
 /**
