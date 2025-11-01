@@ -11,13 +11,13 @@ import { WindowSetup } from './modules/WindowSetup.js';
 import { registerDiscordIPCHandlers } from './modules/DiscordIPCHandlers.js';
 import type { AppContext } from './types/global.js';
 import { ConfigManager } from './utils/config.js';
-import {DiscordAuthManager} from "./modules/DiscordAuthManager";
+import { DiscordAuthManager } from './modules/DiscordAuthManager.js';
 
 class SoundCloudApp {
   private context: AppContext;
   private appManager: AppManager;
-  private notifyManager: NotificationManager;
-  private discordManager: DiscordAuthManager;
+  private notifyManager!: NotificationManager; // Initialized in initialize()
+  private discordManager!: DiscordAuthManager; // Initialized in initialize()
 
   constructor() {
     // Отключаем TLS 1.3 ДО инициализации app (критично!)
@@ -33,9 +33,6 @@ class SoundCloudApp {
 
     this.context.port = this.context.isDev ? 3535 : 45828;
     this.appManager = new AppManager();
-    // NotifyManager будет инициализирован после app.whenReady()
-    this.notifyManager = null as any;
-    this.discordManager = null as any;
 
     this.initializeConfig();
   }

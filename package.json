@@ -36,7 +36,6 @@
     "@biomejs/biome": "^1.9.3",
     "@eslint/js": "^9.36.0",
     "@types/discord-rpc": "^4.0.9",
-    "@types/express": "^5.0.4",
     "@types/node": "^24.5.2",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
@@ -49,7 +48,6 @@
   },
   "dependencies": {
     "discord-rpc": "^4.0.1",
-    "express": "^5.1.0",
     "json5": "^2.2.3",
     "node-fetch": "^3.3.2",
     "qurre-socket": "^1.1.0"
