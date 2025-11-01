@@ -21,7 +21,7 @@ async function loadTranslations() {
   try {
     if (typeof ipcRenderer !== 'undefined') {
       const t = await ipcRenderer.invoke('app:get-translations');
-      if (t && t.discord) {
+      if (t?.discord) {
         discordTranslations = t.discord;
         return;
       }

@@ -207,7 +207,7 @@ function cleanSoundCloudUrl(url) {
 function truncateText(text, maxLength) {
   if (!text) return text;
   if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 3) + '...';
+  return `${text.substring(0, maxLength - 3)}...`;
 }
 
 /**

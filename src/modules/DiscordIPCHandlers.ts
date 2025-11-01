@@ -1,5 +1,5 @@
-import { ipcMain, IpcMainEvent } from 'electron';
-import { DiscordPresenceData } from 'discord-rpc';
+import type { DiscordPresenceData } from 'discord-rpc';
+import { type IpcMainEvent, ipcMain } from 'electron';
 import { DiscordAuthManager } from './DiscordAuthManager.js';
 
 /**

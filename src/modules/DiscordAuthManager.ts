@@ -1,5 +1,5 @@
-import { BrowserWindow } from 'electron';
-import { Client, DiscordPresenceData } from 'discord-rpc';
+import { Client, type DiscordPresenceData } from 'discord-rpc';
+import type { BrowserWindow } from 'electron';
 import { DISCORD_CONFIG } from '../config/discord.js';
 
 /**
@@ -181,28 +181,47 @@ export class DiscordAuthManager {
   }
 
   /**
-   * Attempt to reconnect with exponential backoff
+   * Set Discord Rich Presence activity
+   * Uses internal RPC request API to properly support LISTENING activity type
    */
-  private attemptReconnect(): void {
-    if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
-      console.warn('Max reconnection attempts reached');
-      return;
+  async setActivity(presence: DiscordPresenceData): Promise<boolean> {
+    if (!this.client || !this.clientReady) {
+      return false;
     }
 
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
+    try {
+      const pid = process.pid;
+
+      const activityPayload: DiscordRPCActivityPayload = {
+        type: presence.type ?? DISCORD_CONFIG.ACTIVITY_TYPE_LISTENING,
+        details: presence.details,
+        state: presence.state,
+        startTimestamp: presence.timestamps?.start
+          ? Math.floor(presence.timestamps.start / 1000)
+          : undefined,
+        endTimestamp: presence.timestamps?.end
+          ? Math.floor(presence.timestamps.end / 1000)
+          : undefined,
+        largeImageKey: presence.assets?.large_image,
+        largeImageText: DISCORD_CONFIG.APPLICATION_NAME,
+        smallImageKey: 'play',
+        smallImageText: 'Playing',
+      };
+
+      // Use internal request API because discord-rpc library doesn't properly support
+      // LISTENING activity type through the standard setActivity method
+      const rpcClient = this.client as DiscordRPCClient;
+      await rpcClient.request('SET_ACTIVITY', {
+        pid,
+        activity: activityPayload,
+      });
+
+      return true;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('Failed to set discord activity:', errorMessage);
+      return false;
     }
-
-    this.reconnectAttempts++;
-    const delay = Math.min(1000 * 2 ** this.reconnectAttempts, 30000);
-
-    console.log(`Reconnecting to Discord in ${delay}ms (attempt ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS})`);
-
-    this.reconnectTimeout = setTimeout(() => {
-      this.reconnectTimeout = null;
-      this.connect();
-    }, delay);
   }
 
   /**
@@ -225,43 +244,30 @@ export class DiscordAuthManager {
   }
 
   /**
-   * Set Discord Rich Presence activity
-   * Uses internal RPC request API to properly support LISTENING activity type
+   * Attempt to reconnect with exponential backoff
    */
-  async setActivity(presence: DiscordPresenceData): Promise<boolean> {
-    if (!this.client || !this.clientReady) {
-      return false;
+  private attemptReconnect(): void {
+    if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
+      console.warn('Max reconnection attempts reached');
+      return;
     }
 
-    try {
-      const pid = process.pid;
-
-      const activityPayload: DiscordRPCActivityPayload = {
-        type: presence.type ?? DISCORD_CONFIG.ACTIVITY_TYPE_LISTENING,
-        details: presence.details,
-        state: presence.state,
-        startTimestamp: presence.timestamps?.start ? Math.floor(presence.timestamps.start / 1000) : undefined,
-        endTimestamp: presence.timestamps?.end ? Math.floor(presence.timestamps.end / 1000) : undefined,
-        largeImageKey: presence.assets?.large_image,
-        largeImageText: DISCORD_CONFIG.APPLICATION_NAME,
-        smallImageKey: 'play',
-        smallImageText: 'Playing',
-      };
-
-      // Use internal request API because discord-rpc library doesn't properly support
-      // LISTENING activity type through the standard setActivity method
-      const rpcClient = this.client as DiscordRPCClient;
-      await rpcClient.request('SET_ACTIVITY', {
-        pid,
-        activity: activityPayload,
-      });
-
-      return true;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('Failed to set discord activity:', errorMessage);
-      return false;
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
     }
+
+    this.reconnectAttempts++;
+    const delay = Math.min(1000 * 2 ** this.reconnectAttempts, 30000);
+
+    console.log(
+      `Reconnecting to Discord in ${delay}ms (attempt ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS})`
+    );
+
+    this.reconnectTimeout = setTimeout(() => {
+      this.reconnectTimeout = null;
+      this.connect();
+    }, delay);
   }
 
   /**

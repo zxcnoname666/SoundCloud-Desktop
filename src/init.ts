@@ -3,15 +3,15 @@ import { BrowserWindow, app } from 'electron';
 import { Client } from 'qurre-socket';
 import { AppManager } from './modules/AppManager.js';
 import { AuthManager } from './modules/AuthManager.js';
+import { DiscordAuthManager } from './modules/DiscordAuthManager.js';
+import { registerDiscordIPCHandlers } from './modules/DiscordIPCHandlers.js';
 import { Extensions } from './modules/Extensions.js';
 import { NotificationManager } from './modules/NotificationManager.js';
 import { ProxyManager } from './modules/ProxyManager.js';
 import { TCPPortChecker } from './modules/TCPPortChecker.js';
 import { WindowSetup } from './modules/WindowSetup.js';
-import { registerDiscordIPCHandlers } from './modules/DiscordIPCHandlers.js';
 import type { AppContext } from './types/global.js';
 import { ConfigManager } from './utils/config.js';
-import { DiscordAuthManager } from './modules/DiscordAuthManager.js';
 
 class SoundCloudApp {
   private context: AppContext;
@@ -110,8 +110,8 @@ class SoundCloudApp {
     // Логируем создание webview для отладки
     if (contents.getType() === 'webview') {
       console.log(
-          '🌐 Webview created, session:',
-          contents.session === require('electron').session.defaultSession ? 'default' : 'separate'
+        '🌐 Webview created, session:',
+        contents.session === require('electron').session.defaultSession ? 'default' : 'separate'
       );
     }
 
