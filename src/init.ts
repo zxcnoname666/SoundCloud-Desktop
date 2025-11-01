@@ -1,20 +1,23 @@
-import { join } from 'node:path';
-import { BrowserWindow, app } from 'electron';
-import { Client } from 'qurre-socket';
-import { AppManager } from './modules/AppManager.js';
-import { AuthManager } from './modules/AuthManager.js';
-import { Extensions } from './modules/Extensions.js';
-import { NotificationManager } from './modules/NotificationManager.js';
-import { ProxyManager } from './modules/ProxyManager.js';
-import { TCPPortChecker } from './modules/TCPPortChecker.js';
-import { WindowSetup } from './modules/WindowSetup.js';
-import type { AppContext } from './types/global.js';
-import { ConfigManager } from './utils/config.js';
+import {join} from 'node:path';
+import {app, BrowserWindow} from 'electron';
+import {Client} from 'qurre-socket';
+import {AppManager} from './modules/AppManager.js';
+import {AuthManager} from './modules/AuthManager.js';
+import {DiscordAuthManager} from './modules/DiscordAuthManager.js';
+import {registerDiscordIPCHandlers} from './modules/DiscordIPCHandlers.js';
+import {Extensions} from './modules/Extensions.js';
+import {NotificationManager} from './modules/NotificationManager.js';
+import {ProxyManager} from './modules/ProxyManager.js';
+import {TCPPortChecker} from './modules/TCPPortChecker.js';
+import {WindowSetup} from './modules/WindowSetup.js';
+import type {AppContext} from './types/global.js';
+import {ConfigManager} from './utils/config.js';
 
 class SoundCloudApp {
   private context: AppContext;
   private appManager: AppManager;
-  private notifyManager: NotificationManager;
+  private notifyManager!: NotificationManager; // Initialized in initialize()
+  private discordManager!: DiscordAuthManager; // Initialized in initialize()
 
   constructor() {
     // Отключаем TLS 1.3 ДО инициализации app (критично!)
@@ -30,10 +33,40 @@ class SoundCloudApp {
 
     this.context.port = this.context.isDev ? 3535 : 45828;
     this.appManager = new AppManager();
-    // NotifyManager будет инициализирован после app.whenReady()
-    this.notifyManager = null as any;
+
+    // Setup global error handlers to prevent crashes from unhandled promise rejections
+    this.setupGlobalErrorHandlers();
 
     this.initializeConfig();
+  }
+
+  /**
+   * Setup global error handlers to gracefully handle unexpected errors
+   * This prevents the application from crashing on unhandled promise rejections
+   */
+  private setupGlobalErrorHandlers(): void {
+    process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+      console.error('Unhandled Promise Rejection:', reason);
+      console.error('Promise:', promise);
+
+      // Log stack trace if available
+      if (reason instanceof Error && reason.stack) {
+        console.error('Stack trace:', reason.stack);
+      }
+
+      // Don't exit - just log the error and continue
+      // This is important for non-critical errors like Discord connection failures
+    });
+
+    process.on('uncaughtException', (error: Error) => {
+      console.error('Uncaught Exception:', error);
+      if (error.stack) {
+        console.error('Stack trace:', error.stack);
+      }
+
+      // For uncaught exceptions, we may need to exit depending on severity
+      // But log it first
+    });
   }
 
   async initialize(): Promise<void> {
@@ -49,9 +82,13 @@ class SoundCloudApp {
     // Инициализируем NotificationManager после того как Electron готов
     this.notifyManager = NotificationManager.getInstance();
 
-    // Инициализируем AuthManager для работы с аутентификацией
+    // Инициализируем AuthManager для работы с аутентификацией SoundCloud
     const authManager = AuthManager.getInstance();
     authManager.initialize();
+
+    this.discordManager = DiscordAuthManager.getInstance();
+
+    registerDiscordIPCHandlers();
 
     this.setupAppEvents();
     await this.startup();
@@ -82,6 +119,12 @@ class SoundCloudApp {
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) {
         this.startup().catch(console.error);
+      }
+    });
+
+    app.on('before-quit', async () => {
+      if (this.discordManager) {
+        await this.discordManager.disconnect();
       }
     });
   }
@@ -178,6 +221,8 @@ class SoundCloudApp {
       // Загружаем сохраненный токен после создания окна
       const authManager = AuthManager.getInstance();
       await authManager.initializeWithWindow();
+
+        await this.discordManager.initialize(mainWindow);
 
       if (await this.checkPortUsage()) {
         return;
