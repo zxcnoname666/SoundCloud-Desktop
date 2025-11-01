@@ -1,17 +1,17 @@
-import { join } from 'node:path';
-import { BrowserWindow, app } from 'electron';
-import { Client } from 'qurre-socket';
-import { AppManager } from './modules/AppManager.js';
-import { AuthManager } from './modules/AuthManager.js';
-import { DiscordAuthManager } from './modules/DiscordAuthManager.js';
-import { registerDiscordIPCHandlers } from './modules/DiscordIPCHandlers.js';
-import { Extensions } from './modules/Extensions.js';
-import { NotificationManager } from './modules/NotificationManager.js';
-import { ProxyManager } from './modules/ProxyManager.js';
-import { TCPPortChecker } from './modules/TCPPortChecker.js';
-import { WindowSetup } from './modules/WindowSetup.js';
-import type { AppContext } from './types/global.js';
-import { ConfigManager } from './utils/config.js';
+import {join} from 'node:path';
+import {app, BrowserWindow} from 'electron';
+import {Client} from 'qurre-socket';
+import {AppManager} from './modules/AppManager.js';
+import {AuthManager} from './modules/AuthManager.js';
+import {DiscordAuthManager} from './modules/DiscordAuthManager.js';
+import {registerDiscordIPCHandlers} from './modules/DiscordIPCHandlers.js';
+import {Extensions} from './modules/Extensions.js';
+import {NotificationManager} from './modules/NotificationManager.js';
+import {ProxyManager} from './modules/ProxyManager.js';
+import {TCPPortChecker} from './modules/TCPPortChecker.js';
+import {WindowSetup} from './modules/WindowSetup.js';
+import type {AppContext} from './types/global.js';
+import {ConfigManager} from './utils/config.js';
 
 class SoundCloudApp {
   private context: AppContext;
@@ -222,7 +222,7 @@ class SoundCloudApp {
       const authManager = AuthManager.getInstance();
       await authManager.initializeWithWindow();
 
-      this.discordManager.initialize(mainWindow);
+        await this.discordManager.initialize(mainWindow);
 
       if (await this.checkPortUsage()) {
         return;

@@ -1,6 +1,6 @@
-import { Client, type DiscordPresenceData } from 'discord-rpc';
-import type { BrowserWindow } from 'electron';
-import { DISCORD_CONFIG } from '../config/discord.js';
+import {Client, type DiscordPresenceData} from 'discord-rpc';
+import type {BrowserWindow} from 'electron';
+import {DISCORD_CONFIG} from '../config/discord.js';
 
 /**
  * Discord user information
@@ -67,105 +67,35 @@ export class DiscordAuthManager {
   /**
    * Initialize the Discord manager with the main window
    */
-  initialize(window: BrowserWindow): void {
+  async initialize(window: BrowserWindow): Promise<void> {
     this.mainWindow = window;
-    this.connect();
+      await this.connect();
   }
 
   /**
-   * Attempt to connect to Discord RPC
+   * Disconnect from Discord RPC
    */
-  private async connect(): Promise<void> {
-    // Prevent multiple simultaneous connection attempts
-    if (this.isReconnecting) {
-      return;
+  async disconnect(): Promise<void> {
+    this.manualDisconnect = true;
+
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
     }
 
-    this.isReconnecting = true;
-
-    try {
-      if (this.client && this.clientReady) {
-        throw new Error('Client is already connected');
+    if (this.client) {
+      try {
+        await this.clearActivity();
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error('Error while clearing activity:', errorMessage);
       }
-
-      // Clean up existing client
-      if (this.client) {
-        this.safeDestroy(this.client);
-        this.client = null;
-      }
-
-      this.client = new Client({
-        transport: 'ipc',
-      });
-
-      const readyPromise = new Promise<void>((resolve, reject) => {
-        if (!this.client) {
-          reject(new Error('Client is null'));
-          return;
-        }
-
-        const timeout = setTimeout(() => {
-          reject(new Error('Connection timeout - Discord may not be running'));
-          if (this.client) {
-            this.safeDestroy(this.client);
-            this.client = null;
-          }
-        }, DISCORD_CONFIG.CONNECTION_TIMEOUT_MS);
-
-        this.client.once('ready', () => {
-          clearTimeout(timeout);
-          this.clientReady = true;
-          this.reconnectAttempts = 0;
-          this.notifyWindow('discord:connected', this.getUser());
-          resolve();
-        });
-
-        this.client.on('error', (error: Error) => {
-          console.error('Discord client error:', error);
-          reject(error);
-        });
-      });
-
-      this.client.on('disconnected', () => {
-        this.clientReady = false;
-        if (this.manualDisconnect) {
-          this.manualDisconnect = false;
-          return;
-        }
-        this.notifyWindow('discord:disconnected');
-        this.attemptReconnect();
-      });
-
-      // Start login process
-      // Errors are handled by client.on('error') which rejects readyPromise
-      // If no response, timeout will reject readyPromise and cleanup
-      // Don't add .catch() here as it would suppress errors
-      this.client.login({ clientId: this.CLIENT_ID });
-
-      await readyPromise;
-    } catch (error) {
-      console.error('Discord connection failed:', error);
-
+        await this.safeDestroy(this.client);
+      this.client = null;
       this.clientReady = false;
-
-      if (this.client) {
-        this.safeDestroy(this.client);
-        this.client = null;
-      }
-
-      const errorMessage = this.getErrorMessage(error);
-
-      this.notifyWindow('discord:error', {
-        message: errorMessage,
-        canRetry: this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS,
-      });
-
-      if (this.reconnectAttempts > 0) {
-        this.attemptReconnect();
-      }
-    } finally {
-      this.isReconnecting = false;
     }
+
+    this.notifyWindow('discord:disconnected');
   }
 
   /**
@@ -275,39 +205,6 @@ export class DiscordAuthManager {
   }
 
   /**
-   * Disconnect from Discord RPC
-   */
-  async disconnect(): Promise<void> {
-    this.manualDisconnect = true;
-
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
-
-    if (this.client) {
-      try {
-        await this.clearActivity();
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error('Error while clearing activity:', errorMessage);
-      }
-      this.safeDestroy(this.client);
-      this.client = null;
-      this.clientReady = false;
-    }
-
-    this.notifyWindow('discord:disconnected');
-  }
-
-  /**
-   * Check if connected to Discord
-   */
-  isConnected(): boolean {
-    return this.clientReady;
-  }
-
-  /**
    * Force a reconnection attempt
    */
   async forceReconnect(): Promise<void> {
@@ -322,7 +219,7 @@ export class DiscordAuthManager {
 
     if (this.client) {
       this.clientReady = false;
-      this.safeDestroy(this.client);
+        await this.safeDestroy(this.client);
       this.client = null;
     }
 
@@ -332,9 +229,112 @@ export class DiscordAuthManager {
   }
 
   /**
+   * Check if connected to Discord
+   */
+  isConnected(): boolean {
+    return this.clientReady;
+  }
+
+  /**
+   * Attempt to connect to Discord RPC
+   */
+  private async connect(): Promise<void> {
+    // Prevent multiple simultaneous connection attempts
+    if (this.isReconnecting) {
+      return;
+    }
+
+    this.isReconnecting = true;
+
+    try {
+      if (this.client && this.clientReady) {
+        throw new Error('Client is already connected');
+      }
+
+      // Clean up existing client
+      if (this.client) {
+          await this.safeDestroy(this.client);
+        this.client = null;
+      }
+
+      this.client = new Client({
+        transport: 'ipc',
+      });
+
+      const readyPromise = new Promise<void>((resolve, reject) => {
+        if (!this.client) {
+          reject(new Error('Client is null'));
+          return;
+        }
+
+          const timeout = setTimeout(async () => {
+          reject(new Error('Connection timeout - Discord may not be running'));
+          if (this.client) {
+              await this.safeDestroy(this.client);
+            this.client = null;
+          }
+        }, DISCORD_CONFIG.CONNECTION_TIMEOUT_MS);
+
+        this.client.once('ready', () => {
+          clearTimeout(timeout);
+          this.clientReady = true;
+          this.reconnectAttempts = 0;
+          this.notifyWindow('discord:connected', this.getUser());
+          resolve();
+        });
+
+        this.client.on('error', (error: Error) => {
+          console.error('Discord client error:', error);
+          reject(error);
+        });
+      });
+
+      this.client.on('disconnected', () => {
+        this.clientReady = false;
+        if (this.manualDisconnect) {
+          this.manualDisconnect = false;
+          return;
+        }
+        this.notifyWindow('discord:disconnected');
+        this.attemptReconnect();
+      });
+
+      // Start login process
+      // Errors are handled by client.on('error') which rejects readyPromise
+      // If no response, timeout will reject readyPromise and cleanup
+      // Don't add .catch() here as it would suppress errors
+        await this.client.login({clientId: this.CLIENT_ID});
+
+      await readyPromise;
+    } catch (error) {
+      console.error('Discord connection failed:', error);
+
+      this.clientReady = false;
+
+      if (this.client) {
+          await this.safeDestroy(this.client);
+        this.client = null;
+      }
+
+      const errorMessage = this.getErrorMessage(error);
+
+      this.notifyWindow('discord:error', {
+        message: errorMessage,
+        canRetry: this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS,
+      });
+
+      if (this.reconnectAttempts > 0) {
+        this.attemptReconnect();
+      }
+    } finally {
+      this.isReconnecting = false;
+    }
+  }
+
+  /**
    * Safely destroy Discord client, handling any transport errors
    */
-  private safeDestroy(client: Client | null): void {
+  private async safeDestroy(client: Client | null): Promise<void> {
     if (!client) {
       return;
     }
@@ -343,7 +343,7 @@ export class DiscordAuthManager {
       // discord-rpc library may throw errors when destroying a client
       // with an already-closed transport (e.g., "Cannot read properties of null (reading 'write')")
       // We catch and suppress these errors since the client is being destroyed anyway
-      client.destroy();
+        await client.destroy();
     } catch (error) {
       // Suppress transport-related errors during destroy
       const message = error instanceof Error ? error.message : String(error);
