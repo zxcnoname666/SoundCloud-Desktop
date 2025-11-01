@@ -182,9 +182,9 @@ export class DiscordAuthManager {
       `Reconnecting to Discord in ${delay}ms (attempt ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS})`
     );
 
-    this.reconnectTimeout = setTimeout(() => {
+      this.reconnectTimeout = setTimeout(async () => {
       this.reconnectTimeout = null;
-      this.connect();
+          await this.connect();
     }, delay);
   }
 
