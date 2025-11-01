@@ -34,7 +34,39 @@ class SoundCloudApp {
     this.context.port = this.context.isDev ? 3535 : 45828;
     this.appManager = new AppManager();
 
+    // Setup global error handlers to prevent crashes from unhandled promise rejections
+    this.setupGlobalErrorHandlers();
+
     this.initializeConfig();
+  }
+
+  /**
+   * Setup global error handlers to gracefully handle unexpected errors
+   * This prevents the application from crashing on unhandled promise rejections
+   */
+  private setupGlobalErrorHandlers(): void {
+    process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+      console.error('Unhandled Promise Rejection:', reason);
+      console.error('Promise:', promise);
+
+      // Log stack trace if available
+      if (reason instanceof Error && reason.stack) {
+        console.error('Stack trace:', reason.stack);
+      }
+
+      // Don't exit - just log the error and continue
+      // This is important for non-critical errors like Discord connection failures
+    });
+
+    process.on('uncaughtException', (error: Error) => {
+      console.error('Uncaught Exception:', error);
+      if (error.stack) {
+        console.error('Stack trace:', error.stack);
+      }
+
+      // For uncaught exceptions, we may need to exit depending on severity
+      // But log it first
+    });
   }
 
   async initialize(): Promise<void> {

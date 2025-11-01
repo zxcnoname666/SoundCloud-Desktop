@@ -90,12 +90,7 @@ export class DiscordAuthManager {
 
       // Clean up existing client
       if (this.client) {
-        try {
-          this.client.destroy();
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          console.warn(`Error destroying old client: ${errorMessage}`);
-        }
+        this.safeDestroy(this.client);
         this.client = null;
       }
 
@@ -112,11 +107,7 @@ export class DiscordAuthManager {
         const timeout = setTimeout(() => {
           reject(new Error('Connection timeout - Discord may not be running'));
           if (this.client) {
-            try {
-              this.client.destroy();
-            } catch (e) {
-              console.warn('Error destroying client after timeout:', e);
-            }
+            this.safeDestroy(this.client);
             this.client = null;
           }
         }, DISCORD_CONFIG.CONNECTION_TIMEOUT_MS);
@@ -145,9 +136,10 @@ export class DiscordAuthManager {
         this.attemptReconnect();
       });
 
+      // Start login process - errors will be caught by readyPromise or outer catch
       this.client.login({ clientId: this.CLIENT_ID }).catch((error) => {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new Error(`Login failed: ${errorMessage}`);
+        // Don't throw here - let the outer catch block handle it
+        console.error('Discord login error:', error);
       });
 
       await readyPromise;
@@ -157,11 +149,7 @@ export class DiscordAuthManager {
       this.clientReady = false;
 
       if (this.client) {
-        try {
-          this.client.destroy();
-        } catch (e) {
-          console.error('Error while destroying client:', e);
-        }
+        this.safeDestroy(this.client);
         this.client = null;
       }
 
@@ -300,11 +288,11 @@ export class DiscordAuthManager {
     if (this.client) {
       try {
         await this.clearActivity();
-        this.client.destroy();
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error('Error while disconnecting:', errorMessage);
+        console.error('Error while clearing activity:', errorMessage);
       }
+      this.safeDestroy(this.client);
       this.client = null;
       this.clientReady = false;
     }
@@ -334,17 +322,39 @@ export class DiscordAuthManager {
 
     if (this.client) {
       this.clientReady = false;
-      try {
-        this.client.destroy();
-      } catch (error) {
-        console.error('Error while destroying old client:', error);
-      }
+      this.safeDestroy(this.client);
       this.client = null;
     }
 
     // Small delay before reconnecting
     await new Promise((resolve) => setTimeout(resolve, 500));
     await this.connect();
+  }
+
+  /**
+   * Safely destroy Discord client, handling any transport errors
+   */
+  private safeDestroy(client: Client | null): void {
+    if (!client) {
+      return;
+    }
+
+    try {
+      // discord-rpc library may throw errors when destroying a client
+      // with an already-closed transport (e.g., "Cannot read properties of null (reading 'write')")
+      // We catch and suppress these errors since the client is being destroyed anyway
+      client.destroy();
+    } catch (error) {
+      // Suppress transport-related errors during destroy
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.includes("Cannot read properties of null") &&
+          !message.includes("write") &&
+          !message.includes("send")) {
+        // Log unexpected errors
+        console.warn('Unexpected error during client destroy:', error);
+      }
+      // Intentionally suppress expected transport errors
+    }
   }
 
   /**
