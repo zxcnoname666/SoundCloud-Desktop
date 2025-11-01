@@ -1,6 +1,6 @@
-import {Client, type DiscordPresenceData} from 'discord-rpc';
-import type {BrowserWindow} from 'electron';
-import {DISCORD_CONFIG} from '../config/discord.js';
+import { Client, type DiscordPresenceData } from 'discord-rpc';
+import type { BrowserWindow } from 'electron';
+import { DISCORD_CONFIG } from '../config/discord.js';
 
 /**
  * Discord user information
@@ -69,7 +69,7 @@ export class DiscordAuthManager {
    */
   async initialize(window: BrowserWindow): Promise<void> {
     this.mainWindow = window;
-      await this.connect();
+    await this.connect();
   }
 
   /**
@@ -90,7 +90,7 @@ export class DiscordAuthManager {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error('Error while clearing activity:', errorMessage);
       }
-        await this.safeDestroy(this.client);
+      await this.safeDestroy(this.client);
       this.client = null;
       this.clientReady = false;
     }
@@ -182,9 +182,9 @@ export class DiscordAuthManager {
       `Reconnecting to Discord in ${delay}ms (attempt ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS})`
     );
 
-      this.reconnectTimeout = setTimeout(async () => {
+    this.reconnectTimeout = setTimeout(async () => {
       this.reconnectTimeout = null;
-          await this.connect();
+      await this.connect();
     }, delay);
   }
 
@@ -219,7 +219,7 @@ export class DiscordAuthManager {
 
     if (this.client) {
       this.clientReady = false;
-        await this.safeDestroy(this.client);
+      await this.safeDestroy(this.client);
       this.client = null;
     }
 
@@ -253,7 +253,7 @@ export class DiscordAuthManager {
 
       // Clean up existing client
       if (this.client) {
-          await this.safeDestroy(this.client);
+        await this.safeDestroy(this.client);
         this.client = null;
       }
 
@@ -267,10 +267,10 @@ export class DiscordAuthManager {
           return;
         }
 
-          const timeout = setTimeout(async () => {
+        const timeout = setTimeout(async () => {
           reject(new Error('Connection timeout - Discord may not be running'));
           if (this.client) {
-              await this.safeDestroy(this.client);
+            await this.safeDestroy(this.client);
             this.client = null;
           }
         }, DISCORD_CONFIG.CONNECTION_TIMEOUT_MS);
@@ -303,7 +303,7 @@ export class DiscordAuthManager {
       // Errors are handled by client.on('error') which rejects readyPromise
       // If no response, timeout will reject readyPromise and cleanup
       // Don't add .catch() here as it would suppress errors
-        await this.client.login({clientId: this.CLIENT_ID});
+      await this.client.login({ clientId: this.CLIENT_ID });
 
       await readyPromise;
     } catch (error) {
@@ -312,7 +312,7 @@ export class DiscordAuthManager {
       this.clientReady = false;
 
       if (this.client) {
-          await this.safeDestroy(this.client);
+        await this.safeDestroy(this.client);
         this.client = null;
       }
 
@@ -343,13 +343,15 @@ export class DiscordAuthManager {
       // discord-rpc library may throw errors when destroying a client
       // with an already-closed transport (e.g., "Cannot read properties of null (reading 'write')")
       // We catch and suppress these errors since the client is being destroyed anyway
-        await client.destroy();
+      await client.destroy();
     } catch (error) {
       // Suppress transport-related errors during destroy
       const message = error instanceof Error ? error.message : String(error);
-      if (!message.includes("Cannot read properties of null") &&
-          !message.includes("write") &&
-          !message.includes("send")) {
+      if (
+        !message.includes('Cannot read properties of null') &&
+        !message.includes('write') &&
+        !message.includes('send')
+      ) {
         // Log unexpected errors
         console.warn('Unexpected error during client destroy:', error);
       }

@@ -1,7 +1,7 @@
-import {join} from 'node:path';
-import {app} from 'electron';
-import type {Translation} from '../types/config.js';
-import {ConfigManager} from '../utils/config.js';
+import { join } from 'node:path';
+import { app } from 'electron';
+import type { Translation } from '../types/config.js';
+import { ConfigManager } from '../utils/config.js';
 
 interface NativeUtils {
   protocolInject(exePath: string): boolean;
@@ -70,7 +70,7 @@ export class Extensions {
     updater: Translation;
     tasks: Translation;
     auth: Translation;
-      discord: Translation;
+    discord: Translation;
   } {
     try {
       const configManager = ConfigManager.getInstance();
@@ -87,7 +87,7 @@ export class Extensions {
         updater: Extensions.getUpdaterTranslations(selectedTranslation || ({} as Translation)),
         tasks: Extensions.getTasksTranslations(selectedTranslation || ({} as Translation)),
         auth: Extensions.getAuthTranslations(selectedTranslation || ({} as Translation)),
-          discord: Extensions.getDiscordTranslations(selectedTranslation || ({} as Translation)),
+        discord: Extensions.getDiscordTranslations(selectedTranslation || ({} as Translation)),
       };
     } catch (error) {
       console.warn('Failed to load translations, using defaults:', error);
@@ -96,7 +96,7 @@ export class Extensions {
         updater: Extensions.getUpdaterTranslations({} as Translation),
         tasks: Extensions.getTasksTranslations({} as Translation),
         auth: Extensions.getAuthTranslations({} as Translation),
-          discord: Extensions.getDiscordTranslations({} as Translation),
+        discord: Extensions.getDiscordTranslations({} as Translation),
       };
     }
   }
@@ -106,7 +106,7 @@ export class Extensions {
   }
 
   private static isRussianLocale(locale: string): boolean {
-      return ['ru', 'kk', 'ky', 'be'].some((lang) => locale.includes(lang) || lang.includes(locale));
+    return ['ru', 'kk', 'ky', 'be'].some((lang) => locale.includes(lang) || lang.includes(locale));
   }
 
   private static getProxyTranslations(translation: Translation): Translation {
@@ -195,39 +195,39 @@ export class Extensions {
     } as Translation;
   }
 
-    private static getDiscordTranslations(translation: Translation): Translation {
-        const defaults = {
-            modal_title: '🎮 Discord Integration',
-            connection_title: '🔗 Discord Connection',
-            connection_description: "Connect your Discord account to show what you're listening to.",
-            connect_button: 'Connect to Discord',
-            disconnect_button: 'Disconnect',
-            status_connected: 'Connected',
-            status_disconnected: 'Not Connected',
-            guide_title: 'How Discord integration works:',
-            guide_step1_title: 'Launch Discord Desktop',
-            guide_step1_desc: 'Make sure Discord application is running on your computer',
-            guide_step2_title: 'Enable Activity Status',
-            guide_step2_desc: 'Go to Discord Settings → Activity Privacy',
-            guide_step3_title: 'Enable Status Sharing',
-            guide_step3_desc: 'Turn on "Display current activity as a status message"',
-            guide_step4_title: 'Connect in App',
-            guide_step4_desc: 'Click "Connect to Discord" button above',
-            guide_step5_title: 'Automatic Updates',
-            guide_step5_desc: 'Your Discord status will update automatically when you play music',
-            guide_warning: 'Important: Discord Desktop must be running for this feature to work!',
-            status_connecting: 'Connecting to Discord...',
-            status_connected_success: 'Connected to Discord!',
-            status_disconnected_info: 'Disconnected from Discord',
-            status_error: 'Failed to connect: {error}',
-        };
+  private static getDiscordTranslations(translation: Translation): Translation {
+    const defaults = {
+      modal_title: '🎮 Discord Integration',
+      connection_title: '🔗 Discord Connection',
+      connection_description: "Connect your Discord account to show what you're listening to.",
+      connect_button: 'Connect to Discord',
+      disconnect_button: 'Disconnect',
+      status_connected: 'Connected',
+      status_disconnected: 'Not Connected',
+      guide_title: 'How Discord integration works:',
+      guide_step1_title: 'Launch Discord Desktop',
+      guide_step1_desc: 'Make sure Discord application is running on your computer',
+      guide_step2_title: 'Enable Activity Status',
+      guide_step2_desc: 'Go to Discord Settings → Activity Privacy',
+      guide_step3_title: 'Enable Status Sharing',
+      guide_step3_desc: 'Turn on "Display current activity as a status message"',
+      guide_step4_title: 'Connect in App',
+      guide_step4_desc: 'Click "Connect to Discord" button above',
+      guide_step5_title: 'Automatic Updates',
+      guide_step5_desc: 'Your Discord status will update automatically when you play music',
+      guide_warning: 'Important: Discord Desktop must be running for this feature to work!',
+      status_connecting: 'Connecting to Discord...',
+      status_connected_success: 'Connected to Discord!',
+      status_disconnected_info: 'Disconnected from Discord',
+      status_error: 'Failed to connect: {error}',
+    };
 
-        // Get discord translations from the nested discord object if it exists
-        const discordTranslation = (translation as any)?.discord || {};
+    // Get discord translations from the nested discord object if it exists
+    const discordTranslation = (translation as any)?.discord || {};
 
-        return {
-            ...defaults,
-            ...discordTranslation,
-        } as Translation;
-    }
+    return {
+      ...defaults,
+      ...discordTranslation,
+    } as Translation;
+  }
 }
