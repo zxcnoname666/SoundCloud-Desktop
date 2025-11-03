@@ -8,7 +8,7 @@ let isConnected = false;
 let discordTranslations = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadTranslations();
+  await loadDiscordTranslations();
   await initializeDiscordUI();
   await initializeDiscordModal();
   setupDiscordListeners();
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 /**
  * Load translations for Discord UI
  */
-async function loadTranslations() {
+async function loadDiscordTranslations() {
   try {
     if (typeof ipcRenderer !== 'undefined') {
       const t = await ipcRenderer.invoke('app:get-translations');
@@ -80,7 +80,7 @@ async function initializeDiscordModal() {
 
   const t = discordTranslations;
 
-  const modalTitle = document.querySelector('#discordModal .auth-modal-header h2');
+  const modalTitle = document.querySelector('#discordModal .discord-modal-header h2');
   if (modalTitle) modalTitle.textContent = t.modal_title;
 
   const connectionTitle = document.querySelector('#discordModal .discord-section h3');

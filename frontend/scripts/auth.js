@@ -67,14 +67,16 @@ async function initializeModal() {
 
   const t = translations.auth;
 
-  document.querySelector('.auth-modal-header h2').textContent = t.auth_modal_title;
-  document.querySelector('.auth-section h3').textContent = t.auth_token_title;
-  document.querySelector('.auth-section p').textContent = t.auth_token_description;
-  document.querySelector('#tokenInput').placeholder = t.auth_token_placeholder;
-  document.querySelector('.auth-button.primary').textContent = t.auth_save_button;
-  document.querySelector('.auth-guide h4').textContent = t.auth_guide_title;
+  const authModal = document.getElementById('authModal');
 
-  const steps = document.querySelectorAll('.guide-step');
+  authModal.querySelector('.auth-modal-header h2').textContent = t.auth_modal_title;
+  authModal.querySelector('.auth-section h3').textContent = t.auth_token_title;
+  authModal.querySelector('.auth-section p').textContent = t.auth_token_description;
+  authModal.querySelector('#tokenInput').placeholder = t.auth_token_placeholder;
+  authModal.querySelector('.auth-button.primary').textContent = t.auth_save_button;
+  authModal.querySelector('.auth-guide h4').textContent = t.auth_guide_title;
+
+  const steps = authModal.querySelectorAll('.auth-guide .guide-step');
   const stepTranslations = [
     { title: t.auth_guide_step1_title, desc: t.auth_guide_step1_desc },
     { title: t.auth_guide_step2_title, desc: t.auth_guide_step2_desc },
@@ -87,12 +89,17 @@ async function initializeModal() {
   steps.forEach((step, index) => {
     const translation = stepTranslations[index];
     if (translation) {
-      step.querySelector('.step-content strong').textContent = translation.title;
-      step.querySelector('.step-content p').innerHTML = translation.desc;
+      const strongEl = step.querySelector('.step-content strong');
+      const pEl = step.querySelector('.step-content p');
+      if (strongEl) strongEl.textContent = translation.title;
+      if (pEl) pEl.innerHTML = translation.desc;
     }
   });
 
-  document.querySelector('.guide-note').innerHTML = `<strong>${t.auth_guide_warning}</strong>`;
+  const guideNote = authModal.querySelector('.auth-guide .guide-note');
+  if (guideNote) {
+    guideNote.innerHTML = `<strong>${t.auth_guide_warning}</strong>`;
+  }
 }
 
 function openAuthModal() {
@@ -192,18 +199,17 @@ window.addEventListener('click', (event) => {
 
 // Handle Enter key in token input
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
+  const authModal = document.getElementById('authModal');
+
+  if (event.key === 'Enter' && authModal.style.display === 'block') {
     const tokenInput = document.getElementById('tokenInput');
     if (document.activeElement === tokenInput) {
-      saveToken();
+      saveToken().catch(console.error);
     }
   }
 
   // Handle Escape key to close modal
-  if (event.key === 'Escape') {
-    const modal = document.getElementById('authModal');
-    if (modal.style.display === 'block') {
-      closeAuthModal();
-    }
+  if (event.key === 'Escape' && authModal.style.display === 'block') {
+    closeAuthModal();
   }
 });
