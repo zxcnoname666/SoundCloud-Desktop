@@ -293,7 +293,7 @@ webview {
 }
 
 .auth-button.primary::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -360,7 +360,7 @@ webview {
 }
 
 .browser-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
@@ -581,7 +581,7 @@ webview {
 }
 
 .AuthButton::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 100%;
   height: 100%;
@@ -648,7 +648,7 @@ webview {
 }
 
 .auth-guide .guide-step::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -931,7 +931,8 @@ webview {
 }
 
 @keyframes statusPulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
   50% {
@@ -1026,7 +1027,7 @@ webview {
 }
 
 #discordModalConnectBtn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -1091,7 +1092,7 @@ webview {
 }
 
 #discordModal .guide-step::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
