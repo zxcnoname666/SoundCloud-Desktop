@@ -1,6 +1,6 @@
 {
   "name": "soundcloud",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "description": "SoundCloud Desktop App",
   "type": "module",
   "main": "dist/init.js",
