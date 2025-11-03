@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Создайте репорт, чтобы помочь нам улучшить проект
+about: Нашли баг? Создайте баг-репорт. Это позволит нам улучшить приложение
 title: "[BUG]"
 labels: bug, help wanted
 assignees: zxcnoname666
