@@ -113,6 +113,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BUILD_COMMAND: "echo 'Using pre-built artifacts'"
           ASSET_PATTERNS: "artifacts/*/*"
+          OPENAI_API_BASE_URL: ${{ secrets.AI_BASE_URL }
           OPENAI_API_KEY: ${{ secrets.AI_API_KEY }}
           OPENAI_API_MODEL: deep-think
-          OPENAI_API_BASE_URL: ${{ secrets.AI_BASE_URL }
