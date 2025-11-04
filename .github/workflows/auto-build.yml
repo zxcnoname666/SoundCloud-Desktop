@@ -108,11 +108,11 @@ jobs:
           path: artifacts
 
       - name: Auto Release
-        uses: uwu-loli/release-helper@v1.0.0
+        uses: zxcnoname666/release-helper@1.0.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BUILD_COMMAND: "echo 'Using pre-built artifacts'"
           ASSET_PATTERNS: "artifacts/*/*"
-          OPENAI_API_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
-          OPENAI_API_MODEL: gemini-2.5-pro
-          OPENAI_API_KEY: ${{ secrets.AI_GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.AI_API_KEY }}
+          OPENAI_API_MODEL: deep-think
+          OPENAI_API_BASE_URL: ${{ secrets.AI_BASE_URL }
