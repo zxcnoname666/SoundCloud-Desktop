@@ -178,9 +178,6 @@ export class WindowSetup {
   }
 
   static setupBindings(window: BrowserWindow): void {
-    globalShortcut.register('CommandOrControl+=', zoomIn);
-    globalShortcut.register('CommandOrControl+Shift+=', zoomIn);
-
     function zoomIn() {
       const focused = BrowserWindow.getFocusedWindow();
       if (focused) {
@@ -189,36 +186,85 @@ export class WindowSetup {
       }
     }
 
-    globalShortcut.register('CommandOrControl+-', () => {
+    const zoomOut = () => {
       const focused = BrowserWindow.getFocusedWindow();
       if (focused) {
         const factor = focused.webContents.getZoomFactor();
         focused.webContents.setZoomFactor(factor - 0.1);
       }
-    });
+    };
 
-    globalShortcut.register('CommandOrControl+0', () => {
+    const resetZoom = () => {
       const focused = BrowserWindow.getFocusedWindow();
       if (focused) {
         focused.webContents.setZoomFactor(1.0);
       }
-    });
+    };
 
-    globalShortcut.register('CommandOrControl+Shift+I', () => {
+    const toggleDevTools = () => {
       const focusedWindow = BrowserWindow.getFocusedWindow();
       if (focusedWindow) {
         focusedWindow.webContents.toggleDevTools();
       }
-    });
+    };
 
-    globalShortcut.register('F11', () => {
+    const toggleFullscreen = () => {
       window.setFullScreen(!window.isFullScreen());
+    };
+
+    const reload = () => {
+      const focused = BrowserWindow.getFocusedWindow();
+      if (focused) {
+        focused.webContents.reload();
+      }
+    };
+
+    // Функция для регистрации всех горячих клавиш
+    const registerShortcuts = () => {
+      globalShortcut.register('CommandOrControl+=', zoomIn);
+      globalShortcut.register('CommandOrControl+Shift+=', zoomIn);
+      globalShortcut.register('CommandOrControl+-', zoomOut);
+      globalShortcut.register('CommandOrControl+0', resetZoom);
+      globalShortcut.register('CommandOrControl+Shift+I', toggleDevTools);
+      globalShortcut.register('F11', toggleFullscreen);
+      globalShortcut.register('CommandOrControl+R', reload);
+    };
+
+    // Функция для отмены регистрации всех горячих клавиш
+    const unregisterShortcuts = () => {
+      globalShortcut.unregister('CommandOrControl+=');
+      globalShortcut.unregister('CommandOrControl+Shift+=');
+      globalShortcut.unregister('CommandOrControl+-');
+      globalShortcut.unregister('CommandOrControl+0');
+      globalShortcut.unregister('CommandOrControl+Shift+I');
+      globalShortcut.unregister('F11');
+      globalShortcut.unregister('CommandOrControl+R');
+    };
+
+    // Регистрируем горячие клавиши при инициализации
+    registerShortcuts();
+
+    // Отключаем горячие клавиши при потере фокуса окна
+    window.on('blur', () => {
+      unregisterShortcuts();
     });
 
-    globalShortcut.register('CommandOrControl+R', () => {
-      window.webContents.reload();
+    // Отключаем горячие клавиши при сворачивании окна
+    window.on('hide', () => {
+      unregisterShortcuts();
     });
 
+    // Включаем горячие клавиши при получении фокуса
+    window.on('focus', () => {
+      registerShortcuts();
+    });
+
+    // Включаем горячие клавиши при показе окна
+    window.on('show', () => {
+      registerShortcuts();
+    });
+
+    // Очищаем все горячие клавиши при выходе из приложения
     app.on('will-quit', () => {
       globalShortcut.unregisterAll();
     });
