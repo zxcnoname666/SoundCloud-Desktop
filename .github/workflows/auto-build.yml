@@ -108,7 +108,7 @@ jobs:
           path: artifacts
 
       - name: Auto Release
-        uses: zxcnoname666/release-helper@1.0.0
+        uses: zxcnoname666/release-helper@2.0.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BUILD_COMMAND: "echo 'Using pre-built artifacts'"
@@ -116,3 +116,4 @@ jobs:
           OPENAI_API_BASE_URL: ${{ secrets.AI_BASE_URL }}
           OPENAI_API_KEY: ${{ secrets.AI_API_KEY }}
           OPENAI_API_MODEL: deep-think
+          LANGUAGE: ru-RU
