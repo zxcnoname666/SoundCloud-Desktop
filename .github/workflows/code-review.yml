@@ -1,47 +1,36 @@
-name: AI Code Reviewer
+name: AI Code Review
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
   issue_comment:
-    types: [ created ]
-
-permissions: write-all
+    types: [created]
 
 jobs:
-  code-review:
-    timeout-minutes: 90
+  review:
     runs-on: ubuntu-latest
+    # Only run on PR comments that contain /review
     if: |
-      github.event_name == 'pull_request' ||
-      (github.event.issue.pull_request && contains(github.event.comment.body, '/review'))
-    steps:
-      - name: PR Info (for command trigger)
-        if: github.event_name == 'issue_comment'
-        run: |
-          echo "Comment: ${{ github.event.comment.body }}"
-          echo "Issue Number: ${{ github.event.issue.number }}"
-          echo "Repository: ${{ github.repository }}"
+      (github.event_name == 'pull_request') ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       contains(github.event.comment.body, '/review'))
+    permissions:
+      contents: read
+      pull-requests: write
 
-      - name: Checkout Repo
+    steps:
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Get PR Details (for command trigger)
-        if: github.event_name == 'issue_comment'
-        id: pr
-        run: |
-          PR_JSON=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }})
-          echo "head_sha=$(echo $PR_JSON | jq -r .head.sha)" >> $GITHUB_OUTPUT
-          echo "base_sha=$(echo $PR_JSON | jq -r .base.sha)" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: AI Code Reviewer
-        uses: uwu-loli/ai-code-reviewer@main
+      - name: AI Code Review
+        uses: zxcnoname666/AI-Code-Review@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_ENDPOINT: https://generativelanguage.googleapis.com/v1beta/openai
-          OPENAI_API_MODEL: gemini-2.5-pro
-          OPENAI_API_KEY: ${{ secrets.AI_GEMINI_API_KEY }}
-          exclude: ".md,.txt,.dll,.xml"
+          OPENAI_API_BASE_URL: ${{ secrets.AI_BASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.AI_API_KEY }}
+          OPENAI_API_MODEL: deep-think
+          REVIEW_LANGUAGE: 'ru-RU'
+          SILENT_MODE: 'true'
