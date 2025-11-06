@@ -1,7 +1,7 @@
 name: AI Code Review
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
   issue_comment:
     types: [created]
@@ -9,9 +9,8 @@ on:
 jobs:
   review:
     runs-on: ubuntu-latest
-    # Only run on PR comments that contain /review
     if: |
-      (github.event_name == 'pull_request') ||
+      (github.event_name == 'pull_request_target') ||
       (github.event_name == 'issue_comment' &&
        github.event.issue.pull_request &&
        contains(github.event.comment.body, '/review'))
@@ -20,17 +19,18 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Checkout
+      - name: Checkout PR code
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: AI Code Review
         uses: zxcnoname666/AI-Code-Review@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_BASE_URL: ${{ secrets.AI_BASE_URL }}
           OPENAI_API_KEY: ${{ secrets.AI_API_KEY }}
+          OPENAI_API_BASE_URL: ${{ secrets.AI_BASE_URL }}
           OPENAI_API_MODEL: deep-think
           REVIEW_LANGUAGE: 'ru-RU'
           SILENT_MODE: 'true'
