@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import { BrowserWindow, app, dialog } from 'electron';
+import { type BrowserWindow, app, dialog } from 'electron';
 import fetch from 'node-fetch';
 import { Extensions } from './Extensions.js';
 
@@ -86,7 +86,10 @@ export class Version {
     }
   }
 
-  private static async showUpdateDialog(updateInfo: any, loaderWindow?: BrowserWindow): Promise<boolean> {
+  private static async showUpdateDialog(
+    updateInfo: any,
+    loaderWindow?: BrowserWindow
+  ): Promise<boolean> {
     const translations = Extensions.getTranslations().updater;
 
     const result = await dialog.showMessageBox({
@@ -106,7 +109,10 @@ export class Version {
     return false;
   }
 
-  private static async downloadAndInstallUpdate(updateInfo: any, loaderWindow?: BrowserWindow): Promise<boolean> {
+  private static async downloadAndInstallUpdate(
+    updateInfo: any,
+    loaderWindow?: BrowserWindow
+  ): Promise<boolean> {
     try {
       const asset = Version.findAssetForPlatform(updateInfo.assets);
 
@@ -114,7 +120,12 @@ export class Version {
         throw new Error(`No installer found for platform: ${process.platform}`);
       }
 
-      const filePath = await Version.downloadFile(asset.browser_download_url, asset.name, asset.size, loaderWindow);
+      const filePath = await Version.downloadFile(
+        asset.browser_download_url,
+        asset.name,
+        asset.size,
+        loaderWindow
+      );
 
       if (await Version.verifyFileHash(filePath, Version.getExpectedHash(updateInfo, asset.name))) {
         return await Version.installUpdate(filePath);
@@ -136,12 +147,17 @@ export class Version {
     }
   }
 
-  private static async downloadFile(url: string, filename: string, totalSize: number, loaderWindow?: BrowserWindow): Promise<string> {
+  private static async downloadFile(
+    url: string,
+    filename: string,
+    totalSize: number,
+    loaderWindow?: BrowserWindow
+  ): Promise<string> {
     const filePath = require('node:path').join(require('node:os').tmpdir(), filename);
     const abortController = new AbortController();
 
     const response = await fetch(url, {
-      signal: abortController.signal
+      signal: abortController.signal,
     });
 
     if (!response.ok) {
@@ -166,9 +182,9 @@ export class Version {
 
     // Функция для форматирования размера файла
     const formatSize = (bytes: number): string => {
-      if (bytes < 1024) return bytes + ' B';
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     };
 
     try {
@@ -177,7 +193,7 @@ export class Version {
       // Оборачиваем stream для отслеживания прогресса
       const { Transform } = require('node:stream');
       const progressTracker = new Transform({
-        transform(chunk: any, encoding: any, callback: any) {
+        transform(chunk: any, _encoding: any, callback: any) {
           const chunkSize = chunk.length;
           if (chunkSize > 0) {
             downloadedSize += chunkSize;
@@ -190,12 +206,12 @@ export class Version {
                 type: 'download',
                 percent: percent,
                 downloaded: formatSize(downloadedSize),
-                total: formatSize(totalSize)
+                total: formatSize(totalSize),
               });
             }
           }
           callback(null, chunk);
-        }
+        },
       });
 
       await pipeline(response.body!, progressTracker, fileStream);
