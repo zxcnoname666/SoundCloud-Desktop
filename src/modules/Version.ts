@@ -71,7 +71,8 @@ export class Version {
   private static async fetchUpdateInfo(): Promise<any> {
     try {
       const response = await fetch(
-        'https://api.github.com/repos/zxcnoname666/SoundCloud-Desktop/releases/latest'
+        'https://api.github.com/repos/zxcnoname666/SoundCloud-Desktop/releases/latest',
+        { signal: AbortSignal.timeout(15000) } // 15 second timeout to prevent hanging
       );
 
       if (!response.ok) {
@@ -137,7 +138,9 @@ export class Version {
 
   private static async downloadFile(url: string, filename: string): Promise<string> {
     const filePath = require('node:path').join(require('node:os').tmpdir(), filename);
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(60000) // 60 second timeout for file downloads
+    });
 
     if (!response.ok) {
       throw new Error(`Download failed: ${response.statusText}`);
