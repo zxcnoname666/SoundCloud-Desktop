@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import { app, dialog } from 'electron';
+import { type BrowserWindow, app, dialog } from 'electron';
 import fetch from 'node-fetch';
 import { Extensions } from './Extensions.js';
 
@@ -46,7 +46,7 @@ export class Version {
     }
   }
 
-  static async checkForUpdates(): Promise<boolean> {
+  static async checkForUpdates(loaderWindow?: BrowserWindow): Promise<boolean> {
     try {
       const currentVersion = new Version(app.getVersion());
       const updateInfo = await Version.fetchUpdateInfo();
@@ -58,7 +58,7 @@ export class Version {
       const remoteVersion = new Version(updateInfo.tag_name);
 
       if (remoteVersion.isNewerThan(currentVersion)) {
-        return await Version.showUpdateDialog(updateInfo);
+        return await Version.showUpdateDialog(updateInfo, loaderWindow);
       }
 
       return false;
@@ -71,7 +71,8 @@ export class Version {
   private static async fetchUpdateInfo(): Promise<any> {
     try {
       const response = await fetch(
-        'https://api.github.com/repos/zxcnoname666/SoundCloud-Desktop/releases/latest'
+        'https://api.github.com/repos/zxcnoname666/SoundCloud-Desktop/releases/latest',
+        { signal: AbortSignal.timeout(15000) } // 15 second timeout to prevent hanging
       );
 
       if (!response.ok) {
@@ -85,7 +86,10 @@ export class Version {
     }
   }
 
-  private static async showUpdateDialog(updateInfo: any): Promise<boolean> {
+  private static async showUpdateDialog(
+    updateInfo: any,
+    loaderWindow?: BrowserWindow
+  ): Promise<boolean> {
     const translations = Extensions.getTranslations().updater;
 
     const result = await dialog.showMessageBox({
@@ -99,13 +103,16 @@ export class Version {
     });
 
     if (result.response === 0) {
-      return await Version.downloadAndInstallUpdate(updateInfo);
+      return await Version.downloadAndInstallUpdate(updateInfo, loaderWindow);
     }
 
     return false;
   }
 
-  private static async downloadAndInstallUpdate(updateInfo: any): Promise<boolean> {
+  private static async downloadAndInstallUpdate(
+    updateInfo: any,
+    loaderWindow?: BrowserWindow
+  ): Promise<boolean> {
     try {
       const asset = Version.findAssetForPlatform(updateInfo.assets);
 
@@ -113,7 +120,12 @@ export class Version {
         throw new Error(`No installer found for platform: ${process.platform}`);
       }
 
-      const filePath = await Version.downloadFile(asset.browser_download_url, asset.name);
+      const filePath = await Version.downloadFile(
+        asset.browser_download_url,
+        asset.name,
+        asset.size,
+        loaderWindow
+      );
 
       if (await Version.verifyFileHash(filePath, Version.getExpectedHash(updateInfo, asset.name))) {
         return await Version.installUpdate(filePath);
@@ -135,16 +147,79 @@ export class Version {
     }
   }
 
-  private static async downloadFile(url: string, filename: string): Promise<string> {
+  private static async downloadFile(
+    url: string,
+    filename: string,
+    totalSize: number,
+    loaderWindow?: BrowserWindow
+  ): Promise<string> {
     const filePath = require('node:path').join(require('node:os').tmpdir(), filename);
-    const response = await fetch(url);
+    const abortController = new AbortController();
+
+    const response = await fetch(url, {
+      signal: abortController.signal,
+    });
 
     if (!response.ok) {
       throw new Error(`Download failed: ${response.statusText}`);
     }
 
-    const fileStream = createWriteStream(filePath);
-    await pipeline(response.body!, fileStream);
+    // Проверка прогресса загрузки для обхода блокировки РКН
+    // (когда пропускают первые N кбайт, а потом держат соединение)
+    let downloadedSize = 0;
+    let lastProgressTime = Date.now();
+    const STALL_TIMEOUT = 30000; // 30 секунд без прогресса = ошибка
+
+    const progressCheckInterval = setInterval(() => {
+      const currentTime = Date.now();
+      const timeSinceLastProgress = currentTime - lastProgressTime;
+
+      if (timeSinceLastProgress > STALL_TIMEOUT) {
+        clearInterval(progressCheckInterval);
+        abortController.abort(new Error('Download stalled: no data received for 30 seconds'));
+      }
+    }, 1000);
+
+    // Функция для форматирования размера файла
+    const formatSize = (bytes: number): string => {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    };
+
+    try {
+      const fileStream = createWriteStream(filePath);
+
+      // Оборачиваем stream для отслеживания прогресса
+      const { Transform } = require('node:stream');
+      const progressTracker = new Transform({
+        transform(chunk: any, _encoding: any, callback: any) {
+          const chunkSize = chunk.length;
+          if (chunkSize > 0) {
+            downloadedSize += chunkSize;
+            lastProgressTime = Date.now();
+
+            // Отправляем прогресс в loader window
+            if (loaderWindow && !loaderWindow.isDestroyed()) {
+              const percent = totalSize > 0 ? Math.round((downloadedSize / totalSize) * 100) : 0;
+              loaderWindow.webContents.send('loader:progress', {
+                type: 'download',
+                percent: percent,
+                downloaded: formatSize(downloadedSize),
+                total: formatSize(totalSize),
+              });
+            }
+          }
+          callback(null, chunk);
+        },
+      });
+
+      await pipeline(response.body!, progressTracker, fileStream);
+      clearInterval(progressCheckInterval);
+    } catch (error) {
+      clearInterval(progressCheckInterval);
+      throw error;
+    }
 
     return filePath;
   }
