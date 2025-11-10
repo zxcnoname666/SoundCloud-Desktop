@@ -138,16 +138,54 @@ export class Version {
 
   private static async downloadFile(url: string, filename: string): Promise<string> {
     const filePath = require('node:path').join(require('node:os').tmpdir(), filename);
+    const abortController = new AbortController();
+
     const response = await fetch(url, {
-      signal: AbortSignal.timeout(60000) // 60 second timeout for file downloads
+      signal: abortController.signal
     });
 
     if (!response.ok) {
       throw new Error(`Download failed: ${response.statusText}`);
     }
 
-    const fileStream = createWriteStream(filePath);
-    await pipeline(response.body!, fileStream);
+    // Проверка прогресса загрузки для обхода блокировки РКН
+    // (когда пропускают первые N кбайт, а потом держат соединение)
+    let lastSize = 0;
+    let lastProgressTime = Date.now();
+    const STALL_TIMEOUT = 10000; // 10 секунд без прогресса = ошибка
+
+    const progressCheckInterval = setInterval(() => {
+      const currentTime = Date.now();
+      const timeSinceLastProgress = currentTime - lastProgressTime;
+
+      if (timeSinceLastProgress > STALL_TIMEOUT) {
+        clearInterval(progressCheckInterval);
+        abortController.abort(new Error('Download stalled: no data received for 10 seconds'));
+      }
+    }, 1000);
+
+    try {
+      const fileStream = createWriteStream(filePath);
+
+      // Оборачиваем stream для отслеживания прогресса
+      const { Transform } = require('node:stream');
+      const progressTracker = new Transform({
+        transform(chunk: any, encoding: any, callback: any) {
+          const chunkSize = chunk.length;
+          if (chunkSize > 0) {
+            lastSize += chunkSize;
+            lastProgressTime = Date.now();
+          }
+          callback(null, chunk);
+        }
+      });
+
+      await pipeline(response.body!, progressTracker, fileStream);
+      clearInterval(progressCheckInterval);
+    } catch (error) {
+      clearInterval(progressCheckInterval);
+      throw error;
+    }
 
     return filePath;
   }
