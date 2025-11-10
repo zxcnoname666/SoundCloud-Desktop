@@ -202,7 +202,7 @@ class SoundCloudApp {
 
       const loaderWindow = await WindowSetup.createLoaderWindow();
 
-      await this.appManager.performAutoUpdate();
+      await this.appManager.performAutoUpdate(loaderWindow);
 
       // Инициализируем прокси в самом начале создания окна
       await ProxyManager.initialize(this.notifyManager);

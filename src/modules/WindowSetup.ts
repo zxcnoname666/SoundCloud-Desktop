@@ -50,7 +50,7 @@ export class WindowSetup {
   static async createLoaderWindow(): Promise<BrowserWindow> {
     const loaderWindow = new BrowserWindow({
       width: 400,
-      height: 300,
+      height: 350,
       show: true,
       resizable: false,
       frame: false,
@@ -58,6 +58,7 @@ export class WindowSetup {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
+        preload: join(app.getAppPath(), 'frontend/preloads/loader.js'),
       },
       icon: join(app.getAppPath(), 'icons/appLogo.png'),
     });

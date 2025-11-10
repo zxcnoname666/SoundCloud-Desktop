@@ -54,13 +54,59 @@
             opacity: 0.8;
             font-size: 14px;
         }
+
+        .progress-container {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            opacity: 0.7;
+            display: none;
+        }
     </style>
 </head>
 <body>
 <div class="loader">
     <div class="spinner"></div>
     <h1>SoundCloud Desktop</h1>
-    <p>Initializing...</p>
+    <p id="status">Initializing...</p>
+    <div class="progress-container" id="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <p class="progress-text" id="progress-text"></p>
 </div>
+<script>
+    if (window.loaderAPI) {
+        window.loaderAPI.onProgress((data) => {
+            const statusEl = document.getElementById('status');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            if (data.type === 'download') {
+                statusEl.textContent = 'Downloading update...';
+                progressContainer.style.display = 'block';
+                progressText.style.display = 'block';
+                progressBar.style.width = data.percent + '%';
+                progressText.textContent = `${data.downloaded} / ${data.total}`;
+            } else if (data.type === 'status') {
+                statusEl.textContent = data.message;
+            }
+        });
+    }
+</script>
 </body>
 </html>

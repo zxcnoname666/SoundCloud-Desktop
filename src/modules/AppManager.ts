@@ -167,11 +167,11 @@ export class AppManager {
     });
   }
 
-  async performAutoUpdate(): Promise<void> {
+  async performAutoUpdate(loaderWindow?: BrowserWindow): Promise<void> {
     try {
       const config = this.configManager.getConfig();
       if (config.autoUpdate) {
-        await Version.checkForUpdates();
+        await Version.checkForUpdates(loaderWindow);
       }
     } catch (error) {
       console.warn('Auto-update failed:', error);
