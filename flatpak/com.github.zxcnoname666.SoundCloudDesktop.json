@@ -1,0 +1,107 @@
+{
+  "app-id": "com.github.zxcnoname666.SoundCloudDesktop",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "23.08",
+  "sdk": "org.freedesktop.Sdk",
+  "base": "org.electronjs.Electron2.BaseApp",
+  "base-version": "23.08",
+  "command": "soundcloud",
+  "separate-locales": false,
+  "finish-args": [
+    "--share=ipc",
+    "--socket=x11",
+    "--socket=wayland",
+    "--socket=pulseaudio",
+    "--share=network",
+    "--device=dri",
+    "--filesystem=xdg-music:rw",
+    "--filesystem=xdg-download:rw",
+    "--persist=.config/soundcloud",
+    "--talk-name=org.freedesktop.Notifications",
+    "--talk-name=org.kde.StatusNotifierWatcher",
+    "--own-name=org.mpris.MediaPlayer2.soundcloud",
+    "--env=TMPDIR=/var/tmp"
+  ],
+  "modules": [
+    {
+      "name": "nodejs",
+      "buildsystem": "simple",
+      "build-commands": [
+        "mkdir -p /app/lib",
+        "cp -ra . /app/lib/nodejs",
+        "ln -s /app/lib/nodejs/bin/node /app/bin/node",
+        "ln -s /app/lib/nodejs/bin/npm /app/bin/npm",
+        "ln -s /app/lib/nodejs/bin/npx /app/bin/npx"
+      ],
+      "cleanup": [
+        "/lib/nodejs/include",
+        "/lib/nodejs/share",
+        "/lib/nodejs/lib/node_modules/npm/man",
+        "/lib/nodejs/lib/node_modules/npm/docs"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://nodejs.org/dist/v22.11.0/node-v22.11.0-linux-x64.tar.xz",
+          "sha256": "5d6943cc5dfb26fa53f0039fa6e0eb1c0c4af74c0ff1fff7a8ee29fcfb29d398",
+          "only-arches": ["x86_64"]
+        },
+        {
+          "type": "archive",
+          "url": "https://nodejs.org/dist/v22.11.0/node-v22.11.0-linux-arm64.tar.xz",
+          "sha256": "66f548cb83d7e915b44304e0dfc1b7c8f7163b6cd1f1ebd0fc179bc0e0e10398",
+          "only-arches": ["aarch64"]
+        }
+      ]
+    },
+    {
+      "name": "pnpm",
+      "buildsystem": "simple",
+      "build-commands": [
+        "npm install -g pnpm@10.20.0"
+      ]
+    },
+    {
+      "name": "soundcloud-desktop",
+      "buildsystem": "simple",
+      "build-options": {
+        "env": {
+          "XDG_CACHE_HOME": "/run/build/soundcloud-desktop/flatpak-node/cache",
+          "npm_config_cache": "/run/build/soundcloud-desktop/flatpak-node/npm-cache",
+          "npm_config_offline": "true"
+        }
+      },
+      "build-commands": [
+        "pnpm install --frozen-lockfile --offline",
+        "pnpm run build:production",
+        "pnpm run build --linux --dir",
+        "cp -r linux-unpacked /app/soundcloud",
+        "install -Dm644 com.github.zxcnoname666.SoundCloudDesktop.desktop /app/share/applications/com.github.zxcnoname666.SoundCloudDesktop.desktop",
+        "install -Dm644 com.github.zxcnoname666.SoundCloudDesktop.metainfo.xml /app/share/metainfo/com.github.zxcnoname666.SoundCloudDesktop.metainfo.xml",
+        "install -Dm644 icons/appLogo.png /app/share/icons/hicolor/256x256/apps/com.github.zxcnoname666.SoundCloudDesktop.png",
+        "install -Dm755 soundcloud-wrapper.sh /app/bin/soundcloud"
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/zxcnoname666/SoundCloud-Desktop.git",
+          "tag": "v2.10.0",
+          "commit": "cefe35ed8e0354e5a9fcb64dfb6c5ce58b2e3bda"
+        },
+        {
+          "type": "file",
+          "path": "com.github.zxcnoname666.SoundCloudDesktop.desktop"
+        },
+        {
+          "type": "file",
+          "path": "com.github.zxcnoname666.SoundCloudDesktop.metainfo.xml"
+        },
+        {
+          "type": "file",
+          "path": "soundcloud-wrapper.sh"
+        },
+        "generated-sources.json"
+      ]
+    }
+  ]
+}

@@ -59,6 +59,22 @@ You can also navigate in app by using url-navbar (like in browsers)
 
 ## Linux
 
+### Option 1: Flatpak (Recommended)
+
+```bash
+# Build and install locally
+cd flatpak
+./generate-sources.sh
+flatpak-builder --user --install --force-clean build-dir com.github.zxcnoname666.SoundCloudDesktop.json
+
+# Run the app
+flatpak run com.github.zxcnoname666.SoundCloudDesktop
+```
+
+See [flatpak/README.md](flatpak/README.md) for detailed instructions.
+
+### Option 2: AppImage
+
 1. Go to [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
 2. Download `soundcloud-*.AppImage`
 3. Make it executable: `chmod +x soundcloud-*.AppImage`

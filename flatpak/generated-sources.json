@@ -1,0 +1,8 @@
+[
+  {
+    "type": "file",
+    "url": "data:application/json;base64,e30=",
+    "dest": "flatpak-node/pnpm-store",
+    "dest-filename": ".pnpm-placeholder"
+  }
+]

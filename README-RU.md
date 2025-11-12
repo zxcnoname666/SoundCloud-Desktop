@@ -48,6 +48,22 @@
 
 ## Linux
 
+### Вариант 1: Flatpak (Рекомендуется)
+
+```bash
+# Сборка и установка локально
+cd flatpak
+./generate-sources.sh
+flatpak-builder --user --install --force-clean build-dir com.github.zxcnoname666.SoundCloudDesktop.json
+
+# Запуск приложения
+flatpak run com.github.zxcnoname666.SoundCloudDesktop
+```
+
+Смотрите [flatpak/README.md](flatpak/README.md) для подробных инструкций.
+
+### Вариант 2: AppImage
+
 1. Перейдите на [страницу последнего релиза](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
 2. Скачайте `soundcloud-*.AppImage`
 3. Сделайте файл исполняемым: `chmod +x soundcloud-*.AppImage`

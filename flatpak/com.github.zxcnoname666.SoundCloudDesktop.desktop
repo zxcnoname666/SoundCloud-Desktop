@@ -1,0 +1,26 @@
+[Desktop Entry]
+Name=SoundCloud Desktop
+GenericName=Music Player
+Comment=Unofficial SoundCloud desktop client with ad-blocking and geo-unblocking
+Exec=soundcloud %U
+Icon=com.github.zxcnoname666.SoundCloudDesktop
+Type=Application
+Terminal=false
+Categories=Audio;Music;AudioVideo;Player;
+MimeType=x-scheme-handler/sc;
+Keywords=soundcloud;music;audio;player;streaming;
+StartupNotify=true
+StartupWMClass=soundcloud
+Actions=Play;Next;Previous;
+
+[Desktop Action Play]
+Name=Play/Pause
+Exec=soundcloud --play-pause
+
+[Desktop Action Next]
+Name=Next Track
+Exec=soundcloud --next
+
+[Desktop Action Previous]
+Name=Previous Track
+Exec=soundcloud --previous

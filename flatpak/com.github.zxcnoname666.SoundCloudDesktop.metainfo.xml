@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.github.zxcnoname666.SoundCloudDesktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>SoundCloud Desktop</name>
+  <summary>Unofficial SoundCloud desktop client with ad-blocking</summary>
+
+  <description>
+    <p>
+      SoundCloud Desktop is the best unofficial SoundCloud desktop application for Windows, Linux &amp; macOS
+      with built-in ad-blocking, geo-unblocking, and proxy support.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Native Desktop Experience - Full-featured SoundCloud desktop client</li>
+      <li>Beautiful Dark Theme - Eye-friendly interface for music lovers</li>
+      <li>Access Anywhere - Bypass geographical restrictions and geo-blocking</li>
+      <li>Zero Ads - Built-in ad blocker for uninterrupted music streaming</li>
+      <li>Lightning Fast - Optimized TypeScript codebase, faster than web version</li>
+      <li>Privacy Focused - Proxy support for secure and private listening</li>
+      <li>Cross-Platform - Works on Windows 10/11, Linux, and macOS</li>
+      <li>Lightweight - Small footprint, minimal system resources</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">com.github.zxcnoname666.SoundCloudDesktop.desktop</launchable>
+
+  <url type="homepage">https://github.com/zxcnoname666/SoundCloud-Desktop</url>
+  <url type="bugtracker">https://github.com/zxcnoname666/SoundCloud-Desktop/issues</url>
+  <url type="help">https://github.com/zxcnoname666/SoundCloud-Desktop/discussions</url>
+
+  <developer_name>zxcnoname666</developer_name>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>Main player interface</caption>
+      <image>https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png</image>
+    </screenshot>
+  </screenshots>
+
+  <releases>
+    <release version="2.10.0" date="2025-11-12">
+      <description>
+        <p>Latest improvements and bug fixes</p>
+      </description>
+    </release>
+  </releases>
+
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-audio">moderate</content_attribute>
+  </content_rating>
+
+  <categories>
+    <category>Audio</category>
+    <category>Music</category>
+    <category>AudioVideo</category>
+  </categories>
+
+  <keywords>
+    <keyword>soundcloud</keyword>
+    <keyword>music</keyword>
+    <keyword>audio</keyword>
+    <keyword>player</keyword>
+    <keyword>streaming</keyword>
+  </keywords>
+
+  <provides>
+    <binary>soundcloud</binary>
+  </provides>
+</component>
