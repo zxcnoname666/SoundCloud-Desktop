@@ -1,4 +1,5 @@
 import { join } from 'node:path';
+import { Readable } from 'node:stream';
 import {
   BrowserWindow,
   Menu,
@@ -358,11 +359,11 @@ export class WindowSetup {
     const proxyManager = ProxyManager.getInstance();
 
     try {
-      // Проверяем, нужно ли проксировать этот домен
       const url = new URL(request.url);
-      if (WindowSetup.checkAdBlock(new URL(url))) {
+      if (WindowSetup.checkAdBlock(url)) {
         return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
       }
+
       if (!WindowSetup.shouldProxyDomain(url.hostname)) {
         // Делаем обычный запрос без прокси
         const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
@@ -378,8 +379,9 @@ export class WindowSetup {
           responseHeaders.set(key, value);
         });
 
-        const bodyBuffer = response.body ? await response.arrayBuffer() : null;
-        return new Response(bodyBuffer, {
+        // Конвертируем node Readable stream в web ReadableStream
+        const webStream = response.body ? Readable.toWeb(response.body as any) : null;
+        return new Response(webStream, {
           status: response.status,
           statusText: response.statusText,
           headers: responseHeaders,
@@ -399,10 +401,10 @@ export class WindowSetup {
         responseHeaders.set(key, value);
       });
 
-      // Получаем body как ArrayBuffer для создания web Response
-      const bodyBuffer = response.body ? await response.arrayBuffer() : null;
+      // Конвертируем node Readable stream в web ReadableStream
+      const webStream = response.body ? Readable.toWeb(response.body as any) : null;
 
-      return new Response(bodyBuffer, {
+      return new Response(webStream, {
         status: response.status,
         statusText: response.statusText,
         headers: responseHeaders,
