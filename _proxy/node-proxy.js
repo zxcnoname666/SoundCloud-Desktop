@@ -170,10 +170,32 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    const responseBody = await response.arrayBuffer();
-    // Send response
+    // Send response headers
     res.writeHead(response.status, responseHeaders);
-    res.end(Buffer.from(responseBody));
+
+    // Stream response directly without reading entire body
+    if (response.body) {
+      const reader = response.body.getReader();
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            break;
+          }
+
+          // Write chunk directly
+          res.write(value);
+        }
+      } catch (streamError) {
+        console.error('Stream error:', streamError);
+      } finally {
+        reader.releaseLock();
+      }
+    }
+
+    res.end();
   } catch (error) {
     console.error('Proxy error:', error);
 

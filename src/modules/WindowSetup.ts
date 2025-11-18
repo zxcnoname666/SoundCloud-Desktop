@@ -1,4 +1,5 @@
 import { join } from 'node:path';
+import { Readable } from 'node:stream';
 import {
   BrowserWindow,
   Menu,
@@ -344,25 +345,32 @@ export class WindowSetup {
   }
 
   private static shouldProxyDomain(hostname: string): boolean {
-    const proxyDomains = [
-      'soundcloud.com',
-      'sndcdn.com',
-      'api.soundcloud.com',
-      'api-v2.soundcloud.com',
-    ];
+    /* NOTE: проксируем все домены, потому что РКН банит теперь
+     * NOTE: вообще всё. так легче поддерживать будет.
+     const proxyDomains = [
+        'soundcloud.com',
+        'sndcdn.com',
+        'api.soundcloud.com',
+        'api-v2.soundcloud.com',
+        'soundcloud.cloud'
+      ];
 
-    return proxyDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+      return proxyDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+     */
+
+    console.debug('shouldProxyDomain.hostname', hostname);
+    return true;
   }
 
   private static async getProxyResponse(request: Request): Promise<Response> {
     const proxyManager = ProxyManager.getInstance();
 
     try {
-      // Проверяем, нужно ли проксировать этот домен
       const url = new URL(request.url);
-      if (WindowSetup.checkAdBlock(new URL(url))) {
+      if (WindowSetup.checkAdBlock(url)) {
         return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
       }
+
       if (!WindowSetup.shouldProxyDomain(url.hostname)) {
         // Делаем обычный запрос без прокси
         const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
@@ -378,8 +386,9 @@ export class WindowSetup {
           responseHeaders.set(key, value);
         });
 
-        const bodyBuffer = response.body ? await response.arrayBuffer() : null;
-        return new Response(bodyBuffer, {
+        // Конвертируем node Readable stream в web ReadableStream
+        const webStream = response.body ? Readable.toWeb(response.body as any) : null;
+        return new Response(webStream, {
           status: response.status,
           statusText: response.statusText,
           headers: responseHeaders,
@@ -399,10 +408,10 @@ export class WindowSetup {
         responseHeaders.set(key, value);
       });
 
-      // Получаем body как ArrayBuffer для создания web Response
-      const bodyBuffer = response.body ? await response.arrayBuffer() : null;
+      // Конвертируем node Readable stream в web ReadableStream
+      const webStream = response.body ? Readable.toWeb(response.body as any) : null;
 
-      return new Response(bodyBuffer, {
+      return new Response(webStream, {
         status: response.status,
         statusText: response.statusText,
         headers: responseHeaders,
