@@ -1,9 +1,18 @@
-import {join} from 'node:path';
-import {Readable} from 'node:stream';
-import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
+import { join } from 'node:path';
+import { Readable } from 'node:stream';
+import {
+  BrowserWindow,
+  Menu,
+  Tray,
+  app,
+  globalShortcut,
+  nativeImage,
+  protocol,
+  shell,
+} from 'electron';
 import fetch from 'node-fetch';
-import type {WindowBounds} from '../types/config.js';
-import {ProxyManager} from './ProxyManager.js';
+import type { WindowBounds } from '../types/config.js';
+import { ProxyManager } from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
@@ -335,8 +344,8 @@ export class WindowSetup {
     );
   }
 
-    private static shouldProxyDomain(hostname: string): boolean {
-        /* NOTE: проксируем все домены, потому что РКН банит теперь
+  private static shouldProxyDomain(hostname: string): boolean {
+    /* NOTE: проксируем все домены, потому что РКН банит теперь
          * NOTE: вообще всё. так легче поддерживать будет.
          const proxyDomains = [
            'soundcloud.com',
@@ -349,9 +358,9 @@ export class WindowSetup {
          return proxyDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
          */
 
-        console.debug("shouldProxyDomain.hostname", hostname)
-        return true;
-    }
+    console.debug('shouldProxyDomain.hostname', hostname);
+    return true;
+  }
 
   private static async getProxyResponse(request: Request): Promise<Response> {
     const proxyManager = ProxyManager.getInstance();

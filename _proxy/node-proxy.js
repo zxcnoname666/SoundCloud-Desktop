@@ -147,17 +147,17 @@ const server = http.createServer(async (req, res) => {
 
         console.log('Redirect from', targetUrl, 'to', newLocation);
 
-          // Build response headers
-          const responseHeaders = {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-              'Access-Control-Allow-Headers': '*',
-          };
+        // Build response headers
+        const responseHeaders = {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': '*',
+        };
 
-          // Copy headers from original response
-          for (const [key, value] of response.headers) {
-              responseHeaders[key] = value;
-          }
+        // Copy headers from original response
+        for (const [key, value] of response.headers) {
+          responseHeaders[key] = value;
+        }
 
         // Update Location header
         responseHeaders['Location'] = newLocation;
