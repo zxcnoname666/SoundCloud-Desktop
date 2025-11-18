@@ -13,6 +13,11 @@ import { WindowSetup } from './modules/WindowSetup.js';
 import type { AppContext } from './types/global.js';
 import { ConfigManager } from './utils/config.js';
 
+// Включаем поддержку source maps для правильной трассировки ошибок
+if (process.setSourceMapsEnabled) {
+  process.setSourceMapsEnabled(true);
+}
+
 class SoundCloudApp {
   private context: AppContext;
   private appManager: AppManager;
