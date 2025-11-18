@@ -1,9 +1,18 @@
-import {join} from 'node:path';
-import {Readable} from 'node:stream';
-import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
+import { join } from 'node:path';
+import { Readable } from 'node:stream';
+import {
+  BrowserWindow,
+  Menu,
+  Tray,
+  app,
+  globalShortcut,
+  nativeImage,
+  protocol,
+  shell,
+} from 'electron';
 import fetch from 'node-fetch';
-import type {WindowBounds} from '../types/config.js';
-import {ProxyManager} from './ProxyManager.js';
+import type { WindowBounds } from '../types/config.js';
+import { ProxyManager } from './ProxyManager.js';
 
 export class WindowSetup {
   private static tray: Tray | null = null;
