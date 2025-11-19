@@ -168,10 +168,11 @@ export class AssetCache {
    * Возвращает Buffer вместо Response, чтобы избежать проблем с body
    */
   async get(url: string): Promise<{ buffer: Buffer; headers: Record<string, string>; status: number; statusText: string } | null> {
-    if (!this.enabled || !this.isStaticAsset(url)) {
+    if (!this.enabled) {
       return null;
     }
 
+    // Не проверяем isStaticAsset - файл мог быть закэширован по заголовкам
     const cachePath = this.getCachePath(url);
 
     try {
@@ -220,18 +221,16 @@ export class AssetCache {
       return;
     }
 
-    if (!this.isStaticAsset(url)) {
-      // console.log(`💾 Skip cache (not static): ${url}`);
+    const isStatic = this.isStaticAsset(url);
+    const hasCacheableHeaders = this.isCacheableResponse(headers);
+
+    // Кэшируем если ВСЁ из STATIC_EXTENSIONS ЛИБО с правильным cache-control заголовком
+    if (!isStatic && !hasCacheableHeaders) {
+      // console.log(`💾 Skip cache (not static and no cacheable headers): ${url}`);
       return;
     }
 
     try {
-      if (!this.isCacheableResponse(headers)) {
-        console.log(`💾 Skip cache (headers): ${url}`);
-        console.log(`   Cache-Control: ${headers['cache-control'] || 'none'}`);
-        return;
-      }
-
       const cached: CachedAsset = {
         url,
         status,
@@ -245,7 +244,8 @@ export class AssetCache {
       const cachePath = this.getCachePath(url);
       await writeFile(cachePath, JSON.stringify(cached), 'utf-8');
 
-      console.log(`💾 Cache SET: ${url} (${Math.round(buffer.length / 1024)}kb)`);
+      const reason = isStatic ? 'static extension' : 'cacheable headers';
+      console.log(`💾 Cache SET: ${url} (${Math.round(buffer.length / 1024)}kb) [${reason}]`);
     } catch (error) {
       console.warn(`Failed to cache ${url}:`, error);
     }
