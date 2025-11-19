@@ -148,7 +148,9 @@ export class ProxyManager implements ProxyManagerInterface {
     const index = this.activeProxies.findIndex((p) => p.source === proxy.source);
     if (index !== -1) {
       this.activeProxies.splice(index, 1);
-      console.log(`Removed proxy ${proxy.domain} from active list. Remaining: ${this.activeProxies.length}`);
+      console.log(
+        `Removed proxy ${proxy.domain} from active list. Remaining: ${this.activeProxies.length}`
+      );
     }
   }
 

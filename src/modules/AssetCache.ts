@@ -1,7 +1,7 @@
-import { writeFile, readFile, mkdir, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { app } from 'electron';
 
 interface CachedAsset {
@@ -165,7 +165,7 @@ export class AssetCache {
     let cacheUrl = url;
 
     // Для медиа-сегментов отсекаем query параметры (подписи меняются, контент нет)
-    const hasMediaSegmentExt = this.MEDIA_SEGMENT_EXTENSIONS.some(ext => url.includes(ext));
+    const hasMediaSegmentExt = this.MEDIA_SEGMENT_EXTENSIONS.some((ext) => url.includes(ext));
 
     if (hasMediaSegmentExt) {
       // Убираем всё после ? (включая подпись)
@@ -190,7 +190,14 @@ export class AssetCache {
    * Получает ассет из кэша
    * Возвращает Buffer вместо Response, чтобы избежать проблем с body
    */
-  async get(url: string): Promise<{ buffer: Buffer; headers: Record<string, string>; status: number; statusText: string } | null> {
+  async get(
+    url: string
+  ): Promise<{
+    buffer: Buffer;
+    headers: Record<string, string>;
+    status: number;
+    statusText: string;
+  } | null> {
     if (!this.enabled) {
       return null;
     }

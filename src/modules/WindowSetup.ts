@@ -1,11 +1,20 @@
-import {join} from 'node:path';
-import {Readable} from 'node:stream';
-import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
+import { join } from 'node:path';
+import { Readable } from 'node:stream';
+import {
+  BrowserWindow,
+  Menu,
+  Tray,
+  app,
+  globalShortcut,
+  nativeImage,
+  protocol,
+  shell,
+} from 'electron';
 import fetch from 'node-fetch';
-import type {WindowBounds} from '../types/config.js';
-import {ProxyManager} from './ProxyManager.js';
-import {ProxyMetricsCollector} from './ProxyMetricsCollector.js';
-import {AssetCache} from './AssetCache.js';
+import type { WindowBounds } from '../types/config.js';
+import { AssetCache } from './AssetCache.js';
+import { ProxyManager } from './ProxyManager.js';
+import { ProxyMetricsCollector } from './ProxyMetricsCollector.js';
 
 interface DomainCheckResult {
   shouldProxy: boolean;
@@ -351,53 +360,44 @@ export class WindowSetup {
       host.endsWith('.doubleclick.net') ||
       parsedUrl.href.includes('audio-ads') ||
       host.endsWith('nr-data.net') ||
-
       // Google Tracking
       host === 'www.googletagmanager.com' ||
       host === 'analytics.google.com' ||
       host === 'www.google-analytics.com' ||
-
       // Quantcast
       host === 'pixel.quantserve.com' ||
       host === 'secure.quantserve.com' ||
       host === 'rules.quantcount.com' ||
-
       // Amazon Ads
       host === 'c.amazon-adsystem.com' ||
       host === 'config.aps.amazon-adsystem.com' ||
-
       // Taboola
       host === 'trc.taboola.com' ||
       host === 'cdn.taboola.com' ||
       host === 'psb.taboola.com' ||
       host === 'pips.taboola.com' ||
       host === 'cds.taboola.com' ||
-
       // Aditude
       host === 'raven-edge.aditude.io' ||
       host === 'edge.aditude.io' ||
       host === 'geo.aditude.io' ||
       host === 'raven-static.aditude.io' ||
       host === 'event-ingestor.judy.pnap.aditude.cloud' ||
-
       // Social Media Tracking
       host === 'www.facebook.com' ||
       host === 'connect.facebook.net' ||
       host === 'pixel-config.reddit.com' ||
       host === 'alb.reddit.com' ||
       host === 'www.redditstatic.com' ||
-
       // Tracking Platforms
       host === 'sb.scorecardresearch.com' ||
       host === 'cadmus.script.ac' ||
       host === 'ams-pageview-public.s3.amazonaws.com' ||
-
       // Marketing Automation
       host === 'sdk-04.moengage.com' ||
       host === 'cdn.moengage.com' ||
       host === 'wa.appsflyer.com' ||
       host === 'websdk.appsflyer.com' ||
-
       // Programmatic/RTB/Header Bidding
       host === 'geo-location.prebid.cloud' ||
       host === 'gum.criteo.com' ||
@@ -405,11 +405,9 @@ export class WindowSetup {
       host === 'lb.eu-1-id5-sync.com' ||
       host === 'htlbid.com' ||
       host === 'ups.analytics.yahoo.com' ||
-
       // Suspicious domains
       host === 'prodregistryv2.org' ||
       host === 'beyondwickedmapping.org' ||
-
       // Cookie Consent banners
       host === 'cdn.cookielaw.org'
     );
@@ -423,14 +421,9 @@ export class WindowSetup {
     const normalizedHost = hostname.toLowerCase();
 
     // Проверяем основные маски
-    const patterns = [
-      'soundcloud',
-      'sndcdn',
-      'snd',
-      's-n-d'
-    ];
+    const patterns = ['soundcloud', 'sndcdn', 'snd', 's-n-d'];
 
-    return patterns.some(pattern => normalizedHost.includes(pattern));
+    return patterns.some((pattern) => normalizedHost.includes(pattern));
   }
 
   /**
@@ -467,13 +460,13 @@ export class WindowSetup {
         responseStarted = true;
 
         // Если получили ответ - проверяем на зависание при GET запросе
-          const statusClass = Math.floor(response.status / 100);
+        const statusClass = Math.floor(response.status / 100);
 
-          if (
-              statusClass === 2 ||  // 2xx (включая response.ok)
-              statusClass === 3 ||  // 3xx (редиректы)
-              (statusClass === 4 && response.status !== 403 && response.status !== 451)  // 4xx, кроме запрещённых
-          ) {
+        if (
+          statusClass === 2 || // 2xx (включая response.ok)
+          statusClass === 3 || // 3xx (редиректы)
+          (statusClass === 4 && response.status !== 403 && response.status !== 451) // 4xx, кроме запрещённых
+        ) {
           // Делаем GET запрос для проверки зависания с ограничением размера
           let hangingDetected = false;
           const getController = new AbortController();
@@ -519,7 +512,11 @@ export class WindowSetup {
                   // Если получили меньше MIN_BYTES_THRESHOLD - недостаточно данных для проверки
                   // Просто не можем проверить
                   if (bytesReceived < MIN_BYTES_THRESHOLD) {
-                    reject(new Error(`INSUFFICIENT_DATA: ${bytesReceived} bytes < ${MIN_BYTES_THRESHOLD} bytes`));
+                    reject(
+                      new Error(
+                        `INSUFFICIENT_DATA: ${bytesReceived} bytes < ${MIN_BYTES_THRESHOLD} bytes`
+                      )
+                    );
                   } else {
                     resolve();
                   }
@@ -589,8 +586,7 @@ export class WindowSetup {
                 timestamp: Date.now(),
               };
             }
-
-          } catch (getError: any) {
+          } catch {
             clearTimeout(hangingTimeoutId);
 
             // Проверяем на абортирование из-за зависания
@@ -620,7 +616,6 @@ export class WindowSetup {
           reason: `Unexpected status: ${response.status}`,
           timestamp: Date.now(),
         };
-
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
 
@@ -697,7 +692,9 @@ export class WindowSetup {
     // Проверяем кэш для доменов не из маски
     const cached = WindowSetup.domainCheckCache.get(hostname);
     if (cached && Date.now() - cached.timestamp < WindowSetup.CACHE_TTL) {
-      console.debug(`Using cached result for ${hostname}: ${cached.shouldProxy} (${cached.reason})`);
+      console.debug(
+        `Using cached result for ${hostname}: ${cached.shouldProxy} (${cached.reason})`
+      );
       return { shouldProxy: cached.shouldProxy, reason: cached.reason };
     }
 
@@ -756,11 +753,7 @@ export class WindowSetup {
           body: requestBody,
         });
 
-        return WindowSetup.createStreamingResponseWithCache(
-          response,
-          request.url,
-          assetCache
-        );
+        return WindowSetup.createStreamingResponseWithCache(response, request.url, assetCache);
       }
 
       const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
@@ -770,11 +763,7 @@ export class WindowSetup {
         body: requestBody,
       });
 
-      return WindowSetup.createStreamingResponseWithCache(
-        response,
-        request.url,
-        assetCache
-      );
+      return WindowSetup.createStreamingResponseWithCache(response, request.url, assetCache);
     } catch (error) {
       console.warn('Proxy request failed:', request.url, error);
       return new Response('Proxy Error', { status: 500 });
@@ -859,7 +848,10 @@ export class WindowSetup {
 
       // Собираем все chunks в один Buffer
       const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-      const buffer = Buffer.concat(chunks.map(chunk => Buffer.from(chunk)), totalLength);
+      const buffer = Buffer.concat(
+        chunks.map((chunk) => Buffer.from(chunk)),
+        totalLength
+      );
 
       // Сохраняем в кэш
       await assetCache.set(url, buffer, headers, status, statusText);
