@@ -379,8 +379,8 @@ export class WindowSetup {
   private static async checkDomainAccessibility(hostname: string): Promise<DomainCheckResult> {
     const testUrl = `https://${hostname}/`;
     const INITIAL_TIMEOUT = 3000; // 3 секунды на начало ответа
-    const HANGING_TIMEOUT = 5000; // 5 секунд на детекцию зависания
-    const MIN_BYTES_THRESHOLD = 1024; // Минимум байт для проверки зависания
+    const HANGING_TIMEOUT = 8000; // 8 секунд на детекцию зависания
+    const MIN_BYTES_THRESHOLD = 25 * 1024; // 25КБ - больше чем 19КБ блокировка РКН
 
     try {
       console.log(`🔍 Checking domain accessibility: ${hostname}`);
@@ -451,7 +451,14 @@ export class WindowSetup {
 
                 stream.on('end', () => {
                   clearTimeout(readTimeout);
-                  resolve();
+
+                  // Если получили меньше MIN_BYTES_THRESHOLD - недостаточно данных для проверки
+                  // Просто не можем проверить
+                  if (bytesReceived < MIN_BYTES_THRESHOLD) {
+                    reject(new Error(`INSUFFICIENT_DATA: ${bytesReceived} bytes < ${MIN_BYTES_THRESHOLD} bytes`));
+                  } else {
+                    resolve();
+                  }
                 });
 
                 stream.on('error', (err: any) => {
@@ -484,6 +491,17 @@ export class WindowSetup {
 
                 // Обработка других ошибок чтения
                 const errorMessage = streamError.message || String(streamError);
+
+                // Недостаточно данных для проверки - НЕ проксируем, НЕ кэшируем
+                if (errorMessage.includes('INSUFFICIENT_DATA')) {
+                  console.log(`⚠️  Insufficient data for ${hostname}: ${errorMessage}`);
+                  return {
+                    shouldProxy: false,
+                    reason: 'check incomplete - insufficient data',
+                    timestamp: 0, // НЕ кэшируем - timestamp = 0
+                  };
+                }
+
                 if (
                   errorMessage.includes('ECONNRESET') ||
                   errorMessage.includes('socket hang up') ||
@@ -622,8 +640,10 @@ export class WindowSetup {
     // Выполняем интерактивную проверку на блокировку для любого домена
     const result = await WindowSetup.checkDomainAccessibility(hostname);
 
-    // Сохраняем в кэш
-    WindowSetup.domainCheckCache.set(hostname, result);
+    // Сохраняем в кэш только если проверка была полной (timestamp > 0)
+    if (result.timestamp > 0) {
+      WindowSetup.domainCheckCache.set(hostname, result);
+    }
 
     console.log(`Domain ${hostname} check result: ${result.shouldProxy} (${result.reason})`);
     return { shouldProxy: result.shouldProxy, reason: result.reason };
