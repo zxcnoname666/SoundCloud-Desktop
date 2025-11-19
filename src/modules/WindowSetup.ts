@@ -1,4 +1,5 @@
 import {join} from 'node:path';
+import {Readable} from 'node:stream';
 import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
 import type {WindowBounds} from '../types/config.js';
@@ -782,7 +783,7 @@ export class WindowSetup {
 
   /**
    * Создает streaming Response с одновременным кэшированием
-   * Отдает данные клиенту по мере получения + собирает chunks для кэша
+   * Использует tee() для дублирования стрима
    */
   private static createStreamingResponseWithCache(
     nodeFetchResponse: any,
@@ -809,55 +810,61 @@ export class WindowSetup {
       });
     }
 
-    const nodeStream = nodeFetchResponse.body;
-    const chunks: Buffer[] = [];
+    // Конвертируем Node.js Readable в Web ReadableStream
+    const webStream = Readable.toWeb(nodeFetchResponse.body) as ReadableStream;
 
-    // Создаем Web ReadableStream который читает из Node.js stream
-    const webStream = new ReadableStream({
-      start(controller) {
-        nodeStream.on('data', (chunk: Buffer) => {
-          // Сохраняем chunk для кэша
-          chunks.push(chunk);
+    // Дублируем stream через tee() - получаем два независимых потока
+    const [streamForClient, streamForCache] = webStream.tee();
 
-          // Отдаем chunk клиенту сразу
-          controller.enqueue(chunk);
-        });
+    // Асинхронно читаем второй поток для кэша (не блокируем клиента)
+    if (nodeFetchResponse.ok) {
+      WindowSetup.cacheStreamAsync(
+        streamForCache,
+        url,
+        headersObj,
+        nodeFetchResponse.status,
+        nodeFetchResponse.statusText,
+        assetCache
+      );
+    }
 
-        nodeStream.on('end', () => {
-          // Stream закончился - закрываем controller
-          controller.close();
-
-          // Сохраняем в кэш асинхронно (не блокируем отдачу клиенту)
-          if (nodeFetchResponse.ok && chunks.length > 0) {
-            const bodyBuffer = Buffer.concat(chunks);
-            assetCache.set(
-              url,
-              bodyBuffer,
-              headersObj,
-              nodeFetchResponse.status,
-              nodeFetchResponse.statusText
-            ).catch((error) => {
-              console.warn(`Failed to cache ${url}:`, error);
-            });
-          }
-        });
-
-        nodeStream.on('error', (error: Error) => {
-          console.warn(`Stream error for ${url}:`, error);
-          controller.error(error);
-        });
-      },
-
-      cancel() {
-        // Если клиент отменил запрос - останавливаем stream
-        nodeStream.destroy();
-      },
-    });
-
-    return new Response(webStream, {
+    // Возвращаем первый поток клиенту
+    return new Response(streamForClient, {
       status: nodeFetchResponse.status,
       statusText: nodeFetchResponse.statusText,
       headers: responseHeaders,
     });
+  }
+
+  /**
+   * Асинхронно читает stream и сохраняет в кэш
+   */
+  private static async cacheStreamAsync(
+    stream: ReadableStream,
+    url: string,
+    headers: Record<string, string>,
+    status: number,
+    statusText: string,
+    assetCache: AssetCache
+  ): Promise<void> {
+    try {
+      const reader = stream.getReader();
+      const chunks: Uint8Array[] = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+      }
+
+      // Собираем все chunks в один Buffer
+      const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+      const buffer = Buffer.concat(chunks.map(chunk => Buffer.from(chunk)), totalLength);
+
+      // Сохраняем в кэш
+      await assetCache.set(url, buffer, headers, status, statusText);
+    } catch (error) {
+      console.warn(`Failed to cache stream ${url}:`, error);
+    }
   }
 }
