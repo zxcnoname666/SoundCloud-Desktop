@@ -16,7 +16,8 @@ interface ProxyInfo {
 
 export class ProxyManager implements ProxyManagerInterface {
   private static instance: ProxyManager;
-  private proxies: ProxyInfo[] = [];
+  private allProxies: ProxyInfo[] = []; // Полный список прокси
+  private activeProxies: ProxyInfo[] = []; // Активные прокси (из которых берём)
   private notifyManager: NotificationManager | null = null;
   private httpsAgent: https.Agent;
 
@@ -46,7 +47,7 @@ export class ProxyManager implements ProxyManagerInterface {
       return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
     }
 
-    if (!useProxy || this.proxies.length === 0) {
+    if (!useProxy || this.activeProxies.length === 0) {
       return fetch(url, { ...options, agent: this.httpsAgent });
     }
 
@@ -55,7 +56,7 @@ export class ProxyManager implements ProxyManagerInterface {
     const headers = options.headers || {};
     let lastError: string | null = null;
 
-    for (const proxy of this.proxies) {
+    for (const proxy of this.activeProxies) {
       try {
         const proxyUrl = this.buildProxyUrl(proxy);
 
@@ -78,8 +79,18 @@ export class ProxyManager implements ProxyManagerInterface {
 
         // Проверяем успешность ответа
         if (!response.ok && (response.status === 429 || response.status === 500)) {
-          console.warn(`Proxy ${proxy.domain} returned ${response.status}: ${response.statusText}`);
+          console.warn(`Proxy ${proxy.domain} returned ${response.status}: ${response.statusText} - removing from active list`);
           lastError = `${response.status} ${response.statusText}`;
+
+          // Убираем проблемную прокси из активного списка
+          this.removeFromActiveProxies(proxy);
+
+          // Если все прокси закончились, восстанавливаем полный список
+          if (this.activeProxies.length === 0) {
+            console.log('All proxies exhausted, restoring full list');
+            this.restoreAllProxies();
+          }
+
           continue;
         }
 
@@ -87,7 +98,15 @@ export class ProxyManager implements ProxyManagerInterface {
       } catch (error) {
         console.warn(`Proxy ${proxy.domain} failed:`, error);
         lastError = error instanceof Error ? error.message : String(error);
-        // Пробуем следующий прокси
+
+        // Убираем проблемную прокси из активного списка
+        this.removeFromActiveProxies(proxy);
+
+        // Если все прокси закончились, восстанавливаем полный список
+        if (this.activeProxies.length === 0) {
+          console.log('All proxies exhausted, restoring full list');
+          this.restoreAllProxies();
+        }
       }
     }
 
@@ -107,13 +126,14 @@ export class ProxyManager implements ProxyManagerInterface {
       const configManager = ConfigManager.getInstance();
       const proxyConfig = configManager.loadProxyConfig();
 
-      this.proxies = this.parseProxies(proxyConfig.proxy || []);
+      this.allProxies = this.parseProxies(proxyConfig.proxy || []);
+      this.activeProxies = [...this.allProxies]; // Копируем полный список в активные
 
-      if (this.proxies.length === 0) {
+      if (this.allProxies.length === 0) {
         this.showNotification('proxy_available_not_found');
       } else {
-        console.log(`Loaded ${this.proxies.length} proxies`);
-        this.showNotification('proxy_loaded_count', String(this.proxies.length));
+        console.log(`Loaded ${this.allProxies.length} proxies`);
+        this.showNotification('proxy_loaded_count', String(this.allProxies.length));
       }
     } catch (error) {
       console.warn('Failed to initialize proxy manager:', error);
@@ -121,7 +141,20 @@ export class ProxyManager implements ProxyManagerInterface {
   }
 
   getCurrentProxy(): string | null {
-    return this.proxies[0]?.source || null;
+    return this.activeProxies[0]?.source || null;
+  }
+
+  private removeFromActiveProxies(proxy: ProxyInfo): void {
+    const index = this.activeProxies.findIndex((p) => p.source === proxy.source);
+    if (index !== -1) {
+      this.activeProxies.splice(index, 1);
+      console.log(`Removed proxy ${proxy.domain} from active list. Remaining: ${this.activeProxies.length}`);
+    }
+  }
+
+  private restoreAllProxies(): void {
+    this.activeProxies = [...this.allProxies];
+    console.log(`Restored all ${this.activeProxies.length} proxies to active list`);
   }
 
   private parseProxies(proxyStrings: string[]): ProxyInfo[] {
