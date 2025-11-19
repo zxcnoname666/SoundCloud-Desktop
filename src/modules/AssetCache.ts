@@ -134,7 +134,7 @@ export class AssetCache {
   isCacheableResponse(headers: Record<string, string>): boolean {
     const cacheControl = headers['cache-control']?.toLowerCase() || '';
 
-    // Не кэшируем если явно запрещено
+    // Не кэшируем только если явно запрещено
     if (
       cacheControl.includes('no-cache') ||
       cacheControl.includes('no-store') ||
@@ -143,11 +143,8 @@ export class AssetCache {
       return false;
     }
 
-    // Не кэшируем если есть Vary заголовок (обычно для динамического контента)
-    if (headers['vary']) {
-      return false;
-    }
-
+    // Vary: Accept-Encoding - нормально для статики, кэшируем
+    // Другие Vary тоже OK для статических ассетов
     return true;
   }
 
@@ -219,13 +216,19 @@ export class AssetCache {
     status: number,
     statusText: string
   ): Promise<void> {
-    if (!this.enabled || !this.isStaticAsset(url)) {
+    if (!this.enabled) {
+      return;
+    }
+
+    if (!this.isStaticAsset(url)) {
+      // console.log(`💾 Skip cache (not static): ${url}`);
       return;
     }
 
     try {
       if (!this.isCacheableResponse(headers)) {
-        console.log(`💾 Not cacheable (headers): ${url}`);
+        console.log(`💾 Skip cache (headers): ${url}`);
+        console.log(`   Cache-Control: ${headers['cache-control'] || 'none'}`);
         return;
       }
 

@@ -755,31 +755,11 @@ export class WindowSetup {
           body: requestBody,
         });
 
-        // Читаем body один раз в Buffer
-        const bodyBuffer = response.body ? await WindowSetup.streamToBuffer(response.body) : Buffer.alloc(0);
-
-        // Собираем заголовки
-        const headersObj: Record<string, string> = {};
-        response.headers.forEach((value: string, key: string) => {
-          headersObj[key] = value;
-        });
-
-        // Сохраняем в кэш если успешный ответ
-        if (response.ok) {
-          await assetCache.set(request.url, bodyBuffer, headersObj, response.status, response.statusText);
-        }
-
-        // Возвращаем web Response из Buffer
-        const responseHeaders = new Headers();
-        for (const [key, value] of Object.entries(headersObj)) {
-          responseHeaders.set(key, value);
-        }
-
-        return new Response(bodyBuffer, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: responseHeaders,
-        });
+        return WindowSetup.createStreamingResponseWithCache(
+          response,
+          request.url,
+          assetCache
+        );
       }
 
       const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
@@ -789,31 +769,11 @@ export class WindowSetup {
         body: requestBody,
       });
 
-      // Читаем body один раз в Buffer
-      const bodyBuffer = response.body ? await WindowSetup.streamToBuffer(response.body) : Buffer.alloc(0);
-
-      // Собираем заголовки
-      const headersObj: Record<string, string> = {};
-      response.headers.forEach((value: string, key: string) => {
-        headersObj[key] = value;
-      });
-
-      // Сохраняем в кэш если успешный ответ
-      if (response.ok) {
-        await assetCache.set(request.url, bodyBuffer, headersObj, response.status, response.statusText);
-      }
-
-      // Возвращаем web Response из Buffer
-      const responseHeaders = new Headers();
-      for (const [key, value] of Object.entries(headersObj)) {
-        responseHeaders.set(key, value);
-      }
-
-      return new Response(bodyBuffer, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: responseHeaders,
-      });
+      return WindowSetup.createStreamingResponseWithCache(
+        response,
+        request.url,
+        assetCache
+      );
     } catch (error) {
       console.warn('Proxy request failed:', request.url, error);
       return new Response('Proxy Error', { status: 500 });
@@ -821,23 +781,83 @@ export class WindowSetup {
   }
 
   /**
-   * Читает Node.js Readable stream в Buffer
+   * Создает streaming Response с одновременным кэшированием
+   * Отдает данные клиенту по мере получения + собирает chunks для кэша
    */
-  private static async streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
+  private static createStreamingResponseWithCache(
+    nodeFetchResponse: any,
+    url: string,
+    assetCache: AssetCache
+  ): Response {
+    // Собираем заголовки
+    const headersObj: Record<string, string> = {};
+    nodeFetchResponse.headers.forEach((value: string, key: string) => {
+      headersObj[key] = value;
+    });
+
+    const responseHeaders = new Headers();
+    for (const [key, value] of Object.entries(headersObj)) {
+      responseHeaders.set(key, value);
+    }
+
+    // Если нет body - возвращаем пустой ответ
+    if (!nodeFetchResponse.body) {
+      return new Response(null, {
+        status: nodeFetchResponse.status,
+        statusText: nodeFetchResponse.statusText,
+        headers: responseHeaders,
+      });
+    }
+
+    const nodeStream = nodeFetchResponse.body;
     const chunks: Buffer[] = [];
 
-    return new Promise((resolve, reject) => {
-      stream.on('data', (chunk: Buffer) => {
-        chunks.push(chunk);
-      });
+    // Создаем Web ReadableStream который читает из Node.js stream
+    const webStream = new ReadableStream({
+      start(controller) {
+        nodeStream.on('data', (chunk: Buffer) => {
+          // Сохраняем chunk для кэша
+          chunks.push(chunk);
 
-      stream.on('end', () => {
-        resolve(Buffer.concat(chunks));
-      });
+          // Отдаем chunk клиенту сразу
+          controller.enqueue(chunk);
+        });
 
-      stream.on('error', (error) => {
-        reject(error);
-      });
+        nodeStream.on('end', () => {
+          // Stream закончился - закрываем controller
+          controller.close();
+
+          // Сохраняем в кэш асинхронно (не блокируем отдачу клиенту)
+          if (nodeFetchResponse.ok && chunks.length > 0) {
+            const bodyBuffer = Buffer.concat(chunks);
+            assetCache.set(
+              url,
+              bodyBuffer,
+              headersObj,
+              nodeFetchResponse.status,
+              nodeFetchResponse.statusText
+            ).catch((error) => {
+              console.warn(`Failed to cache ${url}:`, error);
+            });
+          }
+        });
+
+        nodeStream.on('error', (error: Error) => {
+          console.warn(`Stream error for ${url}:`, error);
+          controller.error(error);
+        });
+      },
+
+      cancel() {
+        // Если клиент отменил запрос - останавливаем stream
+        nodeStream.destroy();
+      },
+    });
+
+    return new Response(webStream, {
+      status: nodeFetchResponse.status,
+      statusText: nodeFetchResponse.statusText,
+      headers: responseHeaders,
     });
   }
 }
