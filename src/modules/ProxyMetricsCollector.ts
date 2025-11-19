@@ -27,7 +27,8 @@ export class ProxyMetricsCollector {
   private readonly SAVE_INTERVAL = 10 * 1000; // 10 секунд
 
   private constructor() {
-    const debugDir = join(app.getPath('userData'), '.debug');
+    // Сохраняем в корень проекта для удобства отладки
+    const debugDir = join(app.getAppPath(), '.debug');
     this.metricsFilePath = join(debugDir, 'proxy-metrics.json');
   }
 
@@ -61,7 +62,7 @@ export class ProxyMetricsCollector {
     console.log('📊 Starting proxy metrics collector...');
 
     // Создаем директорию для метрик если не существует
-    const debugDir = join(app.getPath('userData'), '.debug');
+    const debugDir = join(app.getAppPath(), '.debug');
     if (!existsSync(debugDir)) {
       await mkdir(debugDir, { recursive: true });
     }
