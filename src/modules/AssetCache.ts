@@ -43,6 +43,11 @@ export class AssetCache {
     '.wav',
     '.ogg',
     '.m4a',
+    '.m4s', // MPEG-DASH media segments
+    '.ts', // HLS media segments
+    '.aac', // AAC audio
+    '.flac', // FLAC audio
+    '.opus', // Opus audio
   ];
 
   // Паттерны для определения динамических запросов
@@ -150,9 +155,24 @@ export class AssetCache {
 
   /**
    * Генерирует ключ кэша для URL
+   * Для медиа-сегментов (.m4s, .ts) отсекает query параметры
    */
   private getCacheKey(url: string): string {
-    return createHash('md5').update(url).digest('hex');
+    let cacheUrl = url;
+
+    // Для медиа-сегментов отсекаем query параметры (подписи меняются, контент нет)
+    const mediaSegmentExtensions = ['.m4s', '.ts'];
+    const hasMediaSegmentExt = mediaSegmentExtensions.some(ext => url.includes(ext));
+
+    if (hasMediaSegmentExt) {
+      // Убираем всё после ? (включая подпись)
+      const questionMarkIndex = url.indexOf('?');
+      if (questionMarkIndex !== -1) {
+        cacheUrl = url.substring(0, questionMarkIndex);
+      }
+    }
+
+    return createHash('md5').update(cacheUrl).digest('hex');
   }
 
   /**
