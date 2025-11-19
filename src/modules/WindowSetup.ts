@@ -1,23 +1,24 @@
-import { join } from 'node:path';
-import { Readable } from 'node:stream';
-import {
-  BrowserWindow,
-  Menu,
-  Tray,
-  app,
-  globalShortcut,
-  nativeImage,
-  protocol,
-  shell,
-} from 'electron';
+import {join} from 'node:path';
+import {Readable} from 'node:stream';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import type { WindowBounds } from '../types/config.js';
-import { ProxyManager } from './ProxyManager.js';
+import type {WindowBounds} from '../types/config.js';
+import {ProxyManager} from './ProxyManager.js';
+import {ProxyMetricsCollector} from './ProxyMetricsCollector.js';
+import {AssetCache} from './AssetCache.js';
+
+interface DomainCheckResult {
+  shouldProxy: boolean;
+  reason: string;
+  timestamp: number;
+}
 
 export class WindowSetup {
   private static tray: Tray | null = null;
   private static proxyRegistered = false;
   private static proxyInitialized = false;
+  private static domainCheckCache: Map<string, DomainCheckResult> = new Map();
+  private static CACHE_TTL = 10 * 60 * 1000; // 10 минут
 
   static async createMainWindow(): Promise<BrowserWindow> {
     const bounds = WindowSetup.getWindowBounds();
@@ -280,6 +281,12 @@ export class WindowSetup {
     console.log('🔄 Initializing proxy handler...');
     WindowSetup.setupProxyHandler();
 
+    // Инициализируем сборщик метрик (только в dev режиме)
+    await ProxyMetricsCollector.initialize();
+
+    // Инициализируем кэш ассетов
+    await AssetCache.initialize();
+
     // Ждем пока прокси инициализируется и включится
     const maxWaitTime = 10000; // 10 секунд максимум
     const checkInterval = 100; // проверяем каждые 100ms
@@ -334,44 +341,413 @@ export class WindowSetup {
   }
 
   public static checkAdBlock(parsedUrl: URL): boolean {
+    const host = parsedUrl.host;
+
     return (
-      parsedUrl.host === 'promoted.soundcloud.com' ||
-      parsedUrl.host.endsWith('.adswizz.com') ||
-      parsedUrl.host.endsWith('.adsrvr.org') ||
-      parsedUrl.host.endsWith('.doubleclick.net') ||
+      // Existing blocks
+      host === 'promoted.soundcloud.com' ||
+      host.endsWith('.adswizz.com') ||
+      host.endsWith('.adsrvr.org') ||
+      host.endsWith('.doubleclick.net') ||
       parsedUrl.href.includes('audio-ads') ||
-      parsedUrl.host.endsWith('nr-data.net') // flood
+      host.endsWith('nr-data.net') ||
+
+      // Google Tracking
+      host === 'www.googletagmanager.com' ||
+      host === 'analytics.google.com' ||
+      host === 'www.google-analytics.com' ||
+
+      // Quantcast
+      host === 'pixel.quantserve.com' ||
+      host === 'secure.quantserve.com' ||
+      host === 'rules.quantcount.com' ||
+
+      // Amazon Ads
+      host === 'c.amazon-adsystem.com' ||
+      host === 'config.aps.amazon-adsystem.com' ||
+
+      // Taboola
+      host === 'trc.taboola.com' ||
+      host === 'cdn.taboola.com' ||
+      host === 'psb.taboola.com' ||
+      host === 'pips.taboola.com' ||
+      host === 'cds.taboola.com' ||
+
+      // Aditude
+      host === 'raven-edge.aditude.io' ||
+      host === 'edge.aditude.io' ||
+      host === 'geo.aditude.io' ||
+      host === 'raven-static.aditude.io' ||
+      host === 'event-ingestor.judy.pnap.aditude.cloud' ||
+
+      // Social Media Tracking
+      host === 'www.facebook.com' ||
+      host === 'connect.facebook.net' ||
+      host === 'pixel-config.reddit.com' ||
+      host === 'alb.reddit.com' ||
+      host === 'www.redditstatic.com' ||
+
+      // Tracking Platforms
+      host === 'sb.scorecardresearch.com' ||
+      host === 'cadmus.script.ac' ||
+      host === 'ams-pageview-public.s3.amazonaws.com' ||
+
+      // Marketing Automation
+      host === 'sdk-04.moengage.com' ||
+      host === 'cdn.moengage.com' ||
+      host === 'wa.appsflyer.com' ||
+      host === 'websdk.appsflyer.com' ||
+
+      // Programmatic/RTB/Header Bidding
+      host === 'geo-location.prebid.cloud' ||
+      host === 'gum.criteo.com' ||
+      host === 'id5-sync.com' ||
+      host === 'lb.eu-1-id5-sync.com' ||
+      host === 'htlbid.com' ||
+      host === 'ups.analytics.yahoo.com' ||
+
+      // Suspicious domains
+      host === 'prodregistryv2.org' ||
+      host === 'beyondwickedmapping.org' ||
+
+      // Cookie Consent banners
+      host === 'cdn.cookielaw.org'
     );
   }
 
-  private static shouldProxyDomain(hostname: string): boolean {
-    /* NOTE: проксируем все домены, потому что РКН банит теперь
-     * NOTE: вообще всё. так легче поддерживать будет.
-     const proxyDomains = [
-        'soundcloud.com',
-        'sndcdn.com',
-        'api.soundcloud.com',
-        'api-v2.soundcloud.com',
-        'soundcloud.cloud'
-      ];
+  /**
+   * Проверяет, соответствует ли домен маскам для проксирования
+   * Маски: *soundcloud*, *sndcdn*, *snd*, *s-n-d*
+   */
+  private static matchesDomainMask(hostname: string): boolean {
+    const normalizedHost = hostname.toLowerCase();
 
-      return proxyDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
-     */
+    // Проверяем основные маски
+    const patterns = [
+      'soundcloud',
+      'sndcdn',
+      'snd',
+      's-n-d'
+    ];
 
+    return patterns.some(pattern => normalizedHost.includes(pattern));
+  }
+
+  /**
+   * Интерактивная проверка доступности домена
+   * Детектирует:
+   * 1. Блокировки РКН с "удержанием соединения" после начала загрузки
+   * 2. Обрыв TCP соединения без error code
+   * 3. Обычные ошибки подключения
+   */
+  private static async checkDomainAccessibility(hostname: string): Promise<DomainCheckResult> {
+    const testUrl = `https://${hostname}/`;
+    const INITIAL_TIMEOUT = 3000; // 3 секунды на начало ответа
+    const HANGING_TIMEOUT = 8000; // 8 секунд на детекцию зависания
+    const MIN_BYTES_THRESHOLD = 25 * 1024; // 25КБ - больше чем 19КБ блокировка РКН
+
+    try {
+      console.log(`🔍 Checking domain accessibility: ${hostname}`);
+
+      // Создаем контроллер для абортирования запроса
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), INITIAL_TIMEOUT);
+
+      let responseStarted = false;
+
+      try {
+        const response = await fetch(testUrl, {
+          method: 'HEAD',
+          signal: controller.signal,
+          // Отключаем следование за редиректами для более быстрой проверки
+          redirect: 'manual',
+        });
+
+        clearTimeout(timeoutId);
+        responseStarted = true;
+
+        // Если получили ответ - проверяем на зависание при GET запросе
+          const statusClass = Math.floor(response.status / 100);
+
+          if (
+              statusClass === 2 ||  // 2xx (включая response.ok)
+              statusClass === 3 ||  // 3xx (редиректы)
+              (statusClass === 4 && response.status !== 403 && response.status !== 451)  // 4xx, кроме запрещённых
+          ) {
+          // Делаем GET запрос для проверки зависания с ограничением размера
+          let hangingDetected = false;
+          const getController = new AbortController();
+          const hangingTimeoutId = setTimeout(() => {
+            hangingDetected = true;
+            getController.abort();
+          }, HANGING_TIMEOUT);
+
+          try {
+            const getResponse = await fetch(testUrl, {
+              signal: getController.signal,
+              redirect: 'manual',
+            });
+
+            clearTimeout(hangingTimeoutId);
+
+            // Пытаемся прочитать начало данных (используем Node.js stream API)
+            if (getResponse.body) {
+              let bytesReceived = 0;
+              const stream = getResponse.body as any; // node-fetch возвращает Node.js Readable
+
+              const streamReadPromise = new Promise<void>((resolve, reject) => {
+                const readTimeout = setTimeout(() => {
+                  hangingDetected = true;
+                  stream.destroy();
+                  reject(new Error('Stream read timeout'));
+                }, HANGING_TIMEOUT);
+
+                stream.on('data', (chunk: any) => {
+                  const chunkSize = chunk.length || Buffer.byteLength(chunk);
+                  bytesReceived += chunkSize;
+
+                  if (bytesReceived >= MIN_BYTES_THRESHOLD) {
+                    clearTimeout(readTimeout);
+                    stream.destroy();
+                    resolve();
+                  }
+                });
+
+                stream.on('end', () => {
+                  clearTimeout(readTimeout);
+
+                  // Если получили меньше MIN_BYTES_THRESHOLD - недостаточно данных для проверки
+                  // Просто не можем проверить
+                  if (bytesReceived < MIN_BYTES_THRESHOLD) {
+                    reject(new Error(`INSUFFICIENT_DATA: ${bytesReceived} bytes < ${MIN_BYTES_THRESHOLD} bytes`));
+                  } else {
+                    resolve();
+                  }
+                });
+
+                stream.on('error', (err: any) => {
+                  clearTimeout(readTimeout);
+                  reject(err);
+                });
+              });
+
+              try {
+                await streamReadPromise;
+
+                if (hangingDetected) {
+                  console.log(`⚠️  Connection hanging detected for ${hostname}`);
+                  return {
+                    shouldProxy: true,
+                    reason: 'RKN blocking: connection hanging',
+                    timestamp: Date.now(),
+                  };
+                }
+              } catch (streamError: any) {
+                // Проверяем, зависло ли соединение
+                if (hangingDetected) {
+                  console.log(`⚠️  Connection hanging detected for ${hostname}`);
+                  return {
+                    shouldProxy: true,
+                    reason: 'RKN blocking: connection hanging',
+                    timestamp: Date.now(),
+                  };
+                }
+
+                // Обработка других ошибок чтения
+                const errorMessage = streamError.message || String(streamError);
+
+                // Недостаточно данных для проверки - НЕ проксируем, НЕ кэшируем
+                if (errorMessage.includes('INSUFFICIENT_DATA')) {
+                  console.log(`⚠️  Insufficient data for ${hostname}: ${errorMessage}`);
+                  return {
+                    shouldProxy: false,
+                    reason: 'check incomplete - insufficient data',
+                    timestamp: 0, // НЕ кэшируем - timestamp = 0
+                  };
+                }
+
+                if (
+                  errorMessage.includes('ECONNRESET') ||
+                  errorMessage.includes('socket hang up') ||
+                  errorMessage.includes('Connection closed')
+                ) {
+                  console.log(`⚠️  Stream error for ${hostname}: ${errorMessage}`);
+                  return {
+                    shouldProxy: true,
+                    reason: `Stream error: ${errorMessage}`,
+                    timestamp: Date.now(),
+                  };
+                }
+              }
+            }
+
+            if (hangingDetected) {
+              console.log(`⚠️  Connection hanging detected for ${hostname}`);
+              return {
+                shouldProxy: true,
+                reason: 'RKN blocking: connection hanging',
+                timestamp: Date.now(),
+              };
+            }
+
+          } catch (getError: any) {
+            clearTimeout(hangingTimeoutId);
+
+            // Проверяем на абортирование из-за зависания
+            if (hangingDetected) {
+              console.log(`⚠️  Connection hanging detected for ${hostname}`);
+              return {
+                shouldProxy: true,
+                reason: 'RKN blocking: connection hanging',
+                timestamp: Date.now(),
+              };
+            }
+          }
+
+          // Если всё прошло успешно - прокси не нужен
+          console.log(`✅ Domain ${hostname} is accessible without proxy`);
+          return {
+            shouldProxy: false,
+            reason: 'Direct connection works',
+            timestamp: Date.now(),
+          };
+        }
+
+        // Неожиданный статус код - возможно блокировка
+        console.log(`⚠️  Unexpected status ${response.status} for ${hostname}`);
+        return {
+          shouldProxy: true,
+          reason: `Unexpected status: ${response.status}`,
+          timestamp: Date.now(),
+        };
+
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+
+        // Проверяем тип ошибки
+        if (fetchError.name === 'AbortError') {
+          if (!responseStarted) {
+            // Таймаут на начало соединения
+            console.log(`⚠️  Connection timeout for ${hostname}`);
+            return {
+              shouldProxy: true,
+              reason: 'Connection timeout',
+              timestamp: Date.now(),
+            };
+          }
+        }
+
+        // Обрыв TCP соединения или другая сетевая ошибка
+        const errorMessage = fetchError.message || String(fetchError);
+
+        // Детектируем обрыв TCP без кода ошибки
+        if (
+          errorMessage.includes('ECONNRESET') ||
+          errorMessage.includes('ECONNREFUSED') ||
+          errorMessage.includes('socket hang up') ||
+          errorMessage.includes('Connection closed') ||
+          !fetchError.code // Нет кода ошибки - возможно обрыв TCP
+        ) {
+          console.log(`⚠️  TCP connection broken for ${hostname}: ${errorMessage}`);
+          return {
+            shouldProxy: true,
+            reason: `TCP connection broken: ${errorMessage}`,
+            timestamp: Date.now(),
+          };
+        }
+
+        // Другие сетевые ошибки
+        console.log(`⚠️  Network error for ${hostname}: ${errorMessage}`);
+        return {
+          shouldProxy: true,
+          reason: `Network error: ${errorMessage}`,
+          timestamp: Date.now(),
+        };
+      }
+    } catch (error: any) {
+      // Критическая ошибка - лучше проксировать
+      console.log(`❌ Critical error checking ${hostname}: ${error}`);
+      return {
+        shouldProxy: true,
+        reason: `Critical error: ${error.message || String(error)}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * Проверяет, нужно ли проксировать домен (с интерактивной проверкой)
+   *
+   * Критерии проксирования (ЛИБО):
+   * 1. ЛИБО домен соответствует маскам: *soundcloud*, *sndcdn*, *snd*, *s-n-d*
+   * 2. ЛИБО блокировка РКН с "удержанием соединения" после начала загрузки
+   * 3. ЛИБО обрыв TCP соединения без error code
+   */
+  private static async shouldProxyDomain(
+    hostname: string
+  ): Promise<{ shouldProxy: boolean; reason: string }> {
     console.debug('shouldProxyDomain.hostname', hostname);
-    return true;
+
+    // Если домен соответствует маскам - сразу проксируем
+    if (WindowSetup.matchesDomainMask(hostname)) {
+      console.debug(`Domain ${hostname} matches proxy masks - proxying`);
+      return { shouldProxy: true, reason: 'matches mask' };
+    }
+
+    // Проверяем кэш для доменов не из маски
+    const cached = WindowSetup.domainCheckCache.get(hostname);
+    if (cached && Date.now() - cached.timestamp < WindowSetup.CACHE_TTL) {
+      console.debug(`Using cached result for ${hostname}: ${cached.shouldProxy} (${cached.reason})`);
+      return { shouldProxy: cached.shouldProxy, reason: cached.reason };
+    }
+
+    // Выполняем интерактивную проверку на блокировку для любого домена
+    const result = await WindowSetup.checkDomainAccessibility(hostname);
+
+    // Сохраняем в кэш только если проверка была полной (timestamp > 0)
+    if (result.timestamp > 0) {
+      WindowSetup.domainCheckCache.set(hostname, result);
+    }
+
+    console.log(`Domain ${hostname} check result: ${result.shouldProxy} (${result.reason})`);
+    return { shouldProxy: result.shouldProxy, reason: result.reason };
   }
 
   private static async getProxyResponse(request: Request): Promise<Response> {
     const proxyManager = ProxyManager.getInstance();
+    const metricsCollector = ProxyMetricsCollector.getInstance();
+    const assetCache = AssetCache.getInstance();
 
     try {
       const url = new URL(request.url);
+
+      // Проверяем adblock и записываем метрику
       if (WindowSetup.checkAdBlock(url)) {
+        metricsCollector.recordDomainUsage(url.hostname, false, 'blocked by adblock');
         return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
       }
 
-      if (!WindowSetup.shouldProxyDomain(url.hostname)) {
+      // Проверяем кэш для статических ассетов
+      const cached = await assetCache.get(request.url);
+      if (cached) {
+        const responseHeaders = new Headers();
+        for (const [key, value] of Object.entries(cached.headers)) {
+          responseHeaders.set(key, value);
+        }
+
+        return new Response(cached.buffer, {
+          status: cached.status,
+          statusText: cached.statusText,
+          headers: responseHeaders,
+        });
+      }
+
+      const { shouldProxy, reason } = await WindowSetup.shouldProxyDomain(url.hostname);
+
+      // Записываем метрику использования домена
+      metricsCollector.recordDomainUsage(url.hostname, shouldProxy, reason);
+
+      if (!shouldProxy) {
         // Делаем обычный запрос без прокси
         const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
         const response = await fetch(request.url, {
@@ -380,19 +756,11 @@ export class WindowSetup {
           body: requestBody,
         });
 
-        // Конвертируем в web Response
-        const responseHeaders = new Headers();
-        response.headers.forEach((value: string, key: string) => {
-          responseHeaders.set(key, value);
-        });
-
-        // Конвертируем node Readable stream в web ReadableStream
-        const webStream = response.body ? Readable.toWeb(response.body as any) : null;
-        return new Response(webStream, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: responseHeaders,
-        });
+        return WindowSetup.createStreamingResponseWithCache(
+          response,
+          request.url,
+          assetCache
+        );
       }
 
       const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
@@ -402,23 +770,101 @@ export class WindowSetup {
         body: requestBody,
       });
 
-      // Конвертируем node-fetch Response в web Response
-      const responseHeaders = new Headers();
-      response.headers.forEach((value: string, key: string) => {
-        responseHeaders.set(key, value);
-      });
-
-      // Конвертируем node Readable stream в web ReadableStream
-      const webStream = response.body ? Readable.toWeb(response.body as any) : null;
-
-      return new Response(webStream, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: responseHeaders,
-      });
+      return WindowSetup.createStreamingResponseWithCache(
+        response,
+        request.url,
+        assetCache
+      );
     } catch (error) {
       console.warn('Proxy request failed:', request.url, error);
       return new Response('Proxy Error', { status: 500 });
+    }
+  }
+
+  /**
+   * Создает streaming Response с одновременным кэшированием
+   * Использует tee() для дублирования стрима
+   */
+  private static createStreamingResponseWithCache(
+    nodeFetchResponse: any,
+    url: string,
+    assetCache: AssetCache
+  ): Response {
+    // Собираем заголовки
+    const headersObj: Record<string, string> = {};
+    nodeFetchResponse.headers.forEach((value: string, key: string) => {
+      headersObj[key] = value;
+    });
+
+    const responseHeaders = new Headers();
+    for (const [key, value] of Object.entries(headersObj)) {
+      responseHeaders.set(key, value);
+    }
+
+    // Если нет body - возвращаем пустой ответ
+    if (!nodeFetchResponse.body) {
+      return new Response(null, {
+        status: nodeFetchResponse.status,
+        statusText: nodeFetchResponse.statusText,
+        headers: responseHeaders,
+      });
+    }
+
+    // Конвертируем Node.js Readable в Web ReadableStream
+    const webStream = Readable.toWeb(nodeFetchResponse.body) as ReadableStream;
+
+    // Дублируем stream через tee() - получаем два независимых потока
+    const [streamForClient, streamForCache] = webStream.tee();
+
+    // Асинхронно читаем второй поток для кэша (не блокируем клиента)
+    if (nodeFetchResponse.ok) {
+      WindowSetup.cacheStreamAsync(
+        streamForCache,
+        url,
+        headersObj,
+        nodeFetchResponse.status,
+        nodeFetchResponse.statusText,
+        assetCache
+      );
+    }
+
+    // Возвращаем первый поток клиенту
+    return new Response(streamForClient, {
+      status: nodeFetchResponse.status,
+      statusText: nodeFetchResponse.statusText,
+      headers: responseHeaders,
+    });
+  }
+
+  /**
+   * Асинхронно читает stream и сохраняет в кэш
+   */
+  private static async cacheStreamAsync(
+    stream: ReadableStream,
+    url: string,
+    headers: Record<string, string>,
+    status: number,
+    statusText: string,
+    assetCache: AssetCache
+  ): Promise<void> {
+    try {
+      const reader = stream.getReader();
+      const chunks: Uint8Array[] = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+      }
+
+      // Собираем все chunks в один Buffer
+      const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+      const buffer = Buffer.concat(chunks.map(chunk => Buffer.from(chunk)), totalLength);
+
+      // Сохраняем в кэш
+      await assetCache.set(url, buffer, headers, status, statusText);
+    } catch (error) {
+      console.warn(`Failed to cache stream ${url}:`, error);
     }
   }
 }

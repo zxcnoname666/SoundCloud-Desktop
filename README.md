@@ -22,10 +22,11 @@
 
 - **🎧 Native Desktop Experience** - Full-featured SoundCloud desktop client
 - **🌙 Beautiful Dark Theme** - Eye-friendly interface for music lovers
-- **🌍 Access Anywhere** - Bypass geographical restrictions and geo-blocking
-- **🚫 Zero Ads** - Built-in ad blocker for uninterrupted music streaming
-- **⚡ Lightning Fast** - Optimized TypeScript codebase, faster than web version
-- **🔒 Privacy Focused** - Proxy support for secure and private listening
+- **🌍 Access Anywhere** - Bypass geographical restrictions and geo-blocking with smart RKN detection
+- **🚫 Zero Ads** - Enhanced ad blocker with 39+ tracking domains blocked
+- **⚡ Lightning Fast** - Optimized TypeScript codebase with aggressive 4-day asset caching
+- **🔒 Privacy Focused** - Smart proxy system with automatic rotation on quota exhaustion
+- **🎵 Streaming Optimized** - Efficient media segment caching for smooth playback
 - **🖥️ Cross-Platform** - Works on Windows 10/11, Linux, and macOS
 - **💾 Lightweight** - Small footprint, minimal system resources
 
@@ -78,26 +79,38 @@ You can customize the application language via `config.json5` file in the app di
 
 ## 🔒 Proxy Configuration
 
-Configure proxy settings to bypass geo-restrictions:
+Configure proxy settings to bypass geo-restrictions with intelligent features:
 
-**Config locations (priority order):**
+### Smart Proxy Features
+
+- **🔍 RKN Blocking Detection** - Automatically detects blocking with "connection hanging" after 19KB of data
+- **🔄 Automatic Proxy Rotation** - Removes failed proxies (429/500 errors) and rotates to next available
+- **💾 Aggressive Caching** - 4-day cache for static assets (.js, .css, images, audio segments)
+- **🎵 Media Segment Optimization** - Smart caching for .m4s and .ts segments with query stripping
+- **🚫 Enhanced Ad Blocking** - Blocks 39+ tracking/advertising domains (Google Analytics, Quantcast, Taboola, etc.)
+- **📊 Usage Metrics** - Collects domain usage statistics in dev mode
+
+### Config locations (priority order)
 
 1. **User folder**: `%APPDATA%/soundcloud/config.proxy.json5` (Windows) or `~/.config/soundcloud/config.proxy.json5` (
    Linux/macOS)
 2. **App folder**: `config.proxy.json5` in app directory
 
-**Configuration format:**
+### Configuration format
 
 ```json5
 {
   "proxy": [
     "https://your-worker.workers.dev",
-    "http://proxy.example.com:8080"
+    "http://proxy.example.com:8080",
+    "https://backup-proxy.example.com"
   ]
 }
 ```
 
-**Cloudflare Worker Proxy (Recommended):**
+**Multiple proxies**: When quota exhausts on one proxy (429/500), the app automatically switches to the next. When all proxies fail, they're restored and rotation starts again.
+
+### Cloudflare Worker Proxy (Recommended)
 
 1. Use the ready-made Worker code from `_proxy/cloudflare-proxy.js`
 2. Deploy it to Cloudflare Workers (free tier available)
