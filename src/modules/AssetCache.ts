@@ -50,6 +50,10 @@ export class AssetCache {
     '.opus', // Opus audio
   ];
 
+  // Медиа-сегменты, для которых нужно отсекать query параметры при кэшировании
+  // (подписи в query меняются, но контент файла одинаковый)
+  private readonly MEDIA_SEGMENT_EXTENSIONS = ['.m4s', '.ts'];
+
   // Паттерны для определения динамических запросов
   private readonly DYNAMIC_PATTERNS = [
     /\/api\//i,
@@ -161,8 +165,7 @@ export class AssetCache {
     let cacheUrl = url;
 
     // Для медиа-сегментов отсекаем query параметры (подписи меняются, контент нет)
-    const mediaSegmentExtensions = ['.m4s', '.ts'];
-    const hasMediaSegmentExt = mediaSegmentExtensions.some(ext => url.includes(ext));
+    const hasMediaSegmentExt = this.MEDIA_SEGMENT_EXTENSIONS.some(ext => url.includes(ext));
 
     if (hasMediaSegmentExt) {
       // Убираем всё после ? (включая подпись)
