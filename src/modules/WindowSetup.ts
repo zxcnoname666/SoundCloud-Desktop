@@ -1,10 +1,10 @@
 import {join} from 'node:path';
-import {Readable} from 'node:stream';
 import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
 import type {WindowBounds} from '../types/config.js';
 import {ProxyManager} from './ProxyManager.js';
 import {ProxyMetricsCollector} from './ProxyMetricsCollector.js';
+import {AssetCache} from './AssetCache.js';
 
 interface DomainCheckResult {
   shouldProxy: boolean;
@@ -282,6 +282,9 @@ export class WindowSetup {
 
     // Инициализируем сборщик метрик (только в dev режиме)
     await ProxyMetricsCollector.initialize();
+
+    // Инициализируем кэш ассетов
+    await AssetCache.initialize();
 
     // Ждем пока прокси инициализируется и включится
     const maxWaitTime = 10000; // 10 секунд максимум
@@ -648,6 +651,7 @@ export class WindowSetup {
   private static async getProxyResponse(request: Request): Promise<Response> {
     const proxyManager = ProxyManager.getInstance();
     const metricsCollector = ProxyMetricsCollector.getInstance();
+    const assetCache = AssetCache.getInstance();
 
     try {
       const url = new URL(request.url);
@@ -656,6 +660,21 @@ export class WindowSetup {
       if (WindowSetup.checkAdBlock(url)) {
         metricsCollector.recordDomainUsage(url.hostname, false, 'blocked by adblock');
         return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
+      }
+
+      // Проверяем кэш для статических ассетов
+      const cached = await assetCache.get(request.url);
+      if (cached) {
+        const responseHeaders = new Headers();
+        for (const [key, value] of Object.entries(cached.headers)) {
+          responseHeaders.set(key, value);
+        }
+
+        return new Response(cached.buffer, {
+          status: cached.status,
+          statusText: cached.statusText,
+          headers: responseHeaders,
+        });
       }
 
       const { shouldProxy, reason } = await WindowSetup.shouldProxyDomain(url.hostname);
@@ -672,15 +691,27 @@ export class WindowSetup {
           body: requestBody,
         });
 
-        // Конвертируем в web Response
-        const responseHeaders = new Headers();
+        // Читаем body один раз в Buffer
+        const bodyBuffer = response.body ? await WindowSetup.streamToBuffer(response.body) : Buffer.alloc(0);
+
+        // Собираем заголовки
+        const headersObj: Record<string, string> = {};
         response.headers.forEach((value: string, key: string) => {
-          responseHeaders.set(key, value);
+          headersObj[key] = value;
         });
 
-        // Конвертируем node Readable stream в web ReadableStream
-        const webStream = response.body ? Readable.toWeb(response.body as any) : null;
-        return new Response(webStream, {
+        // Сохраняем в кэш если успешный ответ
+        if (response.ok) {
+          await assetCache.set(request.url, bodyBuffer, headersObj, response.status, response.statusText);
+        }
+
+        // Возвращаем web Response из Buffer
+        const responseHeaders = new Headers();
+        for (const [key, value] of Object.entries(headersObj)) {
+          responseHeaders.set(key, value);
+        }
+
+        return new Response(bodyBuffer, {
           status: response.status,
           statusText: response.statusText,
           headers: responseHeaders,
@@ -694,16 +725,27 @@ export class WindowSetup {
         body: requestBody,
       });
 
-      // Конвертируем node-fetch Response в web Response
-      const responseHeaders = new Headers();
+      // Читаем body один раз в Buffer
+      const bodyBuffer = response.body ? await WindowSetup.streamToBuffer(response.body) : Buffer.alloc(0);
+
+      // Собираем заголовки
+      const headersObj: Record<string, string> = {};
       response.headers.forEach((value: string, key: string) => {
-        responseHeaders.set(key, value);
+        headersObj[key] = value;
       });
 
-      // Конвертируем node Readable stream в web ReadableStream
-      const webStream = response.body ? Readable.toWeb(response.body as any) : null;
+      // Сохраняем в кэш если успешный ответ
+      if (response.ok) {
+        await assetCache.set(request.url, bodyBuffer, headersObj, response.status, response.statusText);
+      }
 
-      return new Response(webStream, {
+      // Возвращаем web Response из Buffer
+      const responseHeaders = new Headers();
+      for (const [key, value] of Object.entries(headersObj)) {
+        responseHeaders.set(key, value);
+      }
+
+      return new Response(bodyBuffer, {
         status: response.status,
         statusText: response.statusText,
         headers: responseHeaders,
@@ -712,5 +754,26 @@ export class WindowSetup {
       console.warn('Proxy request failed:', request.url, error);
       return new Response('Proxy Error', { status: 500 });
     }
+  }
+
+  /**
+   * Читает Node.js Readable stream в Buffer
+   */
+  private static async streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
+    const chunks: Buffer[] = [];
+
+    return new Promise((resolve, reject) => {
+      stream.on('data', (chunk: Buffer) => {
+        chunks.push(chunk);
+      });
+
+      stream.on('end', () => {
+        resolve(Buffer.concat(chunks));
+      });
+
+      stream.on('error', (error) => {
+        reject(error);
+      });
+    });
   }
 }
