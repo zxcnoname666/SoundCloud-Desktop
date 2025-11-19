@@ -1,19 +1,10 @@
-import { join } from 'node:path';
-import { Readable } from 'node:stream';
-import {
-  BrowserWindow,
-  Menu,
-  Tray,
-  app,
-  globalShortcut,
-  nativeImage,
-  protocol,
-  shell,
-} from 'electron';
+import {join} from 'node:path';
+import {Readable} from 'node:stream';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import type { WindowBounds } from '../types/config.js';
-import { ProxyManager } from './ProxyManager.js';
-import { ProxyMetricsCollector } from './ProxyMetricsCollector.js';
+import type {WindowBounds} from '../types/config.js';
+import {ProxyManager} from './ProxyManager.js';
+import {ProxyMetricsCollector} from './ProxyMetricsCollector.js';
 
 interface DomainCheckResult {
   shouldProxy: boolean;
@@ -408,7 +399,13 @@ export class WindowSetup {
         responseStarted = true;
 
         // Если получили ответ - проверяем на зависание при GET запросе
-        if (response.ok || response.status === 301 || response.status === 302) {
+          const statusClass = Math.floor(response.status / 100);
+
+          if (
+              statusClass === 2 ||  // 2xx (включая response.ok)
+              statusClass === 3 ||  // 3xx (редиректы)
+              (statusClass === 4 && response.status !== 403 && response.status !== 451)  // 4xx, кроме запрещённых
+          ) {
           // Делаем GET запрос для проверки зависания с ограничением размера
           let hangingDetected = false;
           const getController = new AbortController();
