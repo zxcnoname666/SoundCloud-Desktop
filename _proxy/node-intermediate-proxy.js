@@ -13,15 +13,37 @@
 import http from 'node:http';
 
 const PORT = process.env.PORT || 3000;
-const PROXY_URLS = (process.env.PROXY_URL || 'http://localhost:8080')
+const ALL_PROXIES = (process.env.PROXY_URL || 'http://localhost:8080')
   .split(',')
   .map((url) => url.trim())
   .filter((url) => url.length > 0);
 
-// Rate limit status codes that trigger failover
-const RATE_LIMIT_CODES = [429, 503];
+// Active proxies - starts as copy of all, gets reduced when proxies fail
+let activeProxies = [...ALL_PROXIES];
 
-console.log(`Configured proxy servers: ${PROXY_URLS.join(', ')}`);
+// Rate limit status codes that trigger failover
+const RATE_LIMIT_CODES = [429, 500, 503];
+
+console.log(`Configured proxy servers: ${ALL_PROXIES.join(', ')}`);
+
+/**
+ * Remove a proxy from active list
+ */
+function removeFromActiveProxies(proxyUrl) {
+  const index = activeProxies.indexOf(proxyUrl);
+  if (index !== -1) {
+    activeProxies.splice(index, 1);
+    console.log(`  ❌ Removed ${proxyUrl} from active list. Remaining: ${activeProxies.length}`);
+  }
+}
+
+/**
+ * Restore all proxies when all fail
+ */
+function restoreAllProxies() {
+  activeProxies = [...ALL_PROXIES];
+  console.log(`  🔄 All proxies exhausted. Restored ${activeProxies.length} proxies`);
+}
 
 const server = http.createServer(async (req, res) => {
   // Handle CORS preflight
@@ -68,25 +90,42 @@ const server = http.createServer(async (req, res) => {
     let usedProxyUrl = null;
 
     // Try each proxy until one succeeds or we run out
-    for (const proxyUrl of PROXY_URLS) {
+    for (const proxyUrl of activeProxies) {
       try {
         console.log(`  Trying proxy: ${proxyUrl}`);
         response = await fetch(proxyUrl, requestOptions);
 
         // Check if we got rate limited
         if (RATE_LIMIT_CODES.includes(response.status)) {
-          console.log(`  Rate limited (${response.status}) on ${proxyUrl}, trying next...`);
+          console.log(`  Rate limited (${response.status}) on ${proxyUrl}, removing...`);
           lastError = new Error(`Rate limited: ${response.status}`);
+
+          // Remove failed proxy from active list
+          removeFromActiveProxies(proxyUrl);
+
+          // If all proxies exhausted, restore them
+          if (activeProxies.length === 0) {
+            restoreAllProxies();
+          }
+
           continue;
         }
 
         // Success! Use this response
         usedProxyUrl = proxyUrl;
-        console.log(`  Success via ${proxyUrl}`);
+        console.log(`  ✓ Success via ${proxyUrl}`);
         break;
       } catch (error) {
         console.log(`  Error with ${proxyUrl}:`, error.message);
         lastError = error;
+
+        // Remove failed proxy from active list
+        removeFromActiveProxies(proxyUrl);
+
+        // If all proxies exhausted, restore them
+        if (activeProxies.length === 0) {
+          restoreAllProxies();
+        }
       }
     }
 
@@ -152,8 +191,10 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(
-    `✓ Intermediate Proxy Server (Streaming + Failover) running on http://0.0.0.0:${PORT}`
+    `✓ Intermediate Proxy Server (Streaming + Failover + Rotation) running on http://0.0.0.0:${PORT}`
   );
-  console.log(`  Proxy pool (${PROXY_URLS.length}): ${PROXY_URLS.join(', ')}`);
+  console.log(`  Proxy pool (${ALL_PROXIES.length}): ${ALL_PROXIES.join(', ')}`);
+  console.log(`  Active proxies: ${activeProxies.length}`);
+  console.log(`  Rate limit codes trigger rotation: ${RATE_LIMIT_CODES.join(', ')}`);
   console.log(`  Environment: Node.js ${process.version}`);
 });

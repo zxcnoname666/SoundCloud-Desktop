@@ -79,7 +79,9 @@ export class ProxyManager implements ProxyManagerInterface {
 
         // Проверяем успешность ответа
         if (!response.ok && (response.status === 429 || response.status === 500)) {
-          console.warn(`Proxy ${proxy.domain} returned ${response.status}: ${response.statusText} - removing from active list`);
+          console.warn(
+            `Proxy ${proxy.domain} returned ${response.status}: ${response.statusText} - removing from active list`
+          );
           lastError = `${response.status} ${response.statusText}`;
 
           // Убираем проблемную прокси из активного списка
@@ -87,7 +89,6 @@ export class ProxyManager implements ProxyManagerInterface {
 
           // Если все прокси закончились, восстанавливаем полный список
           if (this.activeProxies.length === 0) {
-            console.log('All proxies exhausted, restoring full list');
             this.restoreAllProxies();
           }
 
@@ -104,7 +105,6 @@ export class ProxyManager implements ProxyManagerInterface {
 
         // Если все прокси закончились, восстанавливаем полный список
         if (this.activeProxies.length === 0) {
-          console.log('All proxies exhausted, restoring full list');
           this.restoreAllProxies();
         }
       }
