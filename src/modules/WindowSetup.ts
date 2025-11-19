@@ -340,13 +340,77 @@ export class WindowSetup {
   }
 
   public static checkAdBlock(parsedUrl: URL): boolean {
+    const host = parsedUrl.host;
+
     return (
-      parsedUrl.host === 'promoted.soundcloud.com' ||
-      parsedUrl.host.endsWith('.adswizz.com') ||
-      parsedUrl.host.endsWith('.adsrvr.org') ||
-      parsedUrl.host.endsWith('.doubleclick.net') ||
+      // Existing blocks
+      host === 'promoted.soundcloud.com' ||
+      host.endsWith('.adswizz.com') ||
+      host.endsWith('.adsrvr.org') ||
+      host.endsWith('.doubleclick.net') ||
       parsedUrl.href.includes('audio-ads') ||
-      parsedUrl.host.endsWith('nr-data.net') // flood
+      host.endsWith('nr-data.net') ||
+
+      // Google Tracking
+      host === 'www.googletagmanager.com' ||
+      host === 'analytics.google.com' ||
+      host === 'www.google-analytics.com' ||
+
+      // Quantcast
+      host === 'pixel.quantserve.com' ||
+      host === 'secure.quantserve.com' ||
+      host === 'rules.quantcount.com' ||
+
+      // Amazon Ads
+      host === 'c.amazon-adsystem.com' ||
+      host === 'config.aps.amazon-adsystem.com' ||
+
+      // Taboola
+      host === 'trc.taboola.com' ||
+      host === 'cdn.taboola.com' ||
+      host === 'psb.taboola.com' ||
+      host === 'pips.taboola.com' ||
+      host === 'cds.taboola.com' ||
+
+      // Aditude
+      host === 'raven-edge.aditude.io' ||
+      host === 'edge.aditude.io' ||
+      host === 'geo.aditude.io' ||
+      host === 'raven-static.aditude.io' ||
+      host === 'event-ingestor.judy.pnap.aditude.cloud' ||
+
+      // Social Media Tracking
+      host === 'www.facebook.com' ||
+      host === 'connect.facebook.net' ||
+      host === 'pixel-config.reddit.com' ||
+      host === 'alb.reddit.com' ||
+      host === 'www.redditstatic.com' ||
+
+      // Tracking Platforms
+      host === 'sb.scorecardresearch.com' ||
+      host === 'cadmus.script.ac' ||
+      host === 'ams-pageview-public.s3.amazonaws.com' ||
+
+      // Marketing Automation
+      host === 'sdk-04.moengage.com' ||
+      host === 'cdn.moengage.com' ||
+      host === 'wa.appsflyer.com' ||
+      host === 'websdk.appsflyer.com' ||
+
+      // Programmatic/RTB/Header Bidding
+      host === 'geo-location.prebid.cloud' ||
+      host === 'gum.criteo.com' ||
+      host === 'id5-sync.com' ||
+      host === 'lb.eu-1-id5-sync.com' ||
+      host === 'htlbid.com' ||
+      host === 'ups.analytics.yahoo.com' ||
+
+      // Suspicious domains
+      host === 'prodregistryv2.org' ||
+      host === 'beyondwickedmapping.org' ||
+
+      // Cookie Consent banners
+      host === 'cdn.cookielaw.org'
     );
   }
 
