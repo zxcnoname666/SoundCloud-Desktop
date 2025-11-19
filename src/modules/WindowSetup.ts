@@ -284,7 +284,7 @@ export class WindowSetup {
     // Инициализируем сборщик метрик (только в dev режиме)
     await ProxyMetricsCollector.initialize();
 
-    // Инициализируем кэш ассетов (только в dev режиме)
+    // Инициализируем кэш ассетов
     await AssetCache.initialize();
 
     // Ждем пока прокси инициализируется и включится

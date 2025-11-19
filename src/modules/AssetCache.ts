@@ -55,7 +55,7 @@ export class AssetCache {
   ];
 
   private constructor() {
-    this.cacheDir = join(app.getAppPath(), '.debug', 'cache');
+    this.cacheDir = join(app.getPath('temp'), 'soundcloud-cache');
   }
 
   static getInstance(): AssetCache {
@@ -66,16 +66,9 @@ export class AssetCache {
   }
 
   /**
-   * Инициализация кэша (только в dev режиме)
+   * Инициализация кэша
    */
   static async initialize(): Promise<void> {
-    const isDev = process.argv.includes('--dev') || process.env['NODE_ENV'] === 'development';
-
-    if (!isDev) {
-      console.log('💾 Asset cache disabled (not in dev mode)');
-      return;
-    }
-
     const instance = AssetCache.getInstance();
     await instance.start();
   }
