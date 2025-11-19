@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import type {WindowBounds} from '../types/config.js';
 import {ProxyManager} from './ProxyManager.js';
 import {ProxyMetricsCollector} from './ProxyMetricsCollector.js';
+import {AssetCache} from './AssetCache.js';
 
 interface DomainCheckResult {
   shouldProxy: boolean;
@@ -282,6 +283,9 @@ export class WindowSetup {
 
     // Инициализируем сборщик метрик (только в dev режиме)
     await ProxyMetricsCollector.initialize();
+
+    // Инициализируем кэш ассетов (только в dev режиме)
+    await AssetCache.initialize();
 
     // Ждем пока прокси инициализируется и включится
     const maxWaitTime = 10000; // 10 секунд максимум
@@ -628,6 +632,7 @@ export class WindowSetup {
   private static async getProxyResponse(request: Request): Promise<Response> {
     const proxyManager = ProxyManager.getInstance();
     const metricsCollector = ProxyMetricsCollector.getInstance();
+    const assetCache = AssetCache.getInstance();
 
     try {
       const url = new URL(request.url);
@@ -636,6 +641,24 @@ export class WindowSetup {
       if (WindowSetup.checkAdBlock(url)) {
         metricsCollector.recordDomainUsage(url.hostname, false, 'blocked by adblock');
         return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
+      }
+
+      // Проверяем кэш для статических ассетов
+      const cachedResponse = await assetCache.get(request.url);
+      if (cachedResponse) {
+        // Конвертируем в web Response
+        const responseHeaders = new Headers();
+        cachedResponse.headers.forEach((value: string, key: string) => {
+          responseHeaders.set(key, value);
+        });
+
+        // Конвертируем node Readable stream в web ReadableStream
+        const webStream = cachedResponse.body ? Readable.toWeb(cachedResponse.body as any) : null;
+        return new Response(webStream, {
+          status: cachedResponse.status,
+          statusText: cachedResponse.statusText,
+          headers: responseHeaders,
+        });
       }
 
       const { shouldProxy, reason } = await WindowSetup.shouldProxyDomain(url.hostname);
@@ -651,6 +674,11 @@ export class WindowSetup {
           headers: Object.fromEntries(request.headers.entries()),
           body: requestBody,
         });
+
+        // Сохраняем в кэш если это статический ассет
+        if (response.ok) {
+          await assetCache.set(request.url, response.clone());
+        }
 
         // Конвертируем в web Response
         const responseHeaders = new Headers();
@@ -673,6 +701,11 @@ export class WindowSetup {
         headers: Object.fromEntries(request.headers.entries()),
         body: requestBody,
       });
+
+      // Сохраняем в кэш если это статический ассет
+      if (response.ok) {
+        await assetCache.set(request.url, response.clone());
+      }
 
       // Конвертируем node-fetch Response в web Response
       const responseHeaders = new Headers();
