@@ -190,9 +190,7 @@ export class AssetCache {
    * Получает ассет из кэша
    * Возвращает Buffer вместо Response, чтобы избежать проблем с body
    */
-  async get(
-    url: string
-  ): Promise<{
+  async get(url: string): Promise<{
     buffer: Buffer;
     headers: Record<string, string>;
     status: number;
