@@ -14,10 +14,18 @@ import fetch from 'node-fetch';
 import type { WindowBounds } from '../types/config.js';
 import { ProxyManager } from './ProxyManager.js';
 
+interface DomainCheckResult {
+  shouldProxy: boolean;
+  reason: string;
+  timestamp: number;
+}
+
 export class WindowSetup {
   private static tray: Tray | null = null;
   private static proxyRegistered = false;
   private static proxyInitialized = false;
+  private static domainCheckCache: Map<string, DomainCheckResult> = new Map();
+  private static CACHE_TTL = 10 * 60 * 1000; // 10 минут
 
   static async createMainWindow(): Promise<BrowserWindow> {
     const bounds = WindowSetup.getWindowBounds();
@@ -344,22 +352,270 @@ export class WindowSetup {
     );
   }
 
-  private static shouldProxyDomain(hostname: string): boolean {
-    /* NOTE: проксируем все домены, потому что РКН банит теперь
-     * NOTE: вообще всё. так легче поддерживать будет.
-     const proxyDomains = [
-        'soundcloud.com',
-        'sndcdn.com',
-        'api.soundcloud.com',
-        'api-v2.soundcloud.com',
-        'soundcloud.cloud'
-      ];
+  /**
+   * Проверяет, соответствует ли домен маскам для проксирования
+   * Маски: *soundcloud*, *sndcdn*, *snd*, *s-n-d*
+   */
+  private static matchesDomainMask(hostname: string): boolean {
+    const normalizedHost = hostname.toLowerCase();
 
-      return proxyDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
-     */
+    // Проверяем основные маски
+    const patterns = [
+      'soundcloud',
+      'sndcdn',
+      'snd',
+      's-n-d'
+    ];
 
+    return patterns.some(pattern => normalizedHost.includes(pattern));
+  }
+
+  /**
+   * Интерактивная проверка доступности домена
+   * Детектирует:
+   * 1. Блокировки РКН с "удержанием соединения" после начала загрузки
+   * 2. Обрыв TCP соединения без error code
+   * 3. Обычные ошибки подключения
+   */
+  private static async checkDomainAccessibility(hostname: string): Promise<DomainCheckResult> {
+    const testUrl = `https://${hostname}/`;
+    const INITIAL_TIMEOUT = 3000; // 3 секунды на начало ответа
+    const HANGING_TIMEOUT = 5000; // 5 секунд на детекцию зависания
+    const MIN_BYTES_THRESHOLD = 1024; // Минимум байт для проверки зависания
+
+    try {
+      console.log(`🔍 Checking domain accessibility: ${hostname}`);
+
+      // Создаем контроллер для абортирования запроса
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), INITIAL_TIMEOUT);
+
+      let responseStarted = false;
+
+      try {
+        const response = await fetch(testUrl, {
+          method: 'HEAD',
+          signal: controller.signal,
+          // Отключаем следование за редиректами для более быстрой проверки
+          redirect: 'manual',
+        });
+
+        clearTimeout(timeoutId);
+        responseStarted = true;
+
+        // Если получили ответ - проверяем на зависание при GET запросе
+        if (response.ok || response.status === 301 || response.status === 302) {
+          // Делаем GET запрос для проверки зависания с ограничением размера
+          let hangingDetected = false;
+          const getController = new AbortController();
+          const hangingTimeoutId = setTimeout(() => {
+            hangingDetected = true;
+            getController.abort();
+          }, HANGING_TIMEOUT);
+
+          try {
+            const getResponse = await fetch(testUrl, {
+              signal: getController.signal,
+              redirect: 'manual',
+            });
+
+            clearTimeout(hangingTimeoutId);
+
+            // Пытаемся прочитать начало данных (используем node-fetch stream)
+            if (getResponse.body) {
+              let bytesReceived = 0;
+              const streamReadPromise = new Promise<void>((resolve, reject) => {
+                const readTimeout = setTimeout(() => {
+                  hangingDetected = true;
+                  getResponse.body!.destroy();
+                  reject(new Error('Stream read timeout'));
+                }, HANGING_TIMEOUT);
+
+                getResponse.body!.on('data', (chunk: Buffer) => {
+                  bytesReceived += chunk.length;
+                  if (bytesReceived >= MIN_BYTES_THRESHOLD) {
+                    clearTimeout(readTimeout);
+                    getResponse.body!.destroy();
+                    resolve();
+                  }
+                });
+
+                getResponse.body!.on('end', () => {
+                  clearTimeout(readTimeout);
+                  resolve();
+                });
+
+                getResponse.body!.on('error', (err) => {
+                  clearTimeout(readTimeout);
+                  reject(err);
+                });
+              });
+
+              try {
+                await streamReadPromise;
+
+                if (hangingDetected) {
+                  console.log(`⚠️  Connection hanging detected for ${hostname}`);
+                  return {
+                    shouldProxy: true,
+                    reason: 'RKN blocking: connection hanging',
+                    timestamp: Date.now(),
+                  };
+                }
+              } catch (streamError: any) {
+                // Проверяем, зависло ли соединение
+                if (hangingDetected) {
+                  console.log(`⚠️  Connection hanging detected for ${hostname}`);
+                  return {
+                    shouldProxy: true,
+                    reason: 'RKN blocking: connection hanging',
+                    timestamp: Date.now(),
+                  };
+                }
+
+                // Обработка других ошибок чтения
+                const errorMessage = streamError.message || String(streamError);
+                if (
+                  errorMessage.includes('ECONNRESET') ||
+                  errorMessage.includes('socket hang up') ||
+                  errorMessage.includes('Connection closed')
+                ) {
+                  console.log(`⚠️  Stream error for ${hostname}: ${errorMessage}`);
+                  return {
+                    shouldProxy: true,
+                    reason: `Stream error: ${errorMessage}`,
+                    timestamp: Date.now(),
+                  };
+                }
+              }
+            }
+
+            if (hangingDetected) {
+              console.log(`⚠️  Connection hanging detected for ${hostname}`);
+              return {
+                shouldProxy: true,
+                reason: 'RKN blocking: connection hanging',
+                timestamp: Date.now(),
+              };
+            }
+
+          } catch (getError: any) {
+            clearTimeout(hangingTimeoutId);
+
+            // Проверяем на абортирование из-за зависания
+            if (hangingDetected) {
+              console.log(`⚠️  Connection hanging detected for ${hostname}`);
+              return {
+                shouldProxy: true,
+                reason: 'RKN blocking: connection hanging',
+                timestamp: Date.now(),
+              };
+            }
+          }
+
+          // Если всё прошло успешно - прокси не нужен
+          console.log(`✅ Domain ${hostname} is accessible without proxy`);
+          return {
+            shouldProxy: false,
+            reason: 'Direct connection works',
+            timestamp: Date.now(),
+          };
+        }
+
+        // Неожиданный статус код - возможно блокировка
+        console.log(`⚠️  Unexpected status ${response.status} for ${hostname}`);
+        return {
+          shouldProxy: true,
+          reason: `Unexpected status: ${response.status}`,
+          timestamp: Date.now(),
+        };
+
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+
+        // Проверяем тип ошибки
+        if (fetchError.name === 'AbortError') {
+          if (!responseStarted) {
+            // Таймаут на начало соединения
+            console.log(`⚠️  Connection timeout for ${hostname}`);
+            return {
+              shouldProxy: true,
+              reason: 'Connection timeout',
+              timestamp: Date.now(),
+            };
+          }
+        }
+
+        // Обрыв TCP соединения или другая сетевая ошибка
+        const errorMessage = fetchError.message || String(fetchError);
+
+        // Детектируем обрыв TCP без кода ошибки
+        if (
+          errorMessage.includes('ECONNRESET') ||
+          errorMessage.includes('ECONNREFUSED') ||
+          errorMessage.includes('socket hang up') ||
+          errorMessage.includes('Connection closed') ||
+          !fetchError.code // Нет кода ошибки - возможно обрыв TCP
+        ) {
+          console.log(`⚠️  TCP connection broken for ${hostname}: ${errorMessage}`);
+          return {
+            shouldProxy: true,
+            reason: `TCP connection broken: ${errorMessage}`,
+            timestamp: Date.now(),
+          };
+        }
+
+        // Другие сетевые ошибки
+        console.log(`⚠️  Network error for ${hostname}: ${errorMessage}`);
+        return {
+          shouldProxy: true,
+          reason: `Network error: ${errorMessage}`,
+          timestamp: Date.now(),
+        };
+      }
+    } catch (error: any) {
+      // Критическая ошибка - лучше проксировать
+      console.log(`❌ Critical error checking ${hostname}: ${error}`);
+      return {
+        shouldProxy: true,
+        reason: `Critical error: ${error.message || String(error)}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * Проверяет, нужно ли проксировать домен (с интерактивной проверкой)
+   *
+   * Критерии проксирования (ЛИБО):
+   * 1. ЛИБО домен соответствует маскам: *soundcloud*, *sndcdn*, *snd*, *s-n-d*
+   * 2. ЛИБО блокировка РКН с "удержанием соединения" после начала загрузки
+   * 3. ЛИБО обрыв TCP соединения без error code
+   */
+  private static async shouldProxyDomain(hostname: string): Promise<boolean> {
     console.debug('shouldProxyDomain.hostname', hostname);
-    return true;
+
+    // Если домен соответствует маскам - сразу проксируем
+    if (WindowSetup.matchesDomainMask(hostname)) {
+      console.debug(`Domain ${hostname} matches proxy masks - proxying`);
+      return true;
+    }
+
+    // Проверяем кэш для доменов не из маски
+    const cached = WindowSetup.domainCheckCache.get(hostname);
+    if (cached && Date.now() - cached.timestamp < WindowSetup.CACHE_TTL) {
+      console.debug(`Using cached result for ${hostname}: ${cached.shouldProxy} (${cached.reason})`);
+      return cached.shouldProxy;
+    }
+
+    // Выполняем интерактивную проверку на блокировку для любого домена
+    const result = await WindowSetup.checkDomainAccessibility(hostname);
+
+    // Сохраняем в кэш
+    WindowSetup.domainCheckCache.set(hostname, result);
+
+    console.log(`Domain ${hostname} check result: ${result.shouldProxy} (${result.reason})`);
+    return result.shouldProxy;
   }
 
   private static async getProxyResponse(request: Request): Promise<Response> {
@@ -371,7 +627,9 @@ export class WindowSetup {
         return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
       }
 
-      if (!WindowSetup.shouldProxyDomain(url.hostname)) {
+      const shouldProxy = await WindowSetup.shouldProxyDomain(url.hostname);
+
+      if (!shouldProxy) {
         // Делаем обычный запрос без прокси
         const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
         const response = await fetch(request.url, {
