@@ -421,31 +421,35 @@ export class WindowSetup {
 
             clearTimeout(hangingTimeoutId);
 
-            // Пытаемся прочитать начало данных (используем node-fetch stream)
+            // Пытаемся прочитать начало данных (используем Node.js stream API)
             if (getResponse.body) {
               let bytesReceived = 0;
+              const stream = getResponse.body as any; // node-fetch возвращает Node.js Readable
+
               const streamReadPromise = new Promise<void>((resolve, reject) => {
                 const readTimeout = setTimeout(() => {
                   hangingDetected = true;
-                  getResponse.body!.destroy();
+                  stream.destroy();
                   reject(new Error('Stream read timeout'));
                 }, HANGING_TIMEOUT);
 
-                getResponse.body!.on('data', (chunk: Buffer) => {
-                  bytesReceived += chunk.length;
+                stream.on('data', (chunk: any) => {
+                  const chunkSize = chunk.length || Buffer.byteLength(chunk);
+                  bytesReceived += chunkSize;
+
                   if (bytesReceived >= MIN_BYTES_THRESHOLD) {
                     clearTimeout(readTimeout);
-                    getResponse.body!.destroy();
+                    stream.destroy();
                     resolve();
                   }
                 });
 
-                getResponse.body!.on('end', () => {
+                stream.on('end', () => {
                   clearTimeout(readTimeout);
                   resolve();
                 });
 
-                getResponse.body!.on('error', (err) => {
+                stream.on('error', (err: any) => {
                   clearTimeout(readTimeout);
                   reject(err);
                 });
