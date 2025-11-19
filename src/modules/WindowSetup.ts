@@ -631,7 +631,10 @@ export class WindowSetup {
 
     try {
       const url = new URL(request.url);
+
+      // Проверяем adblock и записываем метрику
       if (WindowSetup.checkAdBlock(url)) {
+        metricsCollector.recordDomainUsage(url.hostname, false, 'blocked by adblock');
         return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
       }
 
