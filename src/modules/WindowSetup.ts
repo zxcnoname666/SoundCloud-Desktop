@@ -13,6 +13,7 @@ import {
 import fetch from 'node-fetch';
 import type { WindowBounds } from '../types/config.js';
 import { ProxyManager } from './ProxyManager.js';
+import { ProxyMetricsCollector } from './ProxyMetricsCollector.js';
 
 interface DomainCheckResult {
   shouldProxy: boolean;
@@ -287,6 +288,9 @@ export class WindowSetup {
 
     console.log('🔄 Initializing proxy handler...');
     WindowSetup.setupProxyHandler();
+
+    // Инициализируем сборщик метрик (только в dev режиме)
+    await ProxyMetricsCollector.initialize();
 
     // Ждем пока прокси инициализируется и включится
     const maxWaitTime = 10000; // 10 секунд максимум
@@ -596,20 +600,22 @@ export class WindowSetup {
    * 2. ЛИБО блокировка РКН с "удержанием соединения" после начала загрузки
    * 3. ЛИБО обрыв TCP соединения без error code
    */
-  private static async shouldProxyDomain(hostname: string): Promise<boolean> {
+  private static async shouldProxyDomain(
+    hostname: string
+  ): Promise<{ shouldProxy: boolean; reason: string }> {
     console.debug('shouldProxyDomain.hostname', hostname);
 
     // Если домен соответствует маскам - сразу проксируем
     if (WindowSetup.matchesDomainMask(hostname)) {
       console.debug(`Domain ${hostname} matches proxy masks - proxying`);
-      return true;
+      return { shouldProxy: true, reason: 'matches mask' };
     }
 
     // Проверяем кэш для доменов не из маски
     const cached = WindowSetup.domainCheckCache.get(hostname);
     if (cached && Date.now() - cached.timestamp < WindowSetup.CACHE_TTL) {
       console.debug(`Using cached result for ${hostname}: ${cached.shouldProxy} (${cached.reason})`);
-      return cached.shouldProxy;
+      return { shouldProxy: cached.shouldProxy, reason: cached.reason };
     }
 
     // Выполняем интерактивную проверку на блокировку для любого домена
@@ -619,11 +625,12 @@ export class WindowSetup {
     WindowSetup.domainCheckCache.set(hostname, result);
 
     console.log(`Domain ${hostname} check result: ${result.shouldProxy} (${result.reason})`);
-    return result.shouldProxy;
+    return { shouldProxy: result.shouldProxy, reason: result.reason };
   }
 
   private static async getProxyResponse(request: Request): Promise<Response> {
     const proxyManager = ProxyManager.getInstance();
+    const metricsCollector = ProxyMetricsCollector.getInstance();
 
     try {
       const url = new URL(request.url);
@@ -631,7 +638,10 @@ export class WindowSetup {
         return new Response(null, { status: 403, statusText: 'Ad Blocker Detected' });
       }
 
-      const shouldProxy = await WindowSetup.shouldProxyDomain(url.hostname);
+      const { shouldProxy, reason } = await WindowSetup.shouldProxyDomain(url.hostname);
+
+      // Записываем метрику использования домена
+      metricsCollector.recordDomainUsage(url.hostname, shouldProxy, reason);
 
       if (!shouldProxy) {
         // Делаем обычный запрос без прокси
