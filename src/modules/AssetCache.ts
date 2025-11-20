@@ -48,11 +48,13 @@ export class AssetCache {
     '.aac', // AAC audio
     '.flac', // FLAC audio
     '.opus', // Opus audio
+    '.mp4',
+    '.m3u8',
   ];
 
   // Медиа-сегменты, для которых нужно отсекать query параметры при кэшировании
   // (подписи в query меняются, но контент файла одинаковый)
-  private readonly MEDIA_SEGMENT_EXTENSIONS = ['.m4s', '.ts'];
+  private readonly MEDIA_SEGMENT_EXTENSIONS = ['.m4s', '.ts', '.mp4', '.m3u8'];
 
   // Паттерны для определения динамических запросов
   private readonly DYNAMIC_PATTERNS = [
