@@ -73,6 +73,7 @@ class SoundCloudApp {
     // Проверяем что мы в Electron среде
     if (!app || typeof app.whenReady !== 'function') {
       console.error('❌ This application must be run in Electron environment');
+      console.info('💡 Try running: pnpm start (after pnpm build:app)');
       process.exit(1);
     }
 
@@ -97,6 +98,7 @@ class SoundCloudApp {
     try {
       const configManager = ConfigManager.getInstance();
       configManager.loadConfig();
+      console.info('✅ Configuration loaded successfully');
     } catch (error) {
       console.warn('⚠️  Failed to load configuration:', error);
       // Continue with defaults
@@ -128,11 +130,21 @@ class SoundCloudApp {
   }
 
   private handleWebContentsCreated(contents: Electron.WebContents): void {
+    try {
+      console.debug(`Window created: ${contents.getType()}`);
+    } catch (error) {
+      console.warn('Failed to log window type:', error);
+    }
+
     WindowSetup.hookNewWindow(contents);
     WindowSetup.setupCors(contents.session);
 
     // Логируем создание webview для отладки
     if (contents.getType() === 'webview') {
+      console.debug(
+        '🌐 Webview created, session:',
+        contents.session === require('electron').session.defaultSession ? 'default' : 'separate'
+      );
     }
 
     if (this.context.isDev) {
