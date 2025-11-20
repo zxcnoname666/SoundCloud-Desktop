@@ -60,9 +60,11 @@ export class ProxyManager implements ProxyManagerInterface {
       try {
         const proxyUrl = this.buildProxyUrl(proxy);
 
+        // Используем большой timeout (5 минут) как fallback на крайний случай
+        // Idle timeout (10 сек без данных) определяется в WindowSetup wrapper stream
         const proxyOptions: any = {
           method: method,
-          signal: AbortSignal.timeout(15000),
+          signal: AbortSignal.timeout(300000), // 5 минут
           headers: {
             ...proxy.headers,
             ...headers,

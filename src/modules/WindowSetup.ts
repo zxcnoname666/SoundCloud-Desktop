@@ -772,7 +772,7 @@ export class WindowSetup {
 
   /**
    * Создает streaming Response с одновременным кэшированием
-   * Использует tee() для дублирования стрима
+   * Использует wrapper stream с idle timeout для детекции зависания
    */
   private static createStreamingResponseWithCache(
     nodeFetchResponse: any,
@@ -802,13 +802,16 @@ export class WindowSetup {
     // Конвертируем Node.js Readable в Web ReadableStream
     const webStream = Readable.toWeb(nodeFetchResponse.body) as ReadableStream;
 
-    // Дублируем stream через tee() - получаем два независимых потока
-    const [streamForClient, streamForCache] = webStream.tee();
+    // Создаём wrapper stream с idle timeout и одновременным кэшированием
+    const { wrappedStream, chunksPromise } = WindowSetup.createStreamWithIdleTimeout(
+      webStream,
+      url
+    );
 
-    // Асинхронно читаем второй поток для кэша (не блокируем клиента)
+    // Асинхронно кэшируем после завершения потока
     if (nodeFetchResponse.ok) {
-      WindowSetup.cacheStreamAsync(
-        streamForCache,
+      WindowSetup.cacheCollectedChunks(
+        chunksPromise,
         url,
         headersObj,
         nodeFetchResponse.status,
@@ -817,8 +820,8 @@ export class WindowSetup {
       );
     }
 
-    // Возвращаем первый поток клиенту
-    return new Response(streamForClient, {
+    // Возвращаем wrapped stream клиенту
+    return new Response(wrappedStream, {
       status: nodeFetchResponse.status,
       statusText: nodeFetchResponse.statusText,
       headers: responseHeaders,
@@ -826,10 +829,77 @@ export class WindowSetup {
   }
 
   /**
-   * Асинхронно читает stream и сохраняет в кэш
+   * Создаёт wrapper stream с idle timeout
+   * Возвращает wrapped stream для клиента и promise с собранными chunks для кэша
    */
-  private static async cacheStreamAsync(
-    stream: ReadableStream,
+  private static createStreamWithIdleTimeout(
+    originalStream: ReadableStream,
+    url: string
+  ): { wrappedStream: ReadableStream; chunksPromise: Promise<Uint8Array[] | null> } {
+    const IDLE_TIMEOUT = 10000; // 10 секунд без данных
+    const chunks: Uint8Array[] = [];
+    let idleTimer: NodeJS.Timeout | null = null;
+    let aborted = false;
+
+    let resolveChunks: (chunks: Uint8Array[] | null) => void;
+    const chunksPromise = new Promise<Uint8Array[] | null>((resolve) => {
+      resolveChunks = resolve;
+    });
+
+    const wrappedStream = new TransformStream({
+      async start(controller) {
+        const reader = originalStream.getReader();
+
+        const resetIdleTimer = () => {
+          if (idleTimer) clearTimeout(idleTimer);
+          idleTimer = setTimeout(() => {
+            console.warn(`Idle timeout detected for ${url}`);
+            aborted = true;
+            reader.cancel('Idle timeout');
+            controller.error(new Error('Idle timeout'));
+            resolveChunks(null); // Не кэшируем при timeout
+          }, IDLE_TIMEOUT);
+        };
+
+        resetIdleTimer();
+
+        try {
+          while (!aborted) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+              if (idleTimer) clearTimeout(idleTimer);
+              controller.terminate();
+              resolveChunks(chunks); // Успешно завершено - отдаём chunks
+              break;
+            }
+
+            // Получили данные - сбрасываем таймер
+            resetIdleTimer();
+
+            // Отправляем клиенту
+            controller.enqueue(value);
+
+            // Собираем для кэша
+            chunks.push(value);
+          }
+        } catch (error) {
+          if (idleTimer) clearTimeout(idleTimer);
+          console.warn(`Stream error for ${url}:`, error);
+          controller.error(error);
+          resolveChunks(null); // При ошибке не кэшируем
+        }
+      },
+    });
+
+    return { wrappedStream: wrappedStream.readable, chunksPromise };
+  }
+
+  /**
+   * Кэширует собранные chunks после завершения потока
+   */
+  private static async cacheCollectedChunks(
+    chunksPromise: Promise<Uint8Array[] | null>,
     url: string,
     headers: Record<string, string>,
     status: number,
@@ -837,13 +907,12 @@ export class WindowSetup {
     assetCache: AssetCache
   ): Promise<void> {
     try {
-      const reader = stream.getReader();
-      const chunks: Uint8Array[] = [];
+      const chunks = await chunksPromise;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunks.push(value);
+      // Если null - поток был прерван, не кэшируем
+      if (chunks === null) {
+        console.warn(`Skipping cache for ${url} - stream was aborted`);
+        return;
       }
 
       // Собираем все chunks в один Buffer
@@ -855,8 +924,9 @@ export class WindowSetup {
 
       // Сохраняем в кэш
       await assetCache.set(url, buffer, headers, status, statusText);
+      console.log(`Successfully cached ${url} (${totalLength} bytes)`);
     } catch (error) {
-      console.warn(`Failed to cache stream ${url}:`, error);
+      console.warn(`Failed to cache ${url}:`, error);
     }
   }
 }
