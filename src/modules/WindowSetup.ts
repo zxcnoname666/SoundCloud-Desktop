@@ -99,10 +99,14 @@ export class WindowSetup {
       WindowSetup.tray.setToolTip('SoundCloud Desktop');
 
       WindowSetup.tray.on('click', () => {
-        if (window.isVisible()) {
+        if (window.isVisible() && !window.isMinimized()) {
           window.hide();
         } else {
+          if (window.isMinimized()) {
+            window.restore();
+          }
           window.show();
+          window.focus();
         }
       });
     } catch (error) {
