@@ -38,18 +38,18 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
-    "@eslint/js": "^9.36.0",
-    "@types/discord-rpc": "^4.0.9",
-    "@types/node": "^24.5.2",
-    "@typescript-eslint/eslint-plugin": "^8.44.1",
-    "@typescript-eslint/parser": "^8.44.1",
+    "@eslint/js": "^9.39.1",
+    "@types/discord-rpc": "^4.0.10",
+    "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
     "electron": "^38.2.0",
     "electron-builder": "^26.0.12",
     "esbuild": "^0.25.10",
-    "eslint": "^9.36.0",
+    "eslint": "^9.39.1",
     "simple-git-hooks": "^2.13.1",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "discord-rpc": "^4.0.1",
