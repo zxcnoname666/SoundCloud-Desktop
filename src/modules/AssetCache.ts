@@ -85,15 +85,12 @@ export class AssetCache {
    * Запуск кэша
    */
   private async start(): Promise<void> {
-    console.log('💾 Starting asset cache...');
-
     // Создаем директорию для кэша если не существует
     if (!existsSync(this.cacheDir)) {
       await mkdir(this.cacheDir, { recursive: true });
     }
 
     this.enabled = true;
-    console.log(`💾 Asset cache enabled. Cache dir: ${this.cacheDir}`);
 
     // Очищаем старый кэш при старте
     this.cleanupOldCache().catch((error) => {
@@ -219,8 +216,6 @@ export class AssetCache {
         return null;
       }
 
-      console.log(`💾 Cache HIT: ${url} (age: ${Math.round(age / 1000)}s)`);
-
       // Возвращаем Buffer и метаданные
       return {
         buffer: Buffer.from(cached.body, 'base64'),
@@ -273,7 +268,6 @@ export class AssetCache {
       await writeFile(cachePath, JSON.stringify(cached), 'utf-8');
 
       const reason = isStatic ? 'static extension' : 'cacheable headers';
-      console.log(`💾 Cache SET: ${url} (${Math.round(buffer.length / 1024)}kb) [${reason}]`);
     } catch (error) {
       console.warn(`Failed to cache ${url}:`, error);
     }
@@ -283,8 +277,6 @@ export class AssetCache {
    * Очищает устаревший кэш
    */
   private async cleanupOldCache(): Promise<void> {
-    console.log('💾 Cleaning up old cache...');
-
     try {
       const { readdir } = await import('node:fs/promises');
       const files = await readdir(this.cacheDir);
@@ -313,7 +305,6 @@ export class AssetCache {
       }
 
       if (cleaned > 0) {
-        console.log(`💾 Cleaned up ${cleaned} old cache entries`);
       }
     } catch (error) {
       console.warn('Failed to cleanup old cache:', error);
@@ -324,8 +315,6 @@ export class AssetCache {
    * Очищает весь кэш
    */
   async clearAll(): Promise<void> {
-    console.log('💾 Clearing all cache...');
-
     try {
       const { readdir } = await import('node:fs/promises');
       const files = await readdir(this.cacheDir);
@@ -335,8 +324,6 @@ export class AssetCache {
           await rm(join(this.cacheDir, file));
         }
       }
-
-      console.log('💾 Cache cleared');
     } catch (error) {
       console.warn('Failed to clear cache:', error);
     }

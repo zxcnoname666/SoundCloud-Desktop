@@ -18,8 +18,6 @@ class Builder {
   constructor(private options: BuildOptions = {}) {}
 
   async build(): Promise<void> {
-    console.log('🚀 Starting build process...');
-
     this.cleanDistDirectory();
     await this.buildNativeModules();
 
@@ -32,14 +30,10 @@ class Builder {
     if (!this.options.skipCopy) {
       this.copyAssets();
     }
-
-    console.log('✅ Build completed successfully!');
-    console.log(`📦 Output directory: ${this.distDir}`);
   }
 
   private cleanDistDirectory(): void {
     if (existsSync(this.distDir)) {
-      console.log('🧹 Cleaning dist directory...');
       rmSync(this.distDir, { recursive: true });
     }
 
@@ -47,10 +41,8 @@ class Builder {
   }
 
   private async typeCheck(): Promise<void> {
-    console.log('📝 Type checking...');
     try {
       execSync('pnpm exec tsc --noEmit', { stdio: 'inherit' });
-      console.log('✅ Type check passed');
     } catch (error) {
       console.error('❌ Type check failed');
       process.exit(1);
@@ -58,7 +50,6 @@ class Builder {
   }
 
   private async bundleWithEsbuild(): Promise<void> {
-    console.log('📦 Bundling with esbuild...');
     try {
       const isProduction = this.options.production;
 
@@ -82,8 +73,6 @@ class Builder {
           'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
         },
       });
-
-      console.log('✅ Bundle created successfully');
     } catch (error) {
       console.error('❌ Bundling failed:', error);
       process.exit(1);
@@ -94,12 +83,10 @@ class Builder {
     const nativeScriptPath = join(this.rootDir, 'scripts/build-native.cjs');
 
     if (!existsSync(nativeScriptPath)) {
-      console.log('⚠️  Native build script not found, skipping native build');
       return;
     }
 
     try {
-      console.log('🦀 Building native modules...');
       // Используем Node.js напрямую для избежания проблем с путями в tsx
       execSync(`node "${nativeScriptPath}"`, {
         stdio: 'inherit',
@@ -125,13 +112,9 @@ class Builder {
     for (const asset of assets) {
       const srcPath = join(this.rootDir, asset.src);
       if (existsSync(srcPath)) {
-        console.log(`📁 Copying ${asset.desc}...`);
         cpSync(srcPath, join(this.distDir, asset.src), { recursive: true });
       }
     }
-
-    // Copy individual files
-    console.log('📁 Copying config files...');
     for (const file of configFiles) {
       const srcPath = join(this.rootDir, file);
       if (existsSync(srcPath)) {
@@ -144,8 +127,6 @@ class Builder {
   }
 
   private generatePackageJson(): void {
-    console.log('📄 Generating package.json...');
-
     const rootPackageJson = JSON.parse(readFileSync(join(this.rootDir, 'package.json'), 'utf-8'));
 
     const distPackageJson = {

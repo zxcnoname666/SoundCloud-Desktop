@@ -30,7 +30,7 @@ export class NotificationManager {
     try {
       return Notification.isSupported();
     } catch (error) {
-      console.warn('Failed to check notification permissions:', error);
+      console.warn('⚠️ Failed to check notification permissions:', error);
       return false;
     }
   }
@@ -39,7 +39,7 @@ export class NotificationManager {
     try {
       // Проверяем поддержку уведомлений
       if (!Notification.isSupported()) {
-        console.warn('System notifications are not supported');
+        console.warn('⚠️ System notifications are not supported');
         return;
       }
 
@@ -55,16 +55,16 @@ export class NotificationManager {
 
       // Обработчики событий
       notification.on('click', () => {
-        console.log('Notification clicked');
+        console.debug('🔔 Notification clicked');
         // Можно добавить логику для показа окна приложения
       });
 
       notification.on('close', () => {
-        console.log('Notification closed');
+        console.debug('🔕 Notification closed');
       });
 
       notification.on('show', () => {
-        console.log('Notification shown');
+        console.debug('🔔 Notification shown');
       });
 
       // Показываем уведомление

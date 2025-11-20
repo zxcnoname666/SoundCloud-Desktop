@@ -13,9 +13,9 @@ export class Server {
 
     try {
       await this.server.initialize();
-      console.log(`Server started on port ${port}`);
+      console.info(`✅ Server started on port ${port}`);
     } catch (error) {
-      console.error('Failed to start server:', error);
+      console.error('❌ Failed to start server:', error);
       throw error;
     }
   }
@@ -24,9 +24,9 @@ export class Server {
     if (this.server) {
       try {
         this.server.close();
-        console.log('Server stopped');
+        console.info('🛑 Server stopped');
       } catch (error) {
-        console.error('Failed to stop server:', error);
+        console.error('❌ Failed to stop server:', error);
       }
     }
   }
@@ -50,7 +50,7 @@ export class Server {
         window.show();
         window.focus();
       } catch (error) {
-        console.error('Failed to set URL:', error);
+        console.error('❌ Failed to set URL:', error);
       }
     });
   }
@@ -58,9 +58,9 @@ export class Server {
   private updateUrl(window: BrowserWindow, fullUrl: string, shortUrl: string): void {
     try {
       window.webContents.send('webview:url-changed', shortUrl);
-      console.log(`Updated URL to: ${fullUrl}`);
+      console.info(`🔗 Updated URL to: ${fullUrl}`);
     } catch (error) {
-      console.error('Failed to update URL:', error);
+      console.error('❌ Failed to update URL:', error);
     }
   }
 }

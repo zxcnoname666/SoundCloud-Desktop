@@ -47,7 +47,6 @@ export class ProxyMetricsCollector {
     const isDev = process.argv.includes('--dev') || process.env['NODE_ENV'] === 'development';
 
     if (!isDev) {
-      console.log('📊 Proxy metrics collector disabled (not in dev mode)');
       return;
     }
 
@@ -59,8 +58,6 @@ export class ProxyMetricsCollector {
    * Запуск сборщика метрик
    */
   private async start(): Promise<void> {
-    console.log('📊 Starting proxy metrics collector...');
-
     // Создаем директорию для метрик если не существует
     const debugDir = join(app.getAppPath(), '.debug');
     if (!existsSync(debugDir)) {
@@ -78,8 +75,6 @@ export class ProxyMetricsCollector {
     app.on('before-quit', () => {
       this.stop();
     });
-
-    console.log(`📊 Proxy metrics collector started. Saving to: ${this.metricsFilePath}`);
   }
 
   /**
@@ -95,8 +90,6 @@ export class ProxyMetricsCollector {
     this.saveMetrics().catch((error) => {
       console.warn('Failed to save final proxy metrics:', error);
     });
-
-    console.log('📊 Proxy metrics collector stopped');
   }
 
   /**
