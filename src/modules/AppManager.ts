@@ -1,4 +1,4 @@
-import { BrowserWindow, app, ipcMain, webContents } from 'electron';
+import { app, BrowserWindow, ipcMain, webContents } from 'electron';
 import { ConfigManager } from '../utils/config.js';
 import { Extensions } from './Extensions.js';
 import { Server } from './Server.js';

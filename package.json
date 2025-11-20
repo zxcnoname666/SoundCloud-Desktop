@@ -43,7 +43,7 @@
     }
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.3",
+    "@biomejs/biome": "^2.3.6",
     "@eslint/js": "^9.39.1",
     "@types/discord-rpc": "^4.0.10",
     "@types/node": "^24.10.1",
