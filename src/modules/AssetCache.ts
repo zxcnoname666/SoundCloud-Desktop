@@ -266,8 +266,6 @@ export class AssetCache {
 
       const cachePath = this.getCachePath(url);
       await writeFile(cachePath, JSON.stringify(cached), 'utf-8');
-
-      const reason = isStatic ? 'static extension' : 'cacheable headers';
     } catch (error) {
       console.warn(`Failed to cache ${url}:`, error);
     }
