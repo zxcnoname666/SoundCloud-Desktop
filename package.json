@@ -36,6 +36,12 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm run format"
   },
+  "pnpm": {
+    "overrides": {
+      "js-yaml@<4.1.1": ">=4.1.1",
+      "glob@>=10.2.0 <10.5.0": ">=10.5.0"
+    }
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
     "@eslint/js": "^9.39.1",
