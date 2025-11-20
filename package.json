@@ -45,7 +45,7 @@
     "@typescript-eslint/parser": "^8.47.0",
     "electron": "^38.2.0",
     "electron-builder": "^26.0.12",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.27.0",
     "eslint": "^9.39.1",
     "simple-git-hooks": "^2.13.1",
     "tsx": "^4.20.6",
