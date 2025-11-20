@@ -15,7 +15,8 @@
     "lint": "eslint src --ext .ts,.tsx --fix",
     "biome:check": "biome check .",
     "biome:write": "biome check --write .",
-    "format": "pnpm biome:write"
+    "format": "pnpm biome:write",
+    "prepare": "simple-git-hooks"
   },
   "engines": {
     "node": ">=22.0.0",
@@ -32,6 +33,9 @@
     "url": "https://github.com/zxcnoname666/SoundCloud-Desktop/issues"
   },
   "homepage": "https://github.com/zxcnoname666/SoundCloud-Desktop#readme",
+  "simple-git-hooks": {
+    "pre-commit": "pnpm run format"
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
     "@eslint/js": "^9.36.0",
@@ -43,6 +47,7 @@
     "electron-builder": "^26.0.12",
     "esbuild": "^0.25.10",
     "eslint": "^9.36.0",
+    "simple-git-hooks": "^2.13.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.2"
   },

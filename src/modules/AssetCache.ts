@@ -255,10 +255,7 @@ export class AssetCache {
       const age = Date.now() - metadata.cachedAt;
       if (age > metadata.ttl) {
         // Кэш устарел - удаляем оба файла
-        await Promise.all([
-          rm(metadataPath).catch(() => {}),
-          rm(dataPath).catch(() => {}),
-        ]);
+        await Promise.all([rm(metadataPath).catch(() => {}), rm(dataPath).catch(() => {})]);
         return null;
       }
 
@@ -347,18 +344,12 @@ export class AssetCache {
           const age = Date.now() - metadata.cachedAt;
           if (age > metadata.ttl) {
             // Удаляем оба файла
-            await Promise.all([
-              rm(metadataPath).catch(() => {}),
-              rm(dataPath).catch(() => {}),
-            ]);
+            await Promise.all([rm(metadataPath).catch(() => {}), rm(dataPath).catch(() => {})]);
             cleaned++;
           }
         } catch {
           // Если файл поврежден - удаляем оба файла
-          await Promise.all([
-            rm(metadataPath).catch(() => {}),
-            rm(dataPath).catch(() => {}),
-          ]);
+          await Promise.all([rm(metadataPath).catch(() => {}), rm(dataPath).catch(() => {})]);
           cleaned++;
         }
       }
