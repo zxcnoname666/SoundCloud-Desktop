@@ -60,12 +60,9 @@ export class ProxyManager implements ProxyManagerInterface {
       try {
         const proxyUrl = this.buildProxyUrl(proxy);
 
-        // Определяем таймаут в зависимости от типа контента
-        const timeout = this.getTimeoutForUrl(url);
-
         const proxyOptions: any = {
           method: method,
-          signal: AbortSignal.timeout(timeout),
+          signal: AbortSignal.timeout(15000),
           headers: {
             ...proxy.headers,
             ...headers,
@@ -186,34 +183,6 @@ export class ProxyManager implements ProxyManagerInterface {
   private buildProxyUrl(proxy: ProxyInfo): string {
     const basePath = proxy.path || '/';
     return `${proxy.domain}${basePath}`;
-  }
-
-  /**
-   * Определяет таймаут в зависимости от типа контента
-   * Для стриминговых медиа используется больший таймаут (общий timeout на весь запрос)
-   * Idle timeout (зависание) определяется на уровне чтения chunks в WindowSetup
-   */
-  private getTimeoutForUrl(url: string): number {
-    const streamingExtensions = [
-      '.m4s', // MPEG-DASH segments
-      '.mp3', // MP3 audio
-      '.m4a', // M4A audio
-      '.aac', // AAC audio
-      '.opus', // Opus audio
-      '.ogg', // Ogg Vorbis
-      '.wav', // WAV audio
-      '.flac', // FLAC audio
-      '.ts', // MPEG-TS segments
-      '.m3u8', // HLS playlists
-      '.mpd', // DASH manifests
-    ];
-
-    const urlLower = url.toLowerCase();
-    const isStreamingMedia = streamingExtensions.some((ext) => urlLower.includes(ext));
-
-    // Для стриминговых медиа: 5 минут (idle timeout 10 сек срабатывает раньше)
-    // Для обычных запросов: 15 секунд
-    return isStreamingMedia ? 300000 : 15000;
   }
 
   private showNotification(messageKey: string, value?: string): void {
