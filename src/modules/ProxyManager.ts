@@ -60,9 +60,12 @@ export class ProxyManager implements ProxyManagerInterface {
       try {
         const proxyUrl = this.buildProxyUrl(proxy);
 
+        // Определяем таймаут в зависимости от типа контента
+        const timeout = this.getTimeoutForUrl(url);
+
         const proxyOptions: any = {
           method: method,
-          signal: AbortSignal.timeout(15000),
+          signal: AbortSignal.timeout(timeout),
           headers: {
             ...proxy.headers,
             ...headers,
@@ -183,6 +186,33 @@ export class ProxyManager implements ProxyManagerInterface {
   private buildProxyUrl(proxy: ProxyInfo): string {
     const basePath = proxy.path || '/';
     return `${proxy.domain}${basePath}`;
+  }
+
+  /**
+   * Определяет таймаут в зависимости от типа контента
+   * Для стриминговых медиа используется больший таймаут
+   */
+  private getTimeoutForUrl(url: string): number {
+    const streamingExtensions = [
+      '.m4s', // MPEG-DASH segments
+      '.mp3', // MP3 audio
+      '.m4a', // M4A audio
+      '.aac', // AAC audio
+      '.opus', // Opus audio
+      '.ogg', // Ogg Vorbis
+      '.wav', // WAV audio
+      '.flac', // FLAC audio
+      '.ts', // MPEG-TS segments
+      '.m3u8', // HLS playlists
+      '.mpd', // DASH manifests
+    ];
+
+    const urlLower = url.toLowerCase();
+    const isStreamingMedia = streamingExtensions.some((ext) => urlLower.includes(ext));
+
+    // Для стриминговых медиа файлов используем 60 секунд
+    // Для обычных запросов - 15 секунд
+    return isStreamingMedia ? 60000 : 15000;
   }
 
   private showNotification(messageKey: string, value?: string): void {
