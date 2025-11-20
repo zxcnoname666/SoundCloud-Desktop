@@ -106,7 +106,7 @@ export class WindowSetup {
         }
       });
     } catch (error) {
-      console.warn('Failed to setup tray:', error);
+      console.debug('⚠️ Failed to setup tray:', error);
     }
   }
 
@@ -157,7 +157,7 @@ export class WindowSetup {
 
         callback({});
       } catch (error) {
-        console.warn('Error in onBeforeRequest:', error);
+        console.debug('⚠️ Error in onBeforeRequest:', error);
         callback({});
       }
     });
@@ -173,7 +173,7 @@ export class WindowSetup {
 
         callback({ requestHeaders: headers });
       } catch (error) {
-        console.warn('Error in onBeforeSendHeaders:', error);
+        console.debug('⚠️ Error in onBeforeSendHeaders:', error);
         callback({ requestHeaders: details.requestHeaders });
       }
     });
@@ -287,7 +287,7 @@ export class WindowSetup {
       return;
     }
 
-    console.log('🔄 Initializing proxy handler...');
+    console.info('🔄 Initializing proxy handler...');
     WindowSetup.setupProxyHandler();
 
     // Инициализируем сборщик метрик (только в dev режиме)
@@ -306,7 +306,7 @@ export class WindowSetup {
       const hasProxy = !!proxyManager.getCurrentProxy();
 
       if (hasProxy && WindowSetup.proxyRegistered) {
-        console.log('✅ Proxy handler initialized and enabled');
+        console.info('✅ Proxy handler initialized and enabled');
         WindowSetup.proxyInitialized = true;
         return;
       }
@@ -316,7 +316,7 @@ export class WindowSetup {
     }
 
     // Если прокси не найден, это не критично - продолжаем загрузку
-    console.log('⚠️  Proxy not found or failed to initialize, continuing without proxy');
+    console.warn('⚠️ Proxy not found or failed to initialize, continuing without proxy');
     WindowSetup.proxyInitialized = true;
   }
 
@@ -340,11 +340,11 @@ export class WindowSetup {
       if (!hasProxy && WindowSetup.proxyRegistered) {
         protocol.unhandle('https');
         WindowSetup.proxyRegistered = false;
-        console.log('🚫 Proxy handler disabled');
+        console.info('🚫 Proxy handler disabled');
       } else if (hasProxy && !WindowSetup.proxyRegistered) {
         protocol.handle('https', httpsHandleMethod);
         WindowSetup.proxyRegistered = true;
-        console.log('✅ Proxy handler enabled');
+        console.info('✅ Proxy handler enabled');
       }
     }, 5000);
   }
@@ -440,7 +440,7 @@ export class WindowSetup {
     const MIN_BYTES_THRESHOLD = 25 * 1024; // 25КБ - больше чем 19КБ блокировка РКН
 
     try {
-      console.log(`🔍 Checking domain accessibility: ${hostname}`);
+      console.debug(`🔍 Checking domain accessibility: ${hostname}`);
 
       // Создаем контроллер для абортирования запроса
       const controller = new AbortController();
@@ -532,7 +532,7 @@ export class WindowSetup {
                 await streamReadPromise;
 
                 if (hangingDetected) {
-                  console.log(`⚠️  Connection hanging detected for ${hostname}`);
+                  console.debug(`⚠️ Connection hanging detected for ${hostname}`);
                   return {
                     shouldProxy: true,
                     reason: 'RKN blocking: connection hanging',
@@ -542,7 +542,7 @@ export class WindowSetup {
               } catch (streamError: any) {
                 // Проверяем, зависло ли соединение
                 if (hangingDetected) {
-                  console.log(`⚠️  Connection hanging detected for ${hostname}`);
+                  console.debug(`⚠️ Connection hanging detected for ${hostname}`);
                   return {
                     shouldProxy: true,
                     reason: 'RKN blocking: connection hanging',
@@ -555,7 +555,7 @@ export class WindowSetup {
 
                 // Недостаточно данных для проверки - НЕ проксируем, НЕ кэшируем
                 if (errorMessage.includes('INSUFFICIENT_DATA')) {
-                  console.log(`⚠️  Insufficient data for ${hostname}: ${errorMessage}`);
+                  console.debug(`⚠️ Insufficient data for ${hostname}: ${errorMessage}`);
                   return {
                     shouldProxy: false,
                     reason: 'check incomplete - insufficient data',
@@ -568,7 +568,7 @@ export class WindowSetup {
                   errorMessage.includes('socket hang up') ||
                   errorMessage.includes('Connection closed')
                 ) {
-                  console.log(`⚠️  Stream error for ${hostname}: ${errorMessage}`);
+                  console.debug(`⚠️ Stream error for ${hostname}: ${errorMessage}`);
                   return {
                     shouldProxy: true,
                     reason: `Stream error: ${errorMessage}`,
@@ -579,7 +579,7 @@ export class WindowSetup {
             }
 
             if (hangingDetected) {
-              console.log(`⚠️  Connection hanging detected for ${hostname}`);
+              console.debug(`⚠️ Connection hanging detected for ${hostname}`);
               return {
                 shouldProxy: true,
                 reason: 'RKN blocking: connection hanging',
@@ -591,7 +591,7 @@ export class WindowSetup {
 
             // Проверяем на абортирование из-за зависания
             if (hangingDetected) {
-              console.log(`⚠️  Connection hanging detected for ${hostname}`);
+              console.debug(`⚠️ Connection hanging detected for ${hostname}`);
               return {
                 shouldProxy: true,
                 reason: 'RKN blocking: connection hanging',
@@ -601,7 +601,7 @@ export class WindowSetup {
           }
 
           // Если всё прошло успешно - прокси не нужен
-          console.log(`✅ Domain ${hostname} is accessible without proxy`);
+          console.debug(`✅ Domain ${hostname} is accessible without proxy`);
           return {
             shouldProxy: false,
             reason: 'Direct connection works',
@@ -610,7 +610,7 @@ export class WindowSetup {
         }
 
         // Неожиданный статус код - возможно блокировка
-        console.log(`⚠️  Unexpected status ${response.status} for ${hostname}`);
+        console.debug(`⚠️ Unexpected status ${response.status} for ${hostname}`);
         return {
           shouldProxy: true,
           reason: `Unexpected status: ${response.status}`,
@@ -623,7 +623,7 @@ export class WindowSetup {
         if (fetchError.name === 'AbortError') {
           if (!responseStarted) {
             // Таймаут на начало соединения
-            console.log(`⚠️  Connection timeout for ${hostname}`);
+            console.debug(`⚠️ Connection timeout for ${hostname}`);
             return {
               shouldProxy: true,
               reason: 'Connection timeout',
@@ -643,7 +643,7 @@ export class WindowSetup {
           errorMessage.includes('Connection closed') ||
           !fetchError.code // Нет кода ошибки - возможно обрыв TCP
         ) {
-          console.log(`⚠️  TCP connection broken for ${hostname}: ${errorMessage}`);
+          console.debug(`⚠️ TCP connection broken for ${hostname}: ${errorMessage}`);
           return {
             shouldProxy: true,
             reason: `TCP connection broken: ${errorMessage}`,
@@ -652,7 +652,7 @@ export class WindowSetup {
         }
 
         // Другие сетевые ошибки
-        console.log(`⚠️  Network error for ${hostname}: ${errorMessage}`);
+        console.debug(`⚠️ Network error for ${hostname}: ${errorMessage}`);
         return {
           shouldProxy: true,
           reason: `Network error: ${errorMessage}`,
@@ -661,7 +661,7 @@ export class WindowSetup {
       }
     } catch (error: any) {
       // Критическая ошибка - лучше проксировать
-      console.log(`❌ Critical error checking ${hostname}: ${error}`);
+      console.error(`❌ Critical error checking ${hostname}: ${error}`);
       return {
         shouldProxy: true,
         reason: `Critical error: ${error.message || String(error)}`,
@@ -706,7 +706,7 @@ export class WindowSetup {
       WindowSetup.domainCheckCache.set(hostname, result);
     }
 
-    console.log(`Domain ${hostname} check result: ${result.shouldProxy} (${result.reason})`);
+    console.debug(`🔍 Domain ${hostname} check result: ${result.shouldProxy} (${result.reason})`);
     return { shouldProxy: result.shouldProxy, reason: result.reason };
   }
 
@@ -765,7 +765,7 @@ export class WindowSetup {
 
       return WindowSetup.createStreamingResponseWithCache(response, request.url, assetCache);
     } catch (error) {
-      console.warn('Proxy request failed:', request.url, error);
+      console.error('❌ Proxy request failed:', request.url, error);
       return new Response('Proxy Error', { status: 500 });
     }
   }
@@ -853,7 +853,7 @@ export class WindowSetup {
         const resetIdleTimer = () => {
           if (idleTimer) clearTimeout(idleTimer);
           idleTimer = setTimeout(() => {
-            console.warn(`Idle timeout detected for ${url}`);
+            console.warn(`⏰ Idle timeout detected for ${url}`);
             aborted = true;
             reader.cancel('Idle timeout');
             controller.error(new Error('Idle timeout'));
@@ -885,7 +885,7 @@ export class WindowSetup {
           }
         } catch (error) {
           if (idleTimer) clearTimeout(idleTimer);
-          console.warn(`Stream error for ${url}:`, error);
+          console.error(`❌ Stream error for ${url}:`, error);
           controller.error(error);
           resolveChunks(null); // При ошибке не кэшируем
         }
@@ -911,7 +911,7 @@ export class WindowSetup {
 
       // Если null - поток был прерван, не кэшируем
       if (chunks === null) {
-        console.warn(`Skipping cache for ${url} - stream was aborted`);
+        console.debug(`⏭️ Skipping cache for ${url} - stream was aborted`);
         return;
       }
 
@@ -924,9 +924,9 @@ export class WindowSetup {
 
       // Сохраняем в кэш
       await assetCache.set(url, buffer, headers, status, statusText);
-      console.log(`Successfully cached ${url} (${totalLength} bytes)`);
+      console.info(`📦 Successfully cached ${url} (${totalLength} bytes)`);
     } catch (error) {
-      console.warn(`Failed to cache ${url}:`, error);
+      console.error(`❌ Failed to cache ${url}:`, error);
     }
   }
 }

@@ -74,7 +74,7 @@ export class ProxyManager implements ProxyManagerInterface {
     const availableProxies = this.activeProxies.filter((p) => !this.isProxyBlocked(p));
 
     if (availableProxies.length === 0) {
-      console.warn('All proxies are blocked, trying direct connection');
+      console.info('🚫 All proxies are blocked, trying direct connection');
       try {
         return await fetch(url, { ...options, agent: this.httpsAgent });
       } catch (directError) {
@@ -108,7 +108,7 @@ export class ProxyManager implements ProxyManagerInterface {
         // Проверяем успешность ответа
         if (!response.ok && (response.status === 429 || response.status === 500)) {
           console.warn(
-            `Proxy ${proxy.domain} returned ${response.status}: ${response.statusText}`
+            `⚠️ Proxy ${proxy.domain} returned ${response.status}: ${response.statusText}`
           );
           lastError = `${response.status} ${response.statusText}`;
 
@@ -121,7 +121,7 @@ export class ProxyManager implements ProxyManagerInterface {
         this.recordProxySuccess(proxy);
         return response;
       } catch (error) {
-        console.warn(`Proxy ${proxy.domain} failed:`, error);
+        console.debug(`❌ Proxy ${proxy.domain} failed:`, error);
         lastError = error instanceof Error ? error.message : String(error);
 
         // Регистрируем ошибку
@@ -130,7 +130,7 @@ export class ProxyManager implements ProxyManagerInterface {
     }
 
     // Если все прокси не работают, пробуем без прокси
-    console.warn('All available proxies failed, trying direct connection');
+    console.info('🔌 All available proxies failed, trying direct connection');
     try {
       return await fetch(url, { ...options, agent: this.httpsAgent });
     } catch (directError) {
@@ -151,11 +151,11 @@ export class ProxyManager implements ProxyManagerInterface {
       if (this.allProxies.length === 0) {
         this.showNotification('proxy_available_not_found');
       } else {
-        console.log(`Loaded ${this.allProxies.length} proxies`);
+        console.info(`✅ Loaded ${this.allProxies.length} proxies`);
         this.showNotification('proxy_loaded_count', String(this.allProxies.length));
       }
     } catch (error) {
-      console.warn('Failed to initialize proxy manager:', error);
+      console.error('❌ Failed to initialize proxy manager:', error);
     }
   }
 
@@ -177,7 +177,7 @@ export class ProxyManager implements ProxyManagerInterface {
     const now = Date.now();
     for (const proxy of this.activeProxies) {
       if (proxy.blockedUntil > 0 && proxy.blockedUntil <= now) {
-        console.log(`Unblocking proxy ${proxy.domain} (block expired)`);
+        console.info(`🔓 Unblocking proxy ${proxy.domain} (block expired)`);
         proxy.blockedUntil = 0;
         proxy.strikes = 0; // Сбрасываем strikes при разблокировке
       }
@@ -189,7 +189,7 @@ export class ProxyManager implements ProxyManagerInterface {
    */
   private recordProxyFailure(proxy: ProxyInfo): void {
     proxy.strikes++;
-    console.log(`Proxy ${proxy.domain} failure recorded (strikes: ${proxy.strikes})`);
+    console.debug(`📊 Proxy ${proxy.domain} failure recorded (strikes: ${proxy.strikes})`);
 
     // Перемещаем в конец очереди (Priority Queue - D)
     this.moveProxyToEnd(proxy);
@@ -206,7 +206,7 @@ export class ProxyManager implements ProxyManagerInterface {
   private recordProxySuccess(proxy: ProxyInfo): void {
     // Сбрасываем strikes при успехе
     if (proxy.strikes > 0) {
-      console.log(`Proxy ${proxy.domain} recovered (strikes reset: ${proxy.strikes} -> 0)`);
+      console.info(`🔄 Proxy ${proxy.domain} recovered (strikes reset: ${proxy.strikes} -> 0)`);
       proxy.strikes = 0;
       proxy.blockDuration = this.INITIAL_BLOCK_DURATION; // Сбрасываем длительность блокировки
     }
@@ -231,7 +231,7 @@ export class ProxyManager implements ProxyManagerInterface {
 
     const blockMinutes = Math.round(proxy.blockDuration / 60000);
     console.warn(
-      `Proxy ${proxy.domain} blocked for ${blockMinutes} minute(s) due to ${proxy.strikes} consecutive failures`
+      `🚫 Proxy ${proxy.domain} blocked for ${blockMinutes} minute(s) due to ${proxy.strikes} consecutive failures`
     );
   }
 
@@ -275,7 +275,7 @@ export class ProxyManager implements ProxyManagerInterface {
             blockDuration: 0,
           };
         } catch (error) {
-          console.warn(`Failed to parse proxy: ${proxyString}`, error);
+          console.debug(`⚠️ Failed to parse proxy: ${proxyString}`, error);
           return null;
         }
       })
@@ -303,7 +303,7 @@ export class ProxyManager implements ProxyManagerInterface {
         body: message,
       });
     } catch (error) {
-      console.warn('Failed to show proxy notification:', error);
+      console.debug('⚠️ Failed to show proxy notification:', error);
     }
   }
 }
