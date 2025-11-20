@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import { execSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { build as esbuild } from 'esbuild';
+import {execSync} from 'node:child_process';
+import {cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {build as esbuild} from 'esbuild';
 
 interface BuildOptions {
   skipTypeCheck?: boolean;
@@ -144,6 +144,8 @@ class Builder {
   }
 
   private generatePackageJson(): void {
+      console.info('📄 Generating package.json...');
+
     const rootPackageJson = JSON.parse(readFileSync(join(this.rootDir, 'package.json'), 'utf-8'));
 
     const distPackageJson = {
