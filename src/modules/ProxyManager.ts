@@ -190,7 +190,8 @@ export class ProxyManager implements ProxyManagerInterface {
 
   /**
    * Определяет таймаут в зависимости от типа контента
-   * Для стриминговых медиа используется больший таймаут
+   * Для стриминговых медиа используется больший таймаут (общий timeout на весь запрос)
+   * Idle timeout (зависание) определяется на уровне чтения chunks в WindowSetup
    */
   private getTimeoutForUrl(url: string): number {
     const streamingExtensions = [
@@ -210,9 +211,9 @@ export class ProxyManager implements ProxyManagerInterface {
     const urlLower = url.toLowerCase();
     const isStreamingMedia = streamingExtensions.some((ext) => urlLower.includes(ext));
 
-    // Для стриминговых медиа файлов используем 60 секунд
-    // Для обычных запросов - 15 секунд
-    return isStreamingMedia ? 60000 : 15000;
+    // Для стриминговых медиа: 5 минут (idle timeout 10 сек срабатывает раньше)
+    // Для обычных запросов: 15 секунд
+    return isStreamingMedia ? 300000 : 15000;
   }
 
   private showNotification(messageKey: string, value?: string): void {

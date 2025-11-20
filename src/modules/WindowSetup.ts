@@ -771,8 +771,8 @@ export class WindowSetup {
   }
 
   /**
-   * Создает streaming Response с одновременным кэшированием
-   * Использует tee() для дублирования стрима
+   * Создает streaming Response с кэшированием через независимый запрос
+   * Клиент получает stream сразу, кэш делается вторым запросом
    */
   private static createStreamingResponseWithCache(
     nodeFetchResponse: any,
@@ -802,13 +802,9 @@ export class WindowSetup {
     // Конвертируем Node.js Readable в Web ReadableStream
     const webStream = Readable.toWeb(nodeFetchResponse.body) as ReadableStream;
 
-    // Дублируем stream через tee() - получаем два независимых потока
-    const [streamForClient, streamForCache] = webStream.tee();
-
-    // Асинхронно читаем второй поток для кэша (не блокируем клиента)
+    // Для успешных ответов - кэшируем в фоне ВТОРЫМ НЕЗАВИСИМЫМ ЗАПРОСОМ
     if (nodeFetchResponse.ok) {
-      WindowSetup.cacheStreamAsync(
-        streamForCache,
+      WindowSetup.cacheUrlAsync(
         url,
         headersObj,
         nodeFetchResponse.status,
@@ -817,8 +813,8 @@ export class WindowSetup {
       );
     }
 
-    // Возвращаем первый поток клиенту
-    return new Response(streamForClient, {
+    // Возвращаем оригинальный поток клиенту СРАЗУ
+    return new Response(webStream, {
       status: nodeFetchResponse.status,
       statusText: nodeFetchResponse.statusText,
       headers: responseHeaders,
@@ -826,10 +822,10 @@ export class WindowSetup {
   }
 
   /**
-   * Асинхронно читает stream и сохраняет в кэш
+   * Делает второй независимый запрос для кэширования с idle timeout
+   * Если поток не получает данные 10 секунд - абортируем
    */
-  private static async cacheStreamAsync(
-    stream: ReadableStream,
+  private static async cacheUrlAsync(
     url: string,
     headers: Record<string, string>,
     status: number,
@@ -837,26 +833,70 @@ export class WindowSetup {
     assetCache: AssetCache
   ): Promise<void> {
     try {
-      const reader = stream.getReader();
-      const chunks: Uint8Array[] = [];
+      // Делаем второй независимый fetch
+      const proxyManager = ProxyManager.getInstance();
+      const urlObj = new URL(url);
+      const { shouldProxy } = await WindowSetup.shouldProxyDomain(urlObj.hostname);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunks.push(value);
+      const response = shouldProxy
+        ? await proxyManager.sendRequest(url)
+        : await fetch(url);
+
+      if (!response.ok || !response.body) {
+        return;
       }
 
-      // Собираем все chunks в один Buffer
-      const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-      const buffer = Buffer.concat(
-        chunks.map((chunk) => Buffer.from(chunk)),
-        totalLength
-      );
+      // Читаем stream с idle timeout
+      const reader = response.body.getReader();
+      const chunks: Uint8Array[] = [];
+      const IDLE_TIMEOUT = 10000; // 10 секунд без данных → abort
 
-      // Сохраняем в кэш
-      await assetCache.set(url, buffer, headers, status, statusText);
+      let idleTimer: NodeJS.Timeout | null = null;
+      let aborted = false;
+
+      const resetIdleTimer = () => {
+        if (idleTimer) clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+          console.warn(`Idle timeout while caching ${url}`);
+          aborted = true;
+          reader.cancel();
+        }, IDLE_TIMEOUT);
+      };
+
+      resetIdleTimer();
+
+      try {
+        while (!aborted) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          chunks.push(value);
+          resetIdleTimer(); // Получили данные - сбрасываем таймер
+        }
+
+        if (idleTimer) clearTimeout(idleTimer);
+
+        // Если абортнуто - не кэшируем
+        if (aborted) {
+          console.warn(`Aborted caching ${url} due to idle timeout`);
+          return;
+        }
+
+        // Собираем все chunks в один Buffer
+        const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+        const buffer = Buffer.concat(
+          chunks.map((chunk) => Buffer.from(chunk)),
+          totalLength
+        );
+
+        // Сохраняем в кэш
+        await assetCache.set(url, buffer, headers, status, statusText);
+        console.log(`Successfully cached ${url} (${totalLength} bytes)`);
+      } finally {
+        if (idleTimer) clearTimeout(idleTimer);
+      }
     } catch (error) {
-      console.warn(`Failed to cache stream ${url}:`, error);
+      console.warn(`Failed to cache ${url}:`, error);
     }
   }
 }
