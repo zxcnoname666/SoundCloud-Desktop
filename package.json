@@ -40,7 +40,17 @@
     "overrides": {
       "js-yaml@<4.1.1": ">=4.1.1",
       "glob@>=10.2.0 <10.5.0": ">=10.5.0"
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "@biomejs/biome",
+      "electron-winstaller",
+      "esbuild",
+      "register-scheme"
+    ],
+    "onlyBuiltDependencies": [
+      "electron",
+      "simple-git-hooks"
+    ]
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
@@ -49,7 +59,7 @@
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.47.0",
-    "electron": "^38.2.0",
+    "electron": "^39.2.3",
     "electron-builder": "^26.0.12",
     "esbuild": "^0.27.0",
     "eslint": "^9.39.1",
