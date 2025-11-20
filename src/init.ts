@@ -204,6 +204,9 @@ class SoundCloudApp {
       const mainWindow = await WindowSetup.createMainWindow();
       this.context.window = mainWindow;
 
+      // Устанавливаем окно для NotificationManager
+      this.notifyManager.setWindow(mainWindow);
+
       this.setupMainWindow(mainWindow, loaderWindow);
 
       // Загружаем сохраненный токен после создания окна

@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { Notification, app } from 'electron';
+import { type BrowserWindow, Notification, app } from 'electron';
 
 export interface NotificationOptions {
   title: string;
@@ -13,6 +13,7 @@ export interface NotificationOptions {
 export class NotificationManager {
   private static instance: NotificationManager;
   private readonly defaultIcon: string;
+  private window: BrowserWindow | null = null;
 
   private constructor() {
     this.defaultIcon = join(app.getAppPath(), 'icons/appLogo.png');
@@ -23,6 +24,10 @@ export class NotificationManager {
       NotificationManager.instance = new NotificationManager();
     }
     return NotificationManager.instance;
+  }
+
+  setWindow(window: BrowserWindow): void {
+    this.window = window;
   }
 
   // Метод для проверки разрешений (на некоторых системах)
@@ -56,7 +61,14 @@ export class NotificationManager {
       // Обработчики событий
       notification.on('click', () => {
         console.debug('🔔 Notification clicked');
-        // Можно добавить логику для показа окна приложения
+        // Показываем окно приложения
+        if (this.window) {
+          if (this.window.isMinimized()) {
+            this.window.restore();
+          }
+          this.window.show();
+          this.window.focus();
+        }
       });
 
       notification.on('close', () => {

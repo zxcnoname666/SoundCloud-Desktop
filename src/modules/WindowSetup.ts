@@ -98,7 +98,7 @@ export class WindowSetup {
       WindowSetup.tray.setContextMenu(contextMenu);
       WindowSetup.tray.setToolTip('SoundCloud Desktop');
 
-      WindowSetup.tray.on('double-click', () => {
+      WindowSetup.tray.on('click', () => {
         if (window.isVisible()) {
           window.hide();
         } else {
