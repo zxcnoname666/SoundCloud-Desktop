@@ -146,7 +146,8 @@ export class ProxyManager implements ProxyManagerInterface {
       const proxyConfig = configManager.loadProxyConfig();
 
       this.allProxies = this.parseProxies(proxyConfig.proxy || []);
-      this.activeProxies = [...this.allProxies]; // Копируем полный список в активные
+      // Перемешиваем прокси для равномерного распределения нагрузки
+      this.activeProxies = this.shuffleArray([...this.allProxies]);
 
       if (this.allProxies.length === 0) {
         this.showNotification('proxy_available_not_found');
@@ -233,6 +234,18 @@ export class ProxyManager implements ProxyManagerInterface {
     console.warn(
       `🚫 Proxy ${proxy.domain} blocked for ${blockMinutes} minute(s) due to ${proxy.strikes} consecutive failures`
     );
+  }
+
+  /**
+   * Перемешивает массив (Fisher-Yates shuffle)
+   */
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 
   /**

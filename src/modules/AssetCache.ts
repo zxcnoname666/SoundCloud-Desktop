@@ -4,12 +4,11 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { app } from 'electron';
 
-interface CachedAsset {
+interface CachedAssetMetadata {
   url: string;
   status: number;
   statusText: string;
   headers: Record<string, string>;
-  body: string; // base64
   cachedAt: number;
   ttl: number;
 }
@@ -108,18 +107,23 @@ export class AssetCache {
     }
 
     try {
-      const cached: CachedAsset = {
+      const metadata: CachedAssetMetadata = {
         url,
         status,
         statusText,
         headers,
-        body: buffer.toString('base64'),
         cachedAt: Date.now(),
         ttl: this.CACHE_TTL,
       };
 
-      const cachePath = this.getCachePath(url);
-      await writeFile(cachePath, JSON.stringify(cached), 'utf-8');
+      const metadataPath = this.getCacheMetadataPath(url);
+      const dataPath = this.getCacheDataPath(url);
+
+      // Сохраняем метаданные и бинарные данные отдельно
+      await Promise.all([
+        writeFile(metadataPath, JSON.stringify(metadata), 'utf-8'),
+        writeFile(dataPath, buffer),
+      ]);
 
       const reason = isStatic ? 'static extension' : 'cacheable headers';
       console.debug(`💾 Cache SET: ${url} (${Math.round(buffer.length / 1024)}kb) [${reason}]`);
@@ -206,11 +210,19 @@ export class AssetCache {
   }
 
   /**
-   * Получает путь к файлу кэша
+   * Получает путь к файлу с метаданными кэша
    */
-  private getCachePath(url: string): string {
+  private getCacheMetadataPath(url: string): string {
     const key = this.getCacheKey(url);
     return join(this.cacheDir, `${key}.json`);
+  }
+
+  /**
+   * Получает путь к файлу с бинарными данными кэша
+   */
+  private getCacheDataPath(url: string): string {
+    const key = this.getCacheKey(url);
+    return join(this.cacheDir, `${key}.bin`);
   }
 
   /**
@@ -228,32 +240,39 @@ export class AssetCache {
     }
 
     // Не проверяем isStaticAsset - файл мог быть закэширован по заголовкам
-    const cachePath = this.getCachePath(url);
+    const metadataPath = this.getCacheMetadataPath(url);
+    const dataPath = this.getCacheDataPath(url);
 
     try {
-      if (!existsSync(cachePath)) {
+      if (!existsSync(metadataPath) || !existsSync(dataPath)) {
         return null;
       }
 
-      const content = await readFile(cachePath, 'utf-8');
-      const cached: CachedAsset = JSON.parse(content);
+      const content = await readFile(metadataPath, 'utf-8');
+      const metadata: CachedAssetMetadata = JSON.parse(content);
 
       // Проверяем TTL
-      const age = Date.now() - cached.cachedAt;
-      if (age > cached.ttl) {
-        // Кэш устарел - удаляем
-        await rm(cachePath).catch(() => {});
+      const age = Date.now() - metadata.cachedAt;
+      if (age > metadata.ttl) {
+        // Кэш устарел - удаляем оба файла
+        await Promise.all([
+          rm(metadataPath).catch(() => {}),
+          rm(dataPath).catch(() => {}),
+        ]);
         return null;
       }
 
       console.debug(`💾 Cache HIT: ${url} (age: ${Math.round(age / 1000)}s)`);
 
+      // Читаем бинарные данные
+      const buffer = await readFile(dataPath);
+
       // Возвращаем Buffer и метаданные
       return {
-        buffer: Buffer.from(cached.body, 'base64'),
-        headers: cached.headers,
-        status: cached.status,
-        statusText: cached.statusText,
+        buffer,
+        headers: metadata.headers,
+        status: metadata.status,
+        statusText: metadata.statusText,
       };
     } catch (error) {
       console.warn(`Failed to get cache for ${url}:`, error);
@@ -272,7 +291,7 @@ export class AssetCache {
       const files = await readdir(this.cacheDir);
 
       for (const file of files) {
-        if (file.endsWith('.json')) {
+        if (file.endsWith('.json') || file.endsWith('.bin')) {
           await rm(join(this.cacheDir, file));
         }
       }
@@ -318,20 +337,28 @@ export class AssetCache {
       for (const file of files) {
         if (!file.endsWith('.json')) continue;
 
-        const filePath = join(this.cacheDir, file);
+        const metadataPath = join(this.cacheDir, file);
+        const dataPath = metadataPath.replace('.json', '.bin');
 
         try {
-          const content = await readFile(filePath, 'utf-8');
-          const cached: CachedAsset = JSON.parse(content);
+          const content = await readFile(metadataPath, 'utf-8');
+          const metadata: CachedAssetMetadata = JSON.parse(content);
 
-          const age = Date.now() - cached.cachedAt;
-          if (age > cached.ttl) {
-            await rm(filePath);
+          const age = Date.now() - metadata.cachedAt;
+          if (age > metadata.ttl) {
+            // Удаляем оба файла
+            await Promise.all([
+              rm(metadataPath).catch(() => {}),
+              rm(dataPath).catch(() => {}),
+            ]);
             cleaned++;
           }
         } catch {
-          // Если файл поврежден - удаляем
-          await rm(filePath).catch(() => {});
+          // Если файл поврежден - удаляем оба файла
+          await Promise.all([
+            rm(metadataPath).catch(() => {}),
+            rm(dataPath).catch(() => {}),
+          ]);
           cleaned++;
         }
       }

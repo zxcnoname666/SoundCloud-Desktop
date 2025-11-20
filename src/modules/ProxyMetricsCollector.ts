@@ -23,6 +23,8 @@ export class ProxyMetricsCollector {
   private domainMetrics: Map<string, DomainMetric> = new Map();
   private saveInterval: NodeJS.Timeout | null = null;
   private metricsFilePath: string;
+  private isStarted = false; // Флаг для предотвращения повторной инициализации
+  private isSaving = false; // Флаг для предотвращения параллельного сохранения
 
   private readonly SAVE_INTERVAL = 10 * 1000; // 10 секунд
 
@@ -59,6 +61,12 @@ export class ProxyMetricsCollector {
    * Запуск сборщика метрик
    */
   private async start(): Promise<void> {
+    if (this.isStarted) {
+      console.debug('📊 Proxy metrics collector already started');
+      return;
+    }
+
+    this.isStarted = true;
     console.info('📊 Starting proxy metrics collector...');
 
     // Создаем директорию для метрик если не существует
@@ -86,6 +94,12 @@ export class ProxyMetricsCollector {
    * Остановка сборщика метрик
    */
   private stop(): void {
+    if (!this.isStarted) {
+      return;
+    }
+
+    this.isStarted = false;
+
     if (this.saveInterval) {
       clearInterval(this.saveInterval);
       this.saveInterval = null;
@@ -121,35 +135,44 @@ export class ProxyMetricsCollector {
   }
 
   /**
-   * Сохранить метрики в файл
+   * Получить отсортированные метрики в виде объекта
    */
-  private async saveMetrics(): Promise<void> {
-    if (this.domainMetrics.size === 0) {
-      return;
-    }
-
-    // Конвертируем Map в Object и сортируем по count (больше → меньше)
+  private getSortedMetricsObject(): Record<string, DomainMetric> {
     const sortedEntries = Array.from(this.domainMetrics.entries()).sort(
       (a, b) => b[1].count - a[1].count
     );
+    return Object.fromEntries(sortedEntries);
+  }
 
-    const metrics: ProxyMetrics = {
-      domains: Object.fromEntries(sortedEntries),
-    };
+  /**
+   * Сохранить метрики в файл
+   */
+  private async saveMetrics(): Promise<void> {
+    if (this.isSaving || this.domainMetrics.size === 0) {
+      return;
+    }
 
-    await writeFile(this.metricsFilePath, JSON.stringify(metrics, null, 2), 'utf-8');
+    this.isSaving = true;
+
+    try {
+      const metrics: ProxyMetrics = {
+        domains: this.getSortedMetricsObject(),
+      };
+
+      await writeFile(this.metricsFilePath, JSON.stringify(metrics, null, 2), 'utf-8');
+    } catch (error) {
+      console.warn('Error during saveMetrics:', error);
+    } finally {
+      this.isSaving = false;
+    }
   }
 
   /**
    * Получить текущие метрики
    */
   getMetrics(): ProxyMetrics {
-    const sortedEntries = Array.from(this.domainMetrics.entries()).sort(
-      (a, b) => b[1].count - a[1].count
-    );
-
     return {
-      domains: Object.fromEntries(sortedEntries),
+      domains: this.getSortedMetricsObject(),
     };
   }
 
