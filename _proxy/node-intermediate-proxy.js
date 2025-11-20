@@ -93,11 +93,7 @@ const server = http.createServer(async (req, res) => {
     for (const proxyUrl of activeProxies) {
       try {
         console.log(`  Trying proxy: ${proxyUrl}`);
-        // Add 30 second timeout to prevent hanging connections
-        response = await fetch(proxyUrl, {
-          ...requestOptions,
-          signal: AbortSignal.timeout(30000),
-        });
+        response = await fetch(proxyUrl, requestOptions);
 
         // Check if we got rate limited
         if (RATE_LIMIT_CODES.includes(response.status)) {
