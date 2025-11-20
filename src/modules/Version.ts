@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import { app, type BrowserWindow, dialog } from 'electron';
+import { type BrowserWindow, app, dialog } from 'electron';
 import fetch from 'node-fetch';
 import { Extensions } from './Extensions.js';
 

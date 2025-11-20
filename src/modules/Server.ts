@@ -1,4 +1,4 @@
-import { app, type BrowserWindow } from 'electron';
+import { type BrowserWindow, app } from 'electron';
 import { Server as SocketServer } from 'qurre-socket';
 
 export class Server {

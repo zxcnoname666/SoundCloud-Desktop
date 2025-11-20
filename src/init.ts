@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { app, BrowserWindow } from 'electron';
+import { BrowserWindow, app } from 'electron';
 import { Client } from 'qurre-socket';
 import { AppManager } from './modules/AppManager.js';
 import { AuthManager } from './modules/AuthManager.js';

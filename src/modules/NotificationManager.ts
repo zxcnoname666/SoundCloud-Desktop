@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { app, type BrowserWindow, Notification } from 'electron';
+import { type BrowserWindow, Notification, app } from 'electron';
 
 export interface NotificationOptions {
   title: string;

@@ -1,14 +1,14 @@
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import {
-  app,
   BrowserWindow,
-  globalShortcut,
   Menu,
+  Tray,
+  app,
+  globalShortcut,
   nativeImage,
   protocol,
   shell,
-  Tray,
 } from 'electron';
 import fetch from 'node-fetch';
 import type { WindowBounds } from '../types/config.js';

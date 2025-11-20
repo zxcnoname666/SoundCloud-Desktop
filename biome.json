@@ -1,6 +1,8 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.6/schema.json",
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
+  "organizeImports": {
+    "enabled": true
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -43,20 +45,15 @@
     }
   },
   "files": {
-    "includes": [
-      "**/src/**/*",
-      "**/frontend/**/*",
-      "**/*.ts",
-      "**/*.js",
-      "**/*.tsx",
-      "**/*.jsx",
-      "!**/node_modules",
-      "!**/dist",
-      "!**/.git",
-      "!**/.pnpm-store",
-      "!**/.pnpm",
-      "!**/_proxy",
-      "!**/frontend/preloads"
+    "include": ["src/**/*", "frontend/**/*", "*.ts", "*.js", "*.tsx", "*.jsx"],
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**",
+      ".pnpm-store/**",
+      "**/.pnpm/**",
+      "_proxy/**",
+      "frontend/preloads/**"
     ]
   }
 }
