@@ -881,6 +881,12 @@ export class WindowSetup {
             // Получили данные - сбрасываем таймер
             resetIdleTimer();
 
+            // ВАЖНО: Проверяем aborted после resetIdleTimer
+            // (timeout мог сработать пока мы ждали reader.read())
+            if (aborted) {
+              break;
+            }
+
             // Отправляем клиенту
             controller.enqueue(value);
 
