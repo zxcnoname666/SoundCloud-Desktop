@@ -1,8 +1,8 @@
-import {createHash} from 'node:crypto';
-import {existsSync} from 'node:fs';
-import {mkdir, readFile, rm, writeFile} from 'node:fs/promises';
-import {join} from 'node:path';
-import {app} from 'electron';
+import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { app } from 'electron';
 
 interface CachedAsset {
   url: string;
@@ -121,8 +121,8 @@ export class AssetCache {
       const cachePath = this.getCachePath(url);
       await writeFile(cachePath, JSON.stringify(cached), 'utf-8');
 
-        const reason = isStatic ? 'static extension' : 'cacheable headers';
-        console.debug(`💾 Cache SET: ${url} (${Math.round(buffer.length / 1024)}kb) [${reason}]`);
+      const reason = isStatic ? 'static extension' : 'cacheable headers';
+      console.debug(`💾 Cache SET: ${url} (${Math.round(buffer.length / 1024)}kb) [${reason}]`);
     } catch (error) {
       console.warn(`Failed to cache ${url}:`, error);
     }
@@ -246,6 +246,8 @@ export class AssetCache {
         return null;
       }
 
+      console.debug(`💾 Cache HIT: ${url} (age: ${Math.round(age / 1000)}s)`);
+
       // Возвращаем Buffer и метаданные
       return {
         buffer: Buffer.from(cached.body, 'base64'),
@@ -263,7 +265,7 @@ export class AssetCache {
    * Очищает весь кэш
    */
   async clearAll(): Promise<void> {
-      console.info('💾 Clearing all cache...');
+    console.info('💾 Clearing all cache...');
 
     try {
       const { readdir } = await import('node:fs/promises');
@@ -275,7 +277,7 @@ export class AssetCache {
         }
       }
 
-        console.info('💾 Cache cleared');
+      console.info('💾 Cache cleared');
     } catch (error) {
       console.warn('Failed to clear cache:', error);
     }
@@ -285,7 +287,7 @@ export class AssetCache {
    * Запуск кэша
    */
   private async start(): Promise<void> {
-      console.info('💾 Starting asset cache...');
+    console.info('💾 Starting asset cache...');
 
     // Создаем директорию для кэша если не существует
     if (!existsSync(this.cacheDir)) {
@@ -293,7 +295,7 @@ export class AssetCache {
     }
 
     this.enabled = true;
-      console.info(`💾 Asset cache enabled. Cache dir: ${this.cacheDir}`);
+    console.info(`💾 Asset cache enabled. Cache dir: ${this.cacheDir}`);
 
     // Очищаем старый кэш при старте
     this.cleanupOldCache().catch((error) => {
@@ -305,7 +307,7 @@ export class AssetCache {
    * Очищает устаревший кэш
    */
   private async cleanupOldCache(): Promise<void> {
-      console.info('💾 Cleaning up old cache...');
+    console.info('💾 Cleaning up old cache...');
 
     try {
       const { readdir } = await import('node:fs/promises');
@@ -335,7 +337,7 @@ export class AssetCache {
       }
 
       if (cleaned > 0) {
-          console.info(`💾 Cleaned up ${cleaned} old cache entries`);
+        console.info(`💾 Cleaned up ${cleaned} old cache entries`);
       }
     } catch (error) {
       console.warn('Failed to cleanup old cache:', error);
