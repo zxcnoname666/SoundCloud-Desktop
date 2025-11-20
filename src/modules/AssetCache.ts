@@ -1,8 +1,8 @@
-import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { app } from 'electron';
+import {createHash} from 'node:crypto';
+import {existsSync} from 'node:fs';
+import {mkdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {join} from 'node:path';
+import {app} from 'electron';
 
 interface CachedAsset {
   url: string;
@@ -84,20 +84,48 @@ export class AssetCache {
   }
 
   /**
-   * Запуск кэша
+   * Сохраняет ассет в кэш
+   * Принимает Buffer вместо Response, чтобы избежать повторного чтения body
    */
-  private async start(): Promise<void> {
-    // Создаем директорию для кэша если не существует
-    if (!existsSync(this.cacheDir)) {
-      await mkdir(this.cacheDir, { recursive: true });
+  async set(
+    url: string,
+    buffer: Buffer,
+    headers: Record<string, string>,
+    status: number,
+    statusText: string
+  ): Promise<void> {
+    if (!this.enabled) {
+      return;
     }
 
-    this.enabled = true;
+    const isStatic = this.isStaticAsset(url);
+    const hasCacheableHeaders = this.isCacheableResponse(headers);
 
-    // Очищаем старый кэш при старте
-    this.cleanupOldCache().catch((error) => {
-      console.warn('Failed to cleanup old cache:', error);
-    });
+    // Кэшируем если ВСЁ из STATIC_EXTENSIONS ЛИБО с правильным cache-control заголовком
+    if (!isStatic && !hasCacheableHeaders) {
+      // console.log(`💾 Skip cache (not static and no cacheable headers): ${url}`);
+      return;
+    }
+
+    try {
+      const cached: CachedAsset = {
+        url,
+        status,
+        statusText,
+        headers,
+        body: buffer.toString('base64'),
+        cachedAt: Date.now(),
+        ttl: this.CACHE_TTL,
+      };
+
+      const cachePath = this.getCachePath(url);
+      await writeFile(cachePath, JSON.stringify(cached), 'utf-8');
+
+        const reason = isStatic ? 'static extension' : 'cacheable headers';
+        console.debug(`💾 Cache SET: ${url} (${Math.round(buffer.length / 1024)}kb) [${reason}]`);
+    } catch (error) {
+      console.warn(`Failed to cache ${url}:`, error);
+    }
   }
 
   /**
@@ -232,51 +260,53 @@ export class AssetCache {
   }
 
   /**
-   * Сохраняет ассет в кэш
-   * Принимает Buffer вместо Response, чтобы избежать повторного чтения body
+   * Очищает весь кэш
    */
-  async set(
-    url: string,
-    buffer: Buffer,
-    headers: Record<string, string>,
-    status: number,
-    statusText: string
-  ): Promise<void> {
-    if (!this.enabled) {
-      return;
-    }
-
-    const isStatic = this.isStaticAsset(url);
-    const hasCacheableHeaders = this.isCacheableResponse(headers);
-
-    // Кэшируем если ВСЁ из STATIC_EXTENSIONS ЛИБО с правильным cache-control заголовком
-    if (!isStatic && !hasCacheableHeaders) {
-      // console.log(`💾 Skip cache (not static and no cacheable headers): ${url}`);
-      return;
-    }
+  async clearAll(): Promise<void> {
+      console.info('💾 Clearing all cache...');
 
     try {
-      const cached: CachedAsset = {
-        url,
-        status,
-        statusText,
-        headers,
-        body: buffer.toString('base64'),
-        cachedAt: Date.now(),
-        ttl: this.CACHE_TTL,
-      };
+      const { readdir } = await import('node:fs/promises');
+      const files = await readdir(this.cacheDir);
 
-      const cachePath = this.getCachePath(url);
-      await writeFile(cachePath, JSON.stringify(cached), 'utf-8');
+      for (const file of files) {
+        if (file.endsWith('.json')) {
+          await rm(join(this.cacheDir, file));
+        }
+      }
+
+        console.info('💾 Cache cleared');
     } catch (error) {
-      console.warn(`Failed to cache ${url}:`, error);
+      console.warn('Failed to clear cache:', error);
     }
+  }
+
+  /**
+   * Запуск кэша
+   */
+  private async start(): Promise<void> {
+      console.info('💾 Starting asset cache...');
+
+    // Создаем директорию для кэша если не существует
+    if (!existsSync(this.cacheDir)) {
+      await mkdir(this.cacheDir, { recursive: true });
+    }
+
+    this.enabled = true;
+      console.info(`💾 Asset cache enabled. Cache dir: ${this.cacheDir}`);
+
+    // Очищаем старый кэш при старте
+    this.cleanupOldCache().catch((error) => {
+      console.warn('Failed to cleanup old cache:', error);
+    });
   }
 
   /**
    * Очищает устаревший кэш
    */
   private async cleanupOldCache(): Promise<void> {
+      console.info('💾 Cleaning up old cache...');
+
     try {
       const { readdir } = await import('node:fs/promises');
       const files = await readdir(this.cacheDir);
@@ -305,27 +335,10 @@ export class AssetCache {
       }
 
       if (cleaned > 0) {
+          console.info(`💾 Cleaned up ${cleaned} old cache entries`);
       }
     } catch (error) {
       console.warn('Failed to cleanup old cache:', error);
-    }
-  }
-
-  /**
-   * Очищает весь кэш
-   */
-  async clearAll(): Promise<void> {
-    try {
-      const { readdir } = await import('node:fs/promises');
-      const files = await readdir(this.cacheDir);
-
-      for (const file of files) {
-        if (file.endsWith('.json')) {
-          await rm(join(this.cacheDir, file));
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to clear cache:', error);
     }
   }
 }

@@ -1,5 +1,5 @@
-import { BrowserWindow, ipcMain } from 'electron';
-import { ConfigManager } from '../utils/config.js';
+import {BrowserWindow, ipcMain} from 'electron';
+import {ConfigManager} from '../utils/config.js';
 
 interface CookieInfo {
   name: string;
@@ -24,6 +24,7 @@ export class AuthManager {
   }
 
   initialize(): void {
+      console.info('🔐 AuthManager initializing...');
     this.registerIPCHandlers();
   }
 
@@ -33,12 +34,17 @@ export class AuthManager {
 
   private async loadSavedToken(): Promise<void> {
     try {
+        console.info('🔍 Checking for saved auth token...');
+
       const configManager = ConfigManager.getInstance();
       const savedToken = configManager.getAuthToken();
 
       if (savedToken) {
+          console.info('🔑 Found saved auth token, applying...');
         await this.applyCookiesToSession(this.parseTokenToCookies(savedToken));
+          console.info('✅ Saved auth token loaded successfully');
       } else {
+          console.info('ℹ️  No saved auth token found');
       }
     } catch (error) {
       console.warn('Failed to load saved auth token:', error);
@@ -123,6 +129,8 @@ export class AuthManager {
           console.warn(`Failed to set cookie ${cookie.name}:`, error);
         }
       }
+
+        console.info(`Applied ${cookies.length} cookies to session`);
     } catch (error) {
       console.error('Failed to apply cookies to session:', error);
     }
@@ -139,6 +147,8 @@ export class AuthManager {
 
       // Remove oauth_token cookie from SoundCloud domain
       await session.cookies.remove('https://soundcloud.com', 'oauth_token');
+
+        console.info('Cleared authentication cookies from session');
     } catch (error) {
       console.error('Failed to clear cookies from session:', error);
     }
