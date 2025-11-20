@@ -12,7 +12,8 @@
         "useLiteralKeys": "off"
       },
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noConsoleLog": "error"
       },
       "style": {
         "noNonNullAssertion": "off"
