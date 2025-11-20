@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { Notification, app } from 'electron';
+import { type BrowserWindow, Notification, app } from 'electron';
 
 export interface NotificationOptions {
   title: string;
@@ -13,6 +13,7 @@ export interface NotificationOptions {
 export class NotificationManager {
   private static instance: NotificationManager;
   private readonly defaultIcon: string;
+  private window: BrowserWindow | null = null;
 
   private constructor() {
     this.defaultIcon = join(app.getAppPath(), 'icons/appLogo.png');
@@ -25,12 +26,16 @@ export class NotificationManager {
     return NotificationManager.instance;
   }
 
+  setWindow(window: BrowserWindow): void {
+    this.window = window;
+  }
+
   // Метод для проверки разрешений (на некоторых системах)
   static async requestPermission(): Promise<boolean> {
     try {
       return Notification.isSupported();
     } catch (error) {
-      console.warn('Failed to check notification permissions:', error);
+      console.warn('⚠️ Failed to check notification permissions:', error);
       return false;
     }
   }
@@ -39,7 +44,7 @@ export class NotificationManager {
     try {
       // Проверяем поддержку уведомлений
       if (!Notification.isSupported()) {
-        console.warn('System notifications are not supported');
+        console.warn('⚠️ System notifications are not supported');
         return;
       }
 
@@ -55,16 +60,23 @@ export class NotificationManager {
 
       // Обработчики событий
       notification.on('click', () => {
-        console.log('Notification clicked');
-        // Можно добавить логику для показа окна приложения
+        console.debug('🔔 Notification clicked');
+        // Показываем окно приложения
+        if (this.window) {
+          if (this.window.isMinimized()) {
+            this.window.restore();
+          }
+          this.window.show();
+          this.window.focus();
+        }
       });
 
       notification.on('close', () => {
-        console.log('Notification closed');
+        console.debug('🔕 Notification closed');
       });
 
       notification.on('show', () => {
-        console.log('Notification shown');
+        console.debug('🔔 Notification shown');
       });
 
       // Показываем уведомление

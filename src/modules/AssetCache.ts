@@ -48,11 +48,13 @@ export class AssetCache {
     '.aac', // AAC audio
     '.flac', // FLAC audio
     '.opus', // Opus audio
+    '.mp4',
+    '.m3u8',
   ];
 
   // Медиа-сегменты, для которых нужно отсекать query параметры при кэшировании
   // (подписи в query меняются, но контент файла одинаковый)
-  private readonly MEDIA_SEGMENT_EXTENSIONS = ['.m4s', '.ts'];
+  private readonly MEDIA_SEGMENT_EXTENSIONS = ['.m4s', '.ts', '.mp4', '.m3u8'];
 
   // Паттерны для определения динамических запросов
   private readonly DYNAMIC_PATTERNS = [
@@ -82,23 +84,48 @@ export class AssetCache {
   }
 
   /**
-   * Запуск кэша
+   * Сохраняет ассет в кэш
+   * Принимает Buffer вместо Response, чтобы избежать повторного чтения body
    */
-  private async start(): Promise<void> {
-    console.log('💾 Starting asset cache...');
-
-    // Создаем директорию для кэша если не существует
-    if (!existsSync(this.cacheDir)) {
-      await mkdir(this.cacheDir, { recursive: true });
+  async set(
+    url: string,
+    buffer: Buffer,
+    headers: Record<string, string>,
+    status: number,
+    statusText: string
+  ): Promise<void> {
+    if (!this.enabled) {
+      return;
     }
 
-    this.enabled = true;
-    console.log(`💾 Asset cache enabled. Cache dir: ${this.cacheDir}`);
+    const isStatic = this.isStaticAsset(url);
+    const hasCacheableHeaders = this.isCacheableResponse(headers);
 
-    // Очищаем старый кэш при старте
-    this.cleanupOldCache().catch((error) => {
-      console.warn('Failed to cleanup old cache:', error);
-    });
+    // Кэшируем если ВСЁ из STATIC_EXTENSIONS ЛИБО с правильным cache-control заголовком
+    if (!isStatic && !hasCacheableHeaders) {
+      // console.log(`💾 Skip cache (not static and no cacheable headers): ${url}`);
+      return;
+    }
+
+    try {
+      const cached: CachedAsset = {
+        url,
+        status,
+        statusText,
+        headers,
+        body: buffer.toString('base64'),
+        cachedAt: Date.now(),
+        ttl: this.CACHE_TTL,
+      };
+
+      const cachePath = this.getCachePath(url);
+      await writeFile(cachePath, JSON.stringify(cached), 'utf-8');
+
+      const reason = isStatic ? 'static extension' : 'cacheable headers';
+      console.debug(`💾 Cache SET: ${url} (${Math.round(buffer.length / 1024)}kb) [${reason}]`);
+    } catch (error) {
+      console.warn(`Failed to cache ${url}:`, error);
+    }
   }
 
   /**
@@ -219,7 +246,7 @@ export class AssetCache {
         return null;
       }
 
-      console.log(`💾 Cache HIT: ${url} (age: ${Math.round(age / 1000)}s)`);
+      console.debug(`💾 Cache HIT: ${url} (age: ${Math.round(age / 1000)}s)`);
 
       // Возвращаем Buffer и метаданные
       return {
@@ -235,55 +262,52 @@ export class AssetCache {
   }
 
   /**
-   * Сохраняет ассет в кэш
-   * Принимает Buffer вместо Response, чтобы избежать повторного чтения body
+   * Очищает весь кэш
    */
-  async set(
-    url: string,
-    buffer: Buffer,
-    headers: Record<string, string>,
-    status: number,
-    statusText: string
-  ): Promise<void> {
-    if (!this.enabled) {
-      return;
-    }
-
-    const isStatic = this.isStaticAsset(url);
-    const hasCacheableHeaders = this.isCacheableResponse(headers);
-
-    // Кэшируем если ВСЁ из STATIC_EXTENSIONS ЛИБО с правильным cache-control заголовком
-    if (!isStatic && !hasCacheableHeaders) {
-      // console.log(`💾 Skip cache (not static and no cacheable headers): ${url}`);
-      return;
-    }
+  async clearAll(): Promise<void> {
+    console.info('💾 Clearing all cache...');
 
     try {
-      const cached: CachedAsset = {
-        url,
-        status,
-        statusText,
-        headers,
-        body: buffer.toString('base64'),
-        cachedAt: Date.now(),
-        ttl: this.CACHE_TTL,
-      };
+      const { readdir } = await import('node:fs/promises');
+      const files = await readdir(this.cacheDir);
 
-      const cachePath = this.getCachePath(url);
-      await writeFile(cachePath, JSON.stringify(cached), 'utf-8');
+      for (const file of files) {
+        if (file.endsWith('.json')) {
+          await rm(join(this.cacheDir, file));
+        }
+      }
 
-      const reason = isStatic ? 'static extension' : 'cacheable headers';
-      console.log(`💾 Cache SET: ${url} (${Math.round(buffer.length / 1024)}kb) [${reason}]`);
+      console.info('💾 Cache cleared');
     } catch (error) {
-      console.warn(`Failed to cache ${url}:`, error);
+      console.warn('Failed to clear cache:', error);
     }
+  }
+
+  /**
+   * Запуск кэша
+   */
+  private async start(): Promise<void> {
+    console.info('💾 Starting asset cache...');
+
+    // Создаем директорию для кэша если не существует
+    if (!existsSync(this.cacheDir)) {
+      await mkdir(this.cacheDir, { recursive: true });
+    }
+
+    this.enabled = true;
+    console.info(`💾 Asset cache enabled. Cache dir: ${this.cacheDir}`);
+
+    // Очищаем старый кэш при старте
+    this.cleanupOldCache().catch((error) => {
+      console.warn('Failed to cleanup old cache:', error);
+    });
   }
 
   /**
    * Очищает устаревший кэш
    */
   private async cleanupOldCache(): Promise<void> {
-    console.log('💾 Cleaning up old cache...');
+    console.info('💾 Cleaning up old cache...');
 
     try {
       const { readdir } = await import('node:fs/promises');
@@ -313,32 +337,10 @@ export class AssetCache {
       }
 
       if (cleaned > 0) {
-        console.log(`💾 Cleaned up ${cleaned} old cache entries`);
+        console.info(`💾 Cleaned up ${cleaned} old cache entries`);
       }
     } catch (error) {
       console.warn('Failed to cleanup old cache:', error);
-    }
-  }
-
-  /**
-   * Очищает весь кэш
-   */
-  async clearAll(): Promise<void> {
-    console.log('💾 Clearing all cache...');
-
-    try {
-      const { readdir } = await import('node:fs/promises');
-      const files = await readdir(this.cacheDir);
-
-      for (const file of files) {
-        if (file.endsWith('.json')) {
-          await rm(join(this.cacheDir, file));
-        }
-      }
-
-      console.log('💾 Cache cleared');
-    } catch (error) {
-      console.warn('Failed to clear cache:', error);
     }
   }
 }

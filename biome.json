@@ -12,7 +12,13 @@
         "useLiteralKeys": "off"
       },
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["debug", "info", "warn", "error"]
+          }
+        }
       },
       "style": {
         "noNonNullAssertion": "off"
@@ -40,6 +46,14 @@
   },
   "files": {
     "include": ["src/**/*", "frontend/**/*", "*.ts", "*.js", "*.tsx", "*.jsx"],
-    "ignore": ["node_modules/**", "dist/**", ".git/**", ".pnpm-store/**", "**/.pnpm/**"]
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**",
+      ".pnpm-store/**",
+      "**/.pnpm/**",
+      "_proxy/**",
+      "frontend/preloads/**"
+    ]
   }
 }

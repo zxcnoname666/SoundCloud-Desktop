@@ -29,7 +29,7 @@ export class Extensions {
       for (const path of possiblePaths) {
         try {
           Extensions.nativeUtils = require(path);
-          console.log(`✅ Native utils loaded from: ${path}`);
+          console.info(`✅ Native utils loaded from: ${path}`);
           break;
         } catch {
           // Continue to next path
@@ -54,7 +54,7 @@ export class Extensions {
     try {
       const result = Extensions.nativeUtils.protocolInject(app.getPath('exe'));
       if (result) {
-        console.log('✅ Protocol injection successful');
+        console.info('✅ Protocol injection successful');
       } else {
         console.warn('⚠️  Protocol injection failed');
       }
