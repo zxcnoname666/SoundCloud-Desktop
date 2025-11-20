@@ -1,8 +1,8 @@
-import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { app } from 'electron';
+import {createHash} from 'node:crypto';
+import {existsSync} from 'node:fs';
+import {mkdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {join} from 'node:path';
+import {app} from 'electron';
 
 interface CachedAssetMetadata {
   url: string;
@@ -53,7 +53,7 @@ export class AssetCache {
 
   // Медиа-сегменты, для которых нужно отсекать query параметры при кэшировании
   // (подписи в query меняются, но контент файла одинаковый)
-  private readonly MEDIA_SEGMENT_EXTENSIONS = ['.m4s', '.ts', '.mp4', '.m3u8'];
+    private readonly MEDIA_SEGMENT_EXTENSIONS = ['.m4s', '.ts', '.mp4', '.m3u8', '.mp3'];
 
   // Паттерны для определения динамических запросов
   private readonly DYNAMIC_PATTERNS = [
