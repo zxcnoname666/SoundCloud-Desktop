@@ -177,9 +177,10 @@ function markProxySuccess(proxyUrl) {
     const stats = proxyStats.get(proxyUrl);
     if (stats) {
         stats.lastSuccess = new Date().toISOString();
-        // Track usage count for reserve proxies
+        // Track usage count for all proxies
+        stats.usageCount++;
+
         if (stats.isReserve) {
-            stats.usageCount++;
             console.log(`  📊 Reserve proxy ${proxyUrl} used ${stats.usageCount} times`);
         }
     }
@@ -225,22 +226,15 @@ async function getQueueStatus() {
     return withLock(async () => {
         return proxyQueue.map((url, index) => {
             const stats = proxyStats.get(url);
-            const isReserve = stats?.isReserve || false;
 
-            const result = {
+            return {
                 position: index + 1,
                 url,
-                isReserve,
+                isReserve: stats?.isReserve || false,
                 lastSuccess: stats?.lastSuccess || null,
                 lastError: stats?.lastError || null,
+                usageCount: stats?.usageCount || 0,
             };
-
-            // Only show usageCount for reserve proxies
-            if (isReserve) {
-                result.usageCount = stats?.usageCount || 0;
-            }
-
-            return result;
         });
     });
 }
