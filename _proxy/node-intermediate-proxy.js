@@ -14,12 +14,19 @@
  *   - Request A fails first -> moves proxy to end, version becomes 2
  *   - Request B tries to move proxy -> version mismatch, ignores
  *   - Only NEW requests (version 2) can modify queue further
+ * - Reserve proxies: emergency backup proxies always at end of queue
+ *   - Set via RESERVE_PROXY_URL env variable
+ *   - Track usage count for monitoring
+ *   - Never move above regular proxies
  * - Health check shows current global queue order, version, and stats
  *
  * Usage: node intermediate-proxy.js
  * Default port: 3000
  * Set PROXY_URL to comma-separated list of proxies (default: http://localhost:8080)
- * Example: PROXY_URL="http://proxy1:8080,http://proxy2:8080,http://proxy3:8080"
+ * Set RESERVE_PROXY_URL to comma-separated list of reserve proxies (optional)
+ * Example:
+ *   PROXY_URL="http://proxy1:8080,http://proxy2:8080,http://proxy3:8080"
+ *   RESERVE_PROXY_URL="http://backup1:8080,http://backup2:8080"
  */
 
 import http from 'node:http';
@@ -30,21 +37,33 @@ const ALL_PROXIES = (process.env.PROXY_URL || 'http://localhost:8080')
     .map((url) => url.trim())
     .filter((url) => url.length > 0);
 
+// Reserve proxies - always at the end of queue, for emergency use only
+const RESERVE_PROXIES = (process.env.RESERVE_PROXY_URL || '')
+    .split(',')
+    .map((url) => url.trim())
+    .filter((url) => url.length > 0);
+
+// All proxies combined (regular + reserve)
+const COMBINED_PROXIES = [...ALL_PROXIES, ...RESERVE_PROXIES];
+
 // Rate limit status codes that trigger failover
 const RATE_LIMIT_CODES = [429, 500, 503];
 
 // Global proxy queue - shared across all requests
 // Failed proxies move to the end of this queue
-let proxyQueue = [...ALL_PROXIES];
+// Reserve proxies always stay at the end
+let proxyQueue = [...COMBINED_PROXIES];
 let queueVersion = 0; // Increments on every queue modification
 const queueLock = {locked: false, queue: []};
 
 // Proxy statistics
 const proxyStats = new Map();
-for (const proxyUrl of ALL_PROXIES) {
+for (const proxyUrl of COMBINED_PROXIES) {
     proxyStats.set(proxyUrl, {
         lastSuccess: null,
         lastError: null,
+        isReserve: RESERVE_PROXIES.includes(proxyUrl),
+        usageCount: 0, // Track usage for reserve proxies
     });
 }
 
@@ -52,7 +71,7 @@ for (const proxyUrl of ALL_PROXIES) {
 let allProxiesWorking = true;
 let lastChecked = null;
 
-console.log(`Configured proxy servers: ${ALL_PROXIES.join(', ')}`);
+console.log(`Configured proxy servers: ${ALL_PROXIES.length} regular + ${RESERVE_PROXIES.length} reserve`);
 
 /**
  * Safely decode target URL from base64 for logging
@@ -106,6 +125,8 @@ async function withLock(fn) {
 /**
  * Move failed proxy to the end of global queue
  * Only applies if queue version hasn't changed (prevents race conditions)
+ * Regular proxies move to end before reserve zone
+ * Reserve proxies move to end of reserve zone
  */
 async function moveProxyToEnd(proxyUrl, snapshotVersion) {
     await withLock(async () => {
@@ -116,11 +137,35 @@ async function moveProxyToEnd(proxyUrl, snapshotVersion) {
         }
 
         const index = proxyQueue.indexOf(proxyUrl);
-        if (index !== -1 && index !== proxyQueue.length - 1) {
-            proxyQueue.splice(index, 1);
-            proxyQueue.push(proxyUrl);
-            queueVersion++; // Increment version after modification
-            console.log(`  🔽 Moved ${proxyUrl} to end of queue (version ${queueVersion})`);
+        if (index === -1) return;
+
+        const stats = proxyStats.get(proxyUrl);
+        const isReserve = stats?.isReserve || false;
+
+        if (isReserve) {
+            // Reserve proxy: move to end of reserve zone
+            const lastReserveIndex = proxyQueue.length - 1;
+            if (index !== lastReserveIndex) {
+                proxyQueue.splice(index, 1);
+                proxyQueue.push(proxyUrl);
+                queueVersion++;
+                console.log(`  🔽 Moved RESERVE ${proxyUrl} to end of reserve zone (version ${queueVersion})`);
+            }
+        } else {
+            // Regular proxy: move to end before reserve zone
+            const firstReserveIndex = proxyQueue.findIndex(url => {
+                const s = proxyStats.get(url);
+                return s?.isReserve;
+            });
+
+            const targetIndex = firstReserveIndex === -1 ? proxyQueue.length : firstReserveIndex;
+
+            if (index !== targetIndex - 1) {
+                proxyQueue.splice(index, 1);
+                proxyQueue.splice(targetIndex - 1, 0, proxyUrl);
+                queueVersion++;
+                console.log(`  🔽 Moved ${proxyUrl} to end of regular zone (version ${queueVersion})`);
+            }
         }
     });
 }
@@ -132,6 +177,11 @@ function markProxySuccess(proxyUrl) {
     const stats = proxyStats.get(proxyUrl);
     if (stats) {
         stats.lastSuccess = new Date().toISOString();
+        // Track usage count for reserve proxies
+        if (stats.isReserve) {
+            stats.usageCount++;
+            console.log(`  📊 Reserve proxy ${proxyUrl} used ${stats.usageCount} times`);
+        }
     }
     allProxiesWorking = true;
     lastChecked = new Date().toISOString();
@@ -175,12 +225,22 @@ async function getQueueStatus() {
     return withLock(async () => {
         return proxyQueue.map((url, index) => {
             const stats = proxyStats.get(url);
-            return {
+            const isReserve = stats?.isReserve || false;
+
+            const result = {
                 position: index + 1,
                 url,
+                isReserve,
                 lastSuccess: stats?.lastSuccess || null,
                 lastError: stats?.lastError || null,
             };
+
+            // Only show usageCount for reserve proxies
+            if (isReserve) {
+                result.usageCount = stats?.usageCount || 0;
+            }
+
+            return result;
         });
     });
 }
@@ -202,6 +262,11 @@ const server = http.createServer(async (req, res) => {
     if (req.url === '/health' && req.method === 'GET') {
         const status = await getQueueStatus();
         const snapshot = await getProxySnapshot();
+
+        // Separate regular and reserve proxies
+        const regularProxies = status.filter(p => !p.isReserve);
+        const reserveProxies = status.filter(p => p.isReserve);
+
         res.writeHead(200, {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
@@ -212,8 +277,14 @@ const server = http.createServer(async (req, res) => {
                 allProxiesWorking,
                 lastChecked,
                 queueVersion: snapshot.version,
-                total: ALL_PROXIES.length,
-                queue: status,
+                regular: {
+                    total: ALL_PROXIES.length,
+                    proxies: regularProxies,
+                },
+                reserve: {
+                    total: RESERVE_PROXIES.length,
+                    proxies: reserveProxies,
+                },
             }, null, 2)
         );
         return;
@@ -355,12 +426,14 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
     console.log(
-        `✓ Intermediate Proxy Server (Streaming + Versioned Queue) running on http://0.0.0.0:${PORT}`
+        `✓ Intermediate Proxy Server (Streaming + Versioned Queue + Reserve) running on http://0.0.0.0:${PORT}`
     );
-    console.log(`  Proxy pool: ${ALL_PROXIES.length} servers`);
+    console.log(`  Regular proxies: ${ALL_PROXIES.length} (${ALL_PROXIES.join(', ')})`);
+    if (RESERVE_PROXIES.length > 0) {
+        console.log(`  Reserve proxies: ${RESERVE_PROXIES.length} (${RESERVE_PROXIES.join(', ')})`);
+    }
     console.log(`  Queue versioning: only first concurrent request can modify order`);
-    console.log(`  Failed proxies move to end of global queue`);
-    console.log(`  Each request gets a snapshot of current queue + version`);
+    console.log(`  Reserve proxies stay at end of queue for emergency use`);
     console.log(`  Rate limit codes: ${RATE_LIMIT_CODES.join(', ')}`);
     console.log(`  Health check: GET http://0.0.0.0:${PORT}/health`);
     console.log(`  Environment: Node.js ${process.version}`);
