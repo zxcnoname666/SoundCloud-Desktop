@@ -1,11 +1,11 @@
 import https from 'node:https';
-import { URL } from 'node:url';
+import {URL} from 'node:url';
 import fetch from 'node-fetch';
-import type { ProxyManagerInterface } from '../types/global.js';
-import { ConfigManager } from '../utils/config.js';
-import { Extensions } from './Extensions.js';
-import type { NotificationManager } from './NotificationManager.js';
-import { WindowSetup } from './WindowSetup';
+import type {ProxyManagerInterface} from '../types/global.js';
+import {ConfigManager} from '../utils/config.js';
+import {Extensions} from './Extensions.js';
+import type {NotificationManager} from './NotificationManager.js';
+import {WindowSetup} from './WindowSetup';
 
 interface ProxyInfo {
   source: string;
@@ -84,7 +84,7 @@ export class ProxyManager implements ProxyManagerInterface {
 
     for (const proxy of availableProxies) {
       try {
-        const proxyUrl = this.buildProxyUrl(proxy);
+          const proxyUrl = `${this.buildProxyUrl(proxy)}/${Date.now()}`;
 
         // Используем большой timeout (5 минут) как fallback на крайний случай
         // Idle timeout (10 сек без данных) определяется в WindowSetup wrapper stream
