@@ -1,215 +1,242 @@
 /**
- * Node.js HTTP Proxy Server for SoundCloud Desktop
+ * Simple Proxy Server (Node.js port of Cloudflare Worker)
  *
- * This server acts as a proxy that receives the target URL in the X-Target header
+ * Acts as a proxy that receives the target URL in the X-Target header
  * and forwards the request to that URL, handling redirects properly.
  *
- * Compatible with Node.js 18+ (requires built-in fetch and Web Crypto API)
- *
- * Usage: node node-proxy.js
- * Default port: 8080 (configurable via PORT environment variable)
+ * Usage: node simple-proxy.js
+ * Default port: 8080
  */
 
 import http from 'node:http';
-import https from 'node:https';
 
 const PORT = process.env.PORT || 8080;
 
-const httpsAgent = new https.Agent({
-  maxVersion: 'TLSv1.2',
-  minVersion: 'TLSv1',
-});
+/**
+ * Safely decode target URL from base64
+ */
+function decodeTargetUrl(urlHeader) {
+    if (!urlHeader) return null;
+
+    try {
+        return Buffer.from(urlHeader, 'base64').toString('utf-8');
+    } catch {
+        return null;
+    }
+}
 
 const server = http.createServer(async (req, res) => {
-  // Collect request body
-  const buffers = [];
-  for await (const chunk of req) {
-    buffers.push(chunk);
-  }
-  const requestBody = Buffer.concat(buffers);
-
-  // Build request headers object
-  const requestHeaders = new Headers();
-  for (const [key, value] of Object.entries(req.headers)) {
-    if (Array.isArray(value)) {
-      requestHeaders.set(key, value.join(', '));
-    } else if (value) {
-      requestHeaders.set(key, value);
-    }
-  }
-
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Max-Age': '86400',
-    });
-    res.end();
-    return;
-  }
-
-  // Get target URL from header (base64 encoded)
-  const encodedUrl = requestHeaders.get('X-Target');
-
-  if (!encodedUrl) {
-    res.writeHead(400, {
-      'Content-Type': 'text/plain',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': '*',
-    });
-    res.end('Missing X-Target header');
-    return;
-  }
-
-  // Decode base64 URL
-  let targetUrl;
-  try {
-    targetUrl = Buffer.from(encodedUrl, 'base64').toString('utf-8');
-  } catch (error) {
-    res.writeHead(400, {
-      'Content-Type': 'text/plain',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': '*',
-    });
-    res.end('Invalid base64 encoded URL');
-    return;
-  }
-
-  console.log('Proxying request:', req.method, 'to', targetUrl);
-
-  try {
-    // Prepare headers for the target request
-    const targetHeaders = new Headers();
-
-    // Copy all headers except proxy-specific ones
-    for (const [key, value] of requestHeaders) {
-      if (
-        key.toLowerCase() !== 'x-target' &&
-        key.toLowerCase() !== 'x-proxy-secret' &&
-        key.toLowerCase() !== 'host' &&
-        key.toLowerCase() !== 'x-forwarded-for' &&
-        key.toLowerCase() !== 'x-forwarded-proto' &&
-        key.toLowerCase() !== 'x-real-ip' &&
-        key.toLowerCase() !== 'connection'
-      ) {
-        targetHeaders.set(key, value);
-      }
+    // Handle CORS preflight
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Max-Age': '86400',
+        });
+        res.end();
+        return;
     }
 
-    // Set proper host header for target
-    const targetUrlObj = new URL(targetUrl);
-    targetHeaders.set('Host', targetUrlObj.host);
+    // Get target URL from header (base64 encoded)
+    const urlHeader = req.headers['x-target'];
 
-    // Prepare request options
-    const requestOptions = {
-      method: req.method,
-      headers: targetHeaders,
-      redirect: 'manual', // Handle redirects manually
-    };
-
-    // Add body for non-GET requests
-    if (req.method !== 'GET' && req.method !== 'HEAD' && requestBody.length > 0) {
-      requestOptions.body = requestBody;
+    if (!urlHeader) {
+        res.writeHead(400, {
+            'Content-Type': 'text/plain',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': '*',
+        });
+        res.end('Missing X-Target header');
+        return;
     }
 
-    // Make request to target URL
-    const response = await fetch(targetUrl, {
-      ...requestOptions,
-      agent: targetUrlObj.protocol === 'https:' ? httpsAgent : undefined,
-    });
+    // Decode base64 URL
+    const targetUrl = decodeTargetUrl(urlHeader);
 
-    // Handle redirects by updating Location header to point to actual destination
-    if (response.status >= 300 && response.status < 400) {
-      const location = response.headers.get('Location');
-      if (location) {
-        let newLocation;
+    if (!targetUrl) {
+        res.writeHead(400, {
+            'Content-Type': 'text/plain',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': '*',
+        });
+        res.end('Invalid base64 encoded URL');
+        return;
+    }
 
-        // Handle relative redirects
-        if (location.startsWith('/')) {
-          newLocation = new URL(location, targetUrl).href;
-        }
-        // Handle absolute redirects
-        else if (location.startsWith('http')) {
-          newLocation = location;
-        }
-        // Handle protocol-relative redirects
-        else if (location.startsWith('//')) {
-          newLocation = targetUrlObj.protocol + location;
-        }
-        // Handle relative path redirects
-        else {
-          newLocation = new URL(location, targetUrl).href;
+    console.log('Proxying request:', req.method, 'to', targetUrl);
+
+    try {
+        // Prepare headers for the target request
+        const targetHeaders = {};
+        const targetUrlObj = new URL(targetUrl);
+
+        // Copy all headers except proxy-specific ones
+        const skipHeaders = [
+            'x-target',
+            'host',
+            'cf-connecting-ip',
+            'cf-ipcountry',
+            'cf-ray',
+            'cf-visitor',
+            'x-forwarded-for',
+            'x-forwarded-proto',
+            'x-real-ip',
+        ];
+
+        for (const [key, value] of Object.entries(req.headers)) {
+            if (!skipHeaders.includes(key.toLowerCase())) {
+                targetHeaders[key] = value;
+            }
         }
 
-        console.log('Redirect from', targetUrl, 'to', newLocation);
+        // Set proper host header for target
+        targetHeaders['host'] = targetUrlObj.host;
 
-        // Build response headers
-        const responseHeaders = {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': '*',
+        // Collect request body
+        const buffers = [];
+        for await (const chunk of req) {
+            buffers.push(chunk);
+        }
+        const requestBody = Buffer.concat(buffers);
+
+        // Prepare request options
+        const requestOptions = {
+            method: req.method,
+            headers: targetHeaders,
+            redirect: 'manual', // Handle redirects manually
         };
 
-        // Copy headers from original response
+        // Add body for non-GET requests
+        if (req.method !== 'GET' && req.method !== 'HEAD' && requestBody.length > 0) {
+            requestOptions.body = requestBody;
+        }
+
+        // Make request to target URL
+        const response = await fetch(targetUrl, requestOptions);
+
+        // Handle redirects by updating Location header to point to actual destination
+        if (response.status >= 300 && response.status < 400) {
+            const location = response.headers.get('Location');
+            if (location) {
+                let newLocation;
+
+                // Handle relative redirects
+                if (location.startsWith('/')) {
+                    newLocation = new URL(location, targetUrl).href;
+                }
+                // Handle absolute redirects
+                else if (location.startsWith('http')) {
+                    newLocation = location;
+                }
+                // Handle protocol-relative redirects
+                else if (location.startsWith('//')) {
+                    newLocation = targetUrlObj.protocol + location;
+                }
+                // Handle relative path redirects
+                else {
+                    newLocation = new URL(location, targetUrl).href;
+                }
+
+                console.log('Redirect from', targetUrl, 'to', newLocation);
+
+                // Create response headers with updated Location
+                const responseHeaders = {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers': '*',
+                };
+
+                // Copy headers from response
+                for (const [key, value] of response.headers) {
+                    if (key.toLowerCase() !== 'location') {
+                        responseHeaders[key] = value;
+                    }
+                }
+
+                // Set updated Location header
+                responseHeaders['Location'] = newLocation;
+
+                res.writeHead(response.status, responseHeaders);
+
+                // Stream response body if any
+                if (response.body) {
+                    const reader = response.body.getReader();
+                    try {
+                        while (true) {
+                            const {done, value} = await reader.read();
+                            if (done) break;
+                            res.write(value);
+                        }
+                    } finally {
+                        reader.releaseLock();
+                    }
+                }
+
+                res.end();
+                return;
+            }
+        }
+
+        // For non-redirect responses, add CORS headers and return
+        const responseHeaders = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': '*',
+        };
+
+        // Copy headers from response, skip problematic ones
+        const skipResponseHeaders = [
+            'content-security-policy',
+            'x-frame-options',
+            'content-encoding',
+            'content-length',
+            'transfer-encoding',
+        ];
+
         for (const [key, value] of response.headers) {
-          responseHeaders[key] = value;
+            if (!skipResponseHeaders.includes(key.toLowerCase())) {
+                responseHeaders[key] = value;
+            }
         }
 
-        // Update Location header
-        responseHeaders['Location'] = newLocation;
-
-        // Send redirect response
         res.writeHead(response.status, responseHeaders);
-        const redirectBody = await response.arrayBuffer();
-        res.end(Buffer.from(redirectBody));
-        return;
-      }
-    }
 
-    // Send response headers
-    res.writeHead(response.status, responseHeaders);
-
-    // Stream response directly without reading entire body
-    if (response.body) {
-      const reader = response.body.getReader();
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) {
-            break;
-          }
-
-          // Write chunk directly
-          res.write(value);
+        // Stream response body
+        if (response.body) {
+            const reader = response.body.getReader();
+            try {
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+                    res.write(value);
+                }
+            } catch (streamError) {
+                console.error('Stream error:', streamError);
+            } finally {
+                reader.releaseLock();
+            }
         }
-      } catch (streamError) {
-        console.error('Stream error:', streamError);
-      } finally {
-        reader.releaseLock();
-      }
+
+        res.end();
+    } catch (error) {
+        console.error('Proxy error:', error);
+
+        res.writeHead(503, {
+            'Content-Type': 'text/plain',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': '*',
+        });
+        res.end(`Proxy Error: ${error.message}`);
     }
-
-    res.end();
-  } catch (error) {
-    console.error('Proxy error:', error);
-
-    res.writeHead(500, {
-      'Content-Type': 'text/plain',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': '*',
-    });
-    res.end(`Proxy Error: ${error.message}`);
-  }
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`✓ Node.js Proxy Server running on http://0.0.0.0:${PORT}`);
-  console.log(`  Environment: Node.js ${process.version}`);
+    console.log(`✓ Simple Proxy Server running on http://0.0.0.0:${PORT}`);
+    console.log(`  X-Target header: base64 encoded URL`);
+    console.log(`  Handles redirects automatically`);
+    console.log(`  Environment: Node.js ${process.version}`);
 });
