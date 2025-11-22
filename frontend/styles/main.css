@@ -565,9 +565,11 @@ webview {
   }
 }
 
-/* AuthButton in navbar */
-.AuthButton {
-  display: flex;
+/* Settings/Auth/Discord Button in navbar */
+.SettingsButton,
+.AuthButton,
+.DiscordButton {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 30px;
@@ -580,6 +582,7 @@ webview {
   position: relative;
 }
 
+.SettingsButton::before,
 .AuthButton::before {
   content: "";
   position: absolute;
@@ -591,21 +594,25 @@ webview {
   transition: transform 0.3s ease;
 }
 
+.SettingsButton:hover::before,
 .AuthButton:hover::before {
   transform: scale(1);
 }
 
+.SettingsButton:hover,
 .AuthButton:hover {
   background: rgba(255, 85, 0, 0.2);
   box-shadow: 0 4px 12px rgba(255, 85, 0, 0.3);
 }
 
+.SettingsButton svg,
 .AuthButton svg {
   transition: all 0.3s ease;
   position: relative;
   z-index: 1;
 }
 
+.SettingsButton:hover svg,
 .AuthButton:hover svg {
   fill: #ff5500;
   filter: drop-shadow(0 0 6px rgba(255, 85, 0, 0.6));

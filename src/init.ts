@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { BrowserWindow, app } from 'electron';
+import { BrowserWindow, app, ipcMain } from 'electron';
 import { Client } from 'qurre-socket';
 import { AppManager } from './modules/AppManager.js';
 import { AuthManager } from './modules/AuthManager.js';
@@ -8,6 +8,7 @@ import { registerDiscordIPCHandlers } from './modules/DiscordIPCHandlers.js';
 import { Extensions } from './modules/Extensions.js';
 import { NotificationManager } from './modules/NotificationManager.js';
 import { ProxyManager } from './modules/ProxyManager.js';
+import { SettingsManager } from './modules/SettingsManager.js';
 import { TCPPortChecker } from './modules/TCPPortChecker.js';
 import { WindowSetup } from './modules/WindowSetup.js';
 import type { AppContext } from './types/global.js';
@@ -226,6 +227,16 @@ class SoundCloudApp {
       await authManager.initializeWithWindow();
 
       await this.discordManager.initialize(mainWindow);
+
+      // Инициализируем SettingsManager и применяем кастомные стили
+      const settingsManager = SettingsManager.getInstance();
+      settingsManager.setMainWindow(mainWindow);
+      await settingsManager.initializeCustomStyles();
+
+      // Регистрируем IPC handler для открытия настроек
+      ipcMain.on('settings:open', () => {
+        settingsManager.openSettings();
+      });
 
       if (await this.checkPortUsage()) {
         return;

@@ -70,6 +70,8 @@
   "dependencies": {
     "discord-rpc": "^4.0.1",
     "json5": "^2.2.3",
+    "marked": "^17.0.1",
+    "monaco-editor": "^0.55.1",
     "node-fetch": "^3.3.2",
     "qurre-socket": "^1.1.0"
   },
