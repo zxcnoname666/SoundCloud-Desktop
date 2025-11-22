@@ -97,6 +97,12 @@ export class AssetCache {
       return;
     }
 
+    // Никогда не кэшируем service workers
+    if (url.includes('service-worker')) {
+      console.debug(`💾 Skip cache (service worker): ${url}`);
+      return;
+    }
+
     const isStatic = this.isStaticAsset(url);
     const hasCacheableHeaders = this.isCacheableResponse(headers);
 
@@ -140,11 +146,24 @@ export class AssetCache {
       const parsedUrl = new URL(url);
       const pathname = parsedUrl.pathname.toLowerCase();
 
+      // Никогда не кэшируем service workers
+      if (pathname.includes('service-worker')) {
+        return false;
+      }
+
       // Проверяем, не является ли это динамическим запросом
       for (const pattern of this.DYNAMIC_PATTERNS) {
         if (pattern.test(pathname)) {
           return false;
         }
+      }
+
+      // Проверяем, является ли это страницей без расширения (например /discover, /rest)
+      // Берем последнюю часть пути после последнего слэша
+      const lastSegment = pathname.split('/').pop() || '';
+      // Если в последней части нет точки - это страница (не файл), не кэшируем
+      if (lastSegment && !lastSegment.includes('.')) {
+        return false;
       }
 
       // Проверяем расширение файла
