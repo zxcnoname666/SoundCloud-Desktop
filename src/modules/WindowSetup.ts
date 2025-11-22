@@ -1,20 +1,11 @@
-import { join } from 'node:path';
-import { Readable } from 'node:stream';
-import {
-  BrowserWindow,
-  Menu,
-  Tray,
-  app,
-  globalShortcut,
-  nativeImage,
-  protocol,
-  shell,
-} from 'electron';
+import {join} from 'node:path';
+import {Readable} from 'node:stream';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import type { WindowBounds } from '../types/config.js';
-import { AssetCache } from './AssetCache.js';
-import { ProxyManager } from './ProxyManager.js';
-import { ProxyMetricsCollector } from './ProxyMetricsCollector.js';
+import type {WindowBounds} from '../types/config.js';
+import {AssetCache} from './AssetCache.js';
+import {ProxyManager} from './ProxyManager.js';
+import {ProxyMetricsCollector} from './ProxyMetricsCollector.js';
 
 interface DomainCheckResult {
   shouldProxy: boolean;
@@ -757,7 +748,7 @@ export class WindowSetup {
           body: requestBody,
         });
 
-        return WindowSetup.createStreamingResponseWithCache(response, request.url, assetCache);
+          return WindowSetup.createStreamingResponseWithCache(response, response.url, assetCache);
       }
 
       const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
@@ -767,7 +758,7 @@ export class WindowSetup {
         body: requestBody,
       });
 
-      return WindowSetup.createStreamingResponseWithCache(response, request.url, assetCache);
+        return WindowSetup.createStreamingResponseWithCache(response, response.url, assetCache);
     } catch (error) {
       console.error('❌ Proxy request failed:', request.url, error);
       return new Response('Proxy Error', { status: 500 });
@@ -792,29 +783,6 @@ export class WindowSetup {
     const responseHeaders = new Headers();
     for (const [key, value] of Object.entries(headersObj)) {
       responseHeaders.set(key, value);
-    }
-
-    // Отключаем кэширование для service workers
-    if (url.includes('service-worker')) {
-      responseHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      responseHeaders.set('Pragma', 'no-cache');
-      responseHeaders.set('Expires', '0');
-      console.debug(`🚫 Service worker caching disabled for: ${url}`);
-    }
-
-    // Отключаем кэширование для страниц без расширения (типа /discover, /rest)
-    try {
-      const parsedUrl = new URL(url);
-      const pathname = parsedUrl.pathname;
-      const lastSegment = pathname.split('/').pop() || '';
-      if (lastSegment && !lastSegment.includes('.')) {
-        responseHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-        responseHeaders.set('Pragma', 'no-cache');
-        responseHeaders.set('Expires', '0');
-        console.debug(`🚫 Page caching disabled for: ${url}`);
-      }
-    } catch {
-      // Игнорируем ошибки парсинга URL
     }
 
     // Если нет body - возвращаем пустой ответ

@@ -1,8 +1,8 @@
-import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { app } from 'electron';
+import {createHash} from 'node:crypto';
+import {existsSync} from 'node:fs';
+import {mkdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {join} from 'node:path';
+import {app} from 'electron';
 
 interface CachedAssetMetadata {
   url: string;
@@ -97,12 +97,6 @@ export class AssetCache {
       return;
     }
 
-    // Никогда не кэшируем service workers
-    if (url.includes('service-worker')) {
-      console.debug(`💾 Skip cache (service worker): ${url}`);
-      return;
-    }
-
     const isStatic = this.isStaticAsset(url);
     const hasCacheableHeaders = this.isCacheableResponse(headers);
 
@@ -145,11 +139,6 @@ export class AssetCache {
     try {
       const parsedUrl = new URL(url);
       const pathname = parsedUrl.pathname.toLowerCase();
-
-      // Никогда не кэшируем service workers
-      if (pathname.includes('service-worker')) {
-        return false;
-      }
 
       // Проверяем, не является ли это динамическим запросом
       for (const pattern of this.DYNAMIC_PATTERNS) {
@@ -225,7 +214,7 @@ export class AssetCache {
       }
     }
 
-    return createHash('md5').update(cacheUrl).digest('hex');
+      return createHash('sha512').update(cacheUrl).digest('hex');
   }
 
   /**
@@ -255,15 +244,6 @@ export class AssetCache {
     statusText: string;
   } | null> {
     if (!this.enabled) {
-      return null;
-    }
-
-    // Проверяем что это не страница без расширения (например /discover, /rest)
-    const isStatic = this.isStaticAsset(url);
-    if (!isStatic) {
-      // Если файл не является статическим ассетом - не отдаем из кэша
-      // (он мог быть закэширован ранее по ошибке или до обновления логики)
-      console.debug(`💾 Skip cache GET (not static): ${url}`);
       return null;
     }
 
