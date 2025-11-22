@@ -1,11 +1,11 @@
 import https from 'node:https';
-import {URL} from 'node:url';
+import { URL } from 'node:url';
 import fetch from 'node-fetch';
-import type {ProxyManagerInterface} from '../types/global.js';
-import {ConfigManager} from '../utils/config.js';
-import {Extensions} from './Extensions.js';
-import type {NotificationManager} from './NotificationManager.js';
-import {WindowSetup} from './WindowSetup';
+import type { ProxyManagerInterface } from '../types/global.js';
+import { ConfigManager } from '../utils/config.js';
+import { Extensions } from './Extensions.js';
+import type { NotificationManager } from './NotificationManager.js';
+import { WindowSetup } from './WindowSetup';
 
 interface ProxyInfo {
   source: string;
@@ -84,8 +84,8 @@ export class ProxyManager implements ProxyManagerInterface {
 
     for (const proxy of availableProxies) {
       try {
-          const encodedTargetUrl = Buffer.from(url).toString('base64');
-          const proxyUrl = this.buildProxyUrl(proxy, encodedTargetUrl);
+        const encodedTargetUrl = Buffer.from(url).toString('base64');
+        const proxyUrl = this.buildProxyUrl(proxy, encodedTargetUrl);
 
         // Используем большой timeout (5 минут) как fallback на крайний случай
         // Idle timeout (10 сек без данных) определяется в WindowSetup wrapper stream
@@ -95,7 +95,7 @@ export class ProxyManager implements ProxyManagerInterface {
           headers: {
             ...proxy.headers,
             ...headers,
-              'X-Target': encodedTargetUrl,
+            'X-Target': encodedTargetUrl,
           },
           agent: this.httpsAgent,
         };
@@ -283,15 +283,15 @@ export class ProxyManager implements ProxyManagerInterface {
       .filter(Boolean) as ProxyInfo[];
   }
 
-    private buildProxyUrl(proxy: ProxyInfo, targetUrl: string): string {
-        const basePath = encodeURI(
-            decodeURI(proxy.path || '/')
-                .replaceAll('{date}', Date.now().toString())
-                .replaceAll('{target}', targetUrl)
-        );
+  private buildProxyUrl(proxy: ProxyInfo, targetUrl: string): string {
+    const basePath = encodeURI(
+      decodeURI(proxy.path || '/')
+        .replaceAll('{date}', Date.now().toString())
+        .replaceAll('{target}', targetUrl)
+    );
 
-        return `${proxy.domain}${basePath}`;
-    }
+    return `${proxy.domain}${basePath}`;
+  }
 
   private showNotification(messageKey: string, value?: string): void {
     if (!this.notifyManager) return;
