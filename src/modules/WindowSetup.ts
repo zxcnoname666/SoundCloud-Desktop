@@ -794,6 +794,29 @@ export class WindowSetup {
       responseHeaders.set(key, value);
     }
 
+    // Отключаем кэширование для service workers
+    if (url.includes('service-worker')) {
+      responseHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      responseHeaders.set('Pragma', 'no-cache');
+      responseHeaders.set('Expires', '0');
+      console.debug(`🚫 Service worker caching disabled for: ${url}`);
+    }
+
+    // Отключаем кэширование для страниц без расширения (типа /discover, /rest)
+    try {
+      const parsedUrl = new URL(url);
+      const pathname = parsedUrl.pathname;
+      const lastSegment = pathname.split('/').pop() || '';
+      if (lastSegment && !lastSegment.includes('.')) {
+        responseHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        responseHeaders.set('Pragma', 'no-cache');
+        responseHeaders.set('Expires', '0');
+        console.debug(`🚫 Page caching disabled for: ${url}`);
+      }
+    } catch {
+      // Игнорируем ошибки парсинга URL
+    }
+
     // Если нет body - возвращаем пустой ответ
     if (!nodeFetchResponse.body) {
       return new Response(null, {
