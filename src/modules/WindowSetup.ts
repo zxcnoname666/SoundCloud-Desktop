@@ -813,7 +813,7 @@ export class WindowSetup {
         responseHeaders.set('Expires', '0');
         console.debug(`🚫 Page caching disabled for: ${url}`);
       }
-    } catch (error) {
+    } catch {
       // Игнорируем ошибки парсинга URL
     }
 
