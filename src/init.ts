@@ -145,10 +145,34 @@ class SoundCloudApp {
         '🌐 Webview created, session:',
         contents.session === require('electron').session.defaultSession ? 'default' : 'separate'
       );
+
+      // Unregister all service workers in webview session
+      this.clearServiceWorkers(contents.session);
     }
 
     if (this.context.isDev) {
       contents.openDevTools({ mode: 'detach' });
+    }
+  }
+
+  private async clearServiceWorkers(session: Electron.Session): Promise<void> {
+    try {
+      // Check if there are any running service workers
+      const workers = await session.serviceWorkers.getAllRunning();
+      const workerIds = Object.keys(workers);
+
+      if (workerIds.length > 0) {
+        console.info(`🧹 Found ${workerIds.length} service worker(s), clearing...`);
+      }
+
+      // Clear service workers storage data
+      await session.clearStorageData({
+        storages: ['serviceworkers'],
+      });
+
+      console.info('✅ Service workers storage cleared');
+    } catch (error) {
+      console.debug('⚠️ Failed to clear service workers:', error);
     }
   }
 
