@@ -1,8 +1,8 @@
-import {createHash} from 'node:crypto';
-import {existsSync} from 'node:fs';
-import {mkdir, readFile, rm, writeFile} from 'node:fs/promises';
-import {join} from 'node:path';
-import {app} from 'electron';
+import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { app } from 'electron';
 
 interface CachedAssetMetadata {
   url: string;
@@ -214,7 +214,7 @@ export class AssetCache {
       }
     }
 
-      return createHash('sha1').update(cacheUrl).digest('hex');
+    return createHash('sha1').update(cacheUrl).digest('hex');
   }
 
   /**
