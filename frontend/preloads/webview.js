@@ -1,33 +1,5 @@
 const { ipcRenderer } = require('electron');
 
-// Disable service worker registration
-const disableServiceWorker = () => {
-  if ('serviceWorker' in navigator) {
-    // Override serviceWorker.register to prevent registration
-    Object.defineProperty(navigator.serviceWorker, 'register', {
-      value: () => {
-        console.warn('Service worker registration is disabled');
-        return Promise.reject(new Error('Service worker registration is disabled'));
-      },
-      writable: false,
-      configurable: false,
-    });
-
-    // Unregister all existing service workers
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      for (const registration of registrations) {
-        registration.unregister().then((success) => {
-          if (success) {
-            console.info('Service worker unregistered successfully:', registration.scope);
-          }
-        });
-      }
-    }).catch((error) => {
-      console.error('Failed to get service worker registrations:', error);
-    });
-  }
-};
-
 const updateUrl = () => {
   ipcRenderer.on('reload', () => {
     window.location.reload();
@@ -135,7 +107,6 @@ const trackPlayingState = () => {
 };
 
 window.addEventListener('DOMContentLoaded', () => {
-  disableServiceWorker();
   updateUrl();
   removeBanners();
   sendUpdatedUrl();

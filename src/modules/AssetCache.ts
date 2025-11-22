@@ -258,12 +258,6 @@ export class AssetCache {
       return null;
     }
 
-    // Никогда не отдаем service workers из кэша
-    if (url.includes('service-worker')) {
-      console.debug(`💾 Skip cache GET (service worker): ${url}`);
-      return null;
-    }
-
     // Проверяем что это не страница без расширения (например /discover, /rest)
     const isStatic = this.isStaticAsset(url);
     if (!isStatic) {
