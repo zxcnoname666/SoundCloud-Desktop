@@ -258,7 +258,21 @@ export class AssetCache {
       return null;
     }
 
-    // Не проверяем isStaticAsset - файл мог быть закэширован по заголовкам
+    // Никогда не отдаем service workers из кэша
+    if (url.includes('service-worker')) {
+      console.debug(`💾 Skip cache GET (service worker): ${url}`);
+      return null;
+    }
+
+    // Проверяем что это не страница без расширения (например /discover, /rest)
+    const isStatic = this.isStaticAsset(url);
+    if (!isStatic) {
+      // Если файл не является статическим ассетом - не отдаем из кэша
+      // (он мог быть закэширован ранее по ошибке или до обновления логики)
+      console.debug(`💾 Skip cache GET (not static): ${url}`);
+      return null;
+    }
+
     const metadataPath = this.getCacheMetadataPath(url);
     const dataPath = this.getCacheDataPath(url);
 
