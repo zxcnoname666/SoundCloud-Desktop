@@ -160,7 +160,7 @@ export class SettingsManager {
   }
 
   async applyCustomCSS(css?: string): Promise<void> {
-    const cssToApply = css || await this.loadCustomCSS();
+    const cssToApply = css || (await this.loadCustomCSS());
     await this.injectCSS(cssToApply, true);
   }
 
