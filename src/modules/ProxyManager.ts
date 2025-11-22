@@ -84,7 +84,8 @@ export class ProxyManager implements ProxyManagerInterface {
 
     for (const proxy of availableProxies) {
       try {
-        const proxyUrl = this.buildProxyUrl(proxy);
+        const encodedTargetUrl = Buffer.from(url).toString('base64');
+        const proxyUrl = this.buildProxyUrl(proxy, encodedTargetUrl);
 
         // Используем большой timeout (5 минут) как fallback на крайний случай
         // Idle timeout (10 сек без данных) определяется в WindowSetup wrapper stream
@@ -94,7 +95,7 @@ export class ProxyManager implements ProxyManagerInterface {
           headers: {
             ...proxy.headers,
             ...headers,
-            'X-Target': Buffer.from(url).toString('base64'),
+            'X-Target': encodedTargetUrl,
           },
           agent: this.httpsAgent,
         };
@@ -282,8 +283,13 @@ export class ProxyManager implements ProxyManagerInterface {
       .filter(Boolean) as ProxyInfo[];
   }
 
-  private buildProxyUrl(proxy: ProxyInfo): string {
-    const basePath = proxy.path || '/';
+  private buildProxyUrl(proxy: ProxyInfo, targetUrl: string): string {
+    const basePath = encodeURI(
+      decodeURI(proxy.path || '/')
+        .replaceAll('{date}', Date.now().toString())
+        .replaceAll('{target}', targetUrl)
+    );
+
     return `${proxy.domain}${basePath}`;
   }
 
