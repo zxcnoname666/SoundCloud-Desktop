@@ -35,15 +35,26 @@ function renderUpdateInfo(info) {
     try {
       const container = document.querySelector('.changelog-container');
 
-      // Save current scroll position (should be 0 initially)
-      const savedScrollTop = container ? container.scrollTop : 0;
-
       const html = marked.parse(info.changelog);
       changelogEl.innerHTML = html;
 
-      // Restore scroll position immediately
+      // Force scroll to top multiple ways
       if (container) {
-        container.scrollTop = savedScrollTop;
+        container.scrollTop = 0;
+        requestAnimationFrame(() => {
+          container.scrollTop = 0;
+        });
+      }
+
+      // Make links open in browser
+      const links = changelogEl.querySelectorAll('a');
+      for (const link of links) {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (typeof window.updateAPI !== 'undefined') {
+            window.updateAPI.openExternal(link.href);
+          }
+        });
       }
     } catch (error) {
       console.error('Failed to parse markdown:', error);
