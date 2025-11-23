@@ -33,16 +33,18 @@ function renderUpdateInfo(info) {
   const changelogEl = document.getElementById('changelogContent');
   if (changelogEl && info.changelog) {
     try {
+      const container = document.querySelector('.changelog-container');
+
+      // Save current scroll position (should be 0 initially)
+      const savedScrollTop = container ? container.scrollTop : 0;
+
       const html = marked.parse(info.changelog);
       changelogEl.innerHTML = html;
 
-      // Scroll container to top after DOM updates
-      setTimeout(() => {
-        const container = document.querySelector('.changelog-container');
-        if (container) {
-          container.scrollTop = 0;
-        }
-      }, 0);
+      // Restore scroll position immediately
+      if (container) {
+        container.scrollTop = savedScrollTop;
+      }
     } catch (error) {
       console.error('Failed to parse markdown:', error);
       changelogEl.innerHTML = `<pre>${escapeHtml(info.changelog)}</pre>`;
