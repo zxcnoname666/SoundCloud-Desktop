@@ -1,11 +1,11 @@
-const { contextBridge, ipcRenderer, shell } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('updateAPI', {
   getUpdateInfo: () => ipcRenderer.invoke('update:get-info'),
   closeWindow: () => ipcRenderer.send('update:close'),
   later: () => ipcRenderer.send('update:later'),
   install: () => ipcRenderer.invoke('update:install'),
-  openExternal: (url) => shell.openExternal(url),
+  openExternal: (url) => ipcRenderer.send('update:open-external', url),
 
   // Listen for download progress
   onProgress: (callback) => {

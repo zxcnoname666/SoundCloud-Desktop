@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { BrowserWindow, app, ipcMain } from 'electron';
+import { BrowserWindow, app, ipcMain, shell } from 'electron';
 
 interface UpdateInfo {
   version: string;
@@ -106,6 +106,10 @@ export class UpdateNotificationManager {
         this.resolveInstall = null;
       }
       return true;
+    });
+
+    ipcMain.on('update:open-external', (_event, url: string) => {
+      shell.openExternal(url);
     });
   }
 

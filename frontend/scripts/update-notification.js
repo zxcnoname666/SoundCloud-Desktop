@@ -38,11 +38,19 @@ function renderUpdateInfo(info) {
       const html = marked.parse(info.changelog);
       changelogEl.innerHTML = html;
 
-      // Force scroll to top multiple ways
+      // Force scroll to top with multiple fallbacks
       if (container) {
         container.scrollTop = 0;
         requestAnimationFrame(() => {
           container.scrollTop = 0;
+          requestAnimationFrame(() => {
+            container.scrollTop = 0;
+            // Also try scrolling the first child into view
+            const firstChild = changelogEl.firstElementChild;
+            if (firstChild) {
+              firstChild.scrollIntoView({ block: 'start', behavior: 'instant' });
+            }
+          });
         });
       }
 
