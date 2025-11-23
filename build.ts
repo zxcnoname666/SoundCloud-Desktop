@@ -130,6 +130,9 @@ class Builder {
       }
     }
 
+    // Copy required node_modules for frontend
+    this.copyNodeModules();
+
     // Copy individual files
     console.info('📁 Copying config files...');
     for (const file of configFiles) {
@@ -141,6 +144,36 @@ class Builder {
 
     // Generate minimal package.json for electron-builder
     this.generatePackageJson();
+  }
+
+  private copyNodeModules(): void {
+    console.info('📦 Copying required node_modules...');
+
+    const requiredModules = [
+      {
+        name: 'marked',
+        src: 'node_modules/marked/lib',
+        dest: 'node_modules/marked/lib',
+      },
+      {
+        name: 'monaco-editor',
+        src: 'node_modules/monaco-editor/min',
+        dest: 'node_modules/monaco-editor/min',
+      },
+    ];
+
+    for (const module of requiredModules) {
+      const srcPath = join(this.rootDir, module.src);
+      const destPath = join(this.distDir, module.dest);
+
+      if (existsSync(srcPath)) {
+        console.info(`  📦 Copying ${module.name}...`);
+        mkdirSync(join(this.distDir, 'node_modules'), { recursive: true });
+        cpSync(srcPath, destPath, { recursive: true });
+      } else {
+        console.warn(`  ⚠️  ${module.name} not found at ${srcPath}`);
+      }
+    }
   }
 
   private generatePackageJson(): void {
