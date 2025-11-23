@@ -231,7 +231,7 @@ class SoundCloudApp {
       // Инициализируем SettingsManager и применяем кастомные стили
       const settingsManager = SettingsManager.getInstance();
       settingsManager.setMainWindow(mainWindow);
-      await settingsManager.initializeCustomStyles();
+      settingsManager.initializeCustomStyles();
 
       // Регистрируем IPC handler для открытия настроек
       ipcMain.on('settings:open', () => {

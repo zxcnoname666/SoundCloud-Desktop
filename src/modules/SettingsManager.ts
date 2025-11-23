@@ -1,11 +1,9 @@
 import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { BrowserWindow, app, ipcMain } from 'electron';
 
-const CONFIG_DIR = join(homedir(), '.soundcloud-desktop');
-const CUSTOM_STYLES_FILE = join(CONFIG_DIR, 'custom-styles.css');
+const CUSTOM_STYLES_FILE = join(app.getPath('userData'), 'custom-styles.css');
 
 const DEFAULT_CSS = `/* SoundCloud Desktop - Custom Styles */
 /* Add your custom CSS here to customize the appearance of SoundCloud */
@@ -31,7 +29,6 @@ export class SettingsManager {
 
   private constructor() {
     this.setupIPC();
-    this.ensureConfigDir();
   }
 
   static getInstance(): SettingsManager {
@@ -43,12 +40,6 @@ export class SettingsManager {
 
   setMainWindow(mainWindow: BrowserWindow): void {
     this.mainWindow = mainWindow;
-  }
-
-  private async ensureConfigDir(): Promise<void> {
-    if (!existsSync(CONFIG_DIR)) {
-      await mkdir(CONFIG_DIR, { recursive: true });
-    }
   }
 
   async openSettings(): Promise<void> {
@@ -164,7 +155,6 @@ export class SettingsManager {
   }
 
   private async saveCustomCSS(css: string): Promise<void> {
-    await this.ensureConfigDir();
     await writeFile(CUSTOM_STYLES_FILE, css, 'utf-8');
   }
 
@@ -219,44 +209,20 @@ export class SettingsManager {
     }
   }
 
-  async initializeCustomStyles(): Promise<void> {
-    // Wait for webview to load, then apply custom styles
+  initializeCustomStyles(): void {
+    // Apply custom styles when webview is ready (non-blocking)
     if (!this.mainWindow || this.mainWindow.isDestroyed()) {
       return;
     }
 
-    // Listen for webview-dom-ready event
-    const code = `
-      (function() {
-        const webview = document.querySelector('webview');
-        if (webview) {
-          webview.addEventListener('dom-ready', function() {
-            const savedStyles = localStorage.getItem('soundcloud-custom-styles');
-            if (savedStyles) {
-              let styleEl = webview.contentDocument?.getElementById('soundcloud-custom-styles');
-              if (!styleEl) {
-                styleEl = webview.contentDocument?.createElement('style');
-                if (styleEl) {
-                  styleEl.id = 'soundcloud-custom-styles';
-                  webview.contentDocument?.head?.appendChild(styleEl);
-                }
-              }
-              if (styleEl) {
-                styleEl.textContent = savedStyles;
-              }
-            }
-          });
-        }
-      })();
-    `;
-
-    try {
-      await this.mainWindow.webContents.executeJavaScript(code);
-    } catch (error) {
-      console.debug('Webview not ready yet for custom styles');
-    }
-
-    // Apply saved custom styles
-    await this.applyCustomCSS();
+    // Wait for window to be ready, then apply styles
+    this.mainWindow.webContents.once('did-finish-load', () => {
+      // Give it a moment for webview to initialize
+      setTimeout(() => {
+        this.applyCustomCSS().catch((error) => {
+          console.error('Failed to apply custom styles:', error);
+        });
+      }, 1000);
+    });
   }
 }
