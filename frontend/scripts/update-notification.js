@@ -35,6 +35,12 @@ function renderUpdateInfo(info) {
     try {
       const html = marked.parse(info.changelog);
       changelogEl.innerHTML = html;
+
+      // Scroll container to top
+      const container = changelogEl.parentElement;
+      if (container) {
+        container.scrollTop = 0;
+      }
     } catch (error) {
       console.error('Failed to parse markdown:', error);
       changelogEl.innerHTML = `<pre>${escapeHtml(info.changelog)}</pre>`;
