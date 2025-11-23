@@ -38,20 +38,21 @@ function renderUpdateInfo(info) {
       const html = marked.parse(info.changelog);
       changelogEl.innerHTML = html;
 
-      // Force scroll to top with multiple fallbacks
+      // Lock scroll at top - force it to stay there
       if (container) {
-        container.scrollTop = 0;
-        requestAnimationFrame(() => {
+        // Keep forcing scroll to top for 500ms to override any auto-scroll
+        const lockScrollTop = () => {
           container.scrollTop = 0;
-          requestAnimationFrame(() => {
-            container.scrollTop = 0;
-            // Also try scrolling the first child into view
-            const firstChild = changelogEl.firstElementChild;
-            if (firstChild) {
-              firstChild.scrollIntoView({ block: 'start', behavior: 'instant' });
-            }
-          });
-        });
+        };
+
+        // Immediate
+        lockScrollTop();
+
+        // Keep forcing for 500ms
+        const interval = setInterval(lockScrollTop, 10);
+        setTimeout(() => {
+          clearInterval(interval);
+        }, 500);
       }
 
       // Make links open in browser
