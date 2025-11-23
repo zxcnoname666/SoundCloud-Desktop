@@ -80,6 +80,13 @@ export class UpdateNotificationManager {
   }
 
   private setupIPC(): void {
+    // Remove existing handlers to avoid conflicts on reload
+    ipcMain.removeHandler('update:get-info');
+    ipcMain.removeHandler('update:install');
+    ipcMain.removeAllListeners('update:close');
+    ipcMain.removeAllListeners('update:later');
+    ipcMain.removeAllListeners('update:open-external');
+
     ipcMain.handle('update:get-info', () => {
       return this.currentUpdateInfo;
     });
