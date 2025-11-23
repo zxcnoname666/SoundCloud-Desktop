@@ -71,6 +71,7 @@ export class Extensions {
     tasks: Translation;
     auth: Translation;
     discord: Translation;
+    settings: Translation;
   } {
     try {
       const configManager = ConfigManager.getInstance();
@@ -88,6 +89,7 @@ export class Extensions {
         tasks: Extensions.getTasksTranslations(selectedTranslation || ({} as Translation)),
         auth: Extensions.getAuthTranslations(selectedTranslation || ({} as Translation)),
         discord: Extensions.getDiscordTranslations(selectedTranslation || ({} as Translation)),
+        settings: Extensions.getSettingsTranslations(selectedTranslation || ({} as Translation)),
       };
     } catch (error) {
       console.warn('Failed to load translations, using defaults:', error);
@@ -97,6 +99,7 @@ export class Extensions {
         tasks: Extensions.getTasksTranslations({} as Translation),
         auth: Extensions.getAuthTranslations({} as Translation),
         discord: Extensions.getDiscordTranslations({} as Translation),
+        settings: Extensions.getSettingsTranslations({} as Translation),
       };
     }
   }
@@ -137,6 +140,12 @@ export class Extensions {
         'The hash of the downloaded update differs from the hash specified in the config. Most likely, the traffic was intercepted (or someone forgot to update the hash)',
       updater_manual_install_title: 'Manual Installation Required',
       updater_manual_install_message: 'Please install manually using: sudo dpkg -i {path}',
+      // New update notification window
+      updater_window_title: 'Software Update',
+      updater_window_update_available: 'Update Available',
+      updater_window_version: 'Version',
+      updater_window_download_install: 'Download & Install',
+      updater_window_downloading: 'Downloading...',
     };
 
     return {
@@ -228,6 +237,26 @@ export class Extensions {
     return {
       ...defaults,
       ...discordTranslation,
+    } as Translation;
+  }
+
+  private static getSettingsTranslations(translation: Translation): Translation {
+    const defaults = {
+      settings_window_title: 'Settings',
+      settings_title: 'Custom Styles',
+      settings_subtitle: 'Customize the appearance of SoundCloud with CSS',
+      settings_editor_label: 'CSS Editor',
+      settings_btn_reset: 'Reset to Default',
+      settings_btn_cancel: 'Cancel',
+      settings_btn_save: 'Save & Apply',
+      settings_status_saved: 'Settings saved successfully!',
+      settings_status_reset: 'Reset to default styles',
+      settings_status_error: 'Failed to save settings: {error}',
+    };
+
+    return {
+      ...defaults,
+      ...translation,
     } as Translation;
   }
 }
