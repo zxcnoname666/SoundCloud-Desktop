@@ -169,7 +169,8 @@ class Builder {
       if (existsSync(srcPath)) {
         console.info(`  📦 Copying ${module.name}...`);
         mkdirSync(join(this.distDir, 'node_modules'), { recursive: true });
-        cpSync(srcPath, destPath, { recursive: true });
+        // Use dereference: true to follow symlinks (important for pnpm)
+        cpSync(srcPath, destPath, { recursive: true, dereference: true });
       } else {
         console.warn(`  ⚠️  ${module.name} not found at ${srcPath}`);
       }
