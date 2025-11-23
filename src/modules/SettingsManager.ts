@@ -78,15 +78,6 @@ export class SettingsManager {
   }
 
   private setupIPC(): void {
-    // Remove existing handlers to avoid conflicts on reload
-    ipcMain.removeHandler('settings:load-css');
-    ipcMain.removeHandler('settings:get-default-css');
-    ipcMain.removeHandler('settings:save-css');
-    ipcMain.removeAllListeners('settings:preview-css');
-    ipcMain.removeAllListeners('settings:close');
-    ipcMain.removeAllListeners('settings:minimize');
-    ipcMain.removeAllListeners('settings:maximize');
-
     // Load CSS from file
     ipcMain.handle('settings:load-css', async () => {
       return await this.loadCustomCSS();
