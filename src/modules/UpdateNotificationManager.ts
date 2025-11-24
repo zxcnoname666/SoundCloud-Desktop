@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { BrowserWindow, app, ipcMain, shell } from 'electron';
+import { Extensions } from './Extensions.js';
 
 interface UpdateInfo {
   version: string;
@@ -110,6 +111,10 @@ export class UpdateNotificationManager {
 
     ipcMain.on('update:open-external', (_event, url: string) => {
       shell.openExternal(url);
+    });
+
+    ipcMain.handle('update:get-translations', () => {
+      return Extensions.getTranslations().updater;
     });
   }
 

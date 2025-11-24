@@ -1,10 +1,52 @@
 let editor = null;
 let originalCSS = '';
+let translations = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Load translations first
+  if (typeof window.settingsAPI !== 'undefined') {
+    translations = await window.settingsAPI.getTranslations();
+    applyTranslations();
+  }
+
   await initializeMonaco();
   setupEventListeners();
 });
+
+function applyTranslations() {
+  if (!translations) return;
+
+  // Window title
+  const windowTitle = document.querySelector('.window-title');
+  if (windowTitle) windowTitle.textContent = translations.settings_window_title || 'Settings';
+
+  // Settings title
+  const settingsTitle = document.querySelector('.settings-title');
+  if (settingsTitle) settingsTitle.textContent = translations.settings_title || 'Custom Styles';
+
+  // Settings subtitle
+  const settingsSubtitle = document.querySelector('.settings-subtitle');
+  if (settingsSubtitle) settingsSubtitle.textContent = translations.settings_subtitle || 'Customize the appearance of SoundCloud with CSS';
+
+  // Editor label
+  const editorLabel = document.querySelector('.editor-label');
+  if (editorLabel) {
+    // Keep the SVG icon, just update the text
+    const svg = editorLabel.querySelector('svg');
+    editorLabel.textContent = translations.settings_editor_label || 'CSS Editor';
+    if (svg) editorLabel.prepend(svg);
+  }
+
+  // Buttons
+  const resetBtn = document.getElementById('resetBtn');
+  if (resetBtn) resetBtn.textContent = translations.settings_btn_reset || 'Reset to Default';
+
+  const cancelBtn = document.getElementById('cancelBtn');
+  if (cancelBtn) cancelBtn.textContent = translations.settings_btn_cancel || 'Cancel';
+
+  const saveBtn = document.getElementById('saveBtn');
+  if (saveBtn) saveBtn.textContent = translations.settings_btn_save || 'Save & Apply';
+}
 
 async function initializeMonaco() {
   // Load Monaco Editor

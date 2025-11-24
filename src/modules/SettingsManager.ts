@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { BrowserWindow, app, ipcMain } from 'electron';
+import { Extensions } from './Extensions.js';
 
 const CUSTOM_STYLES_FILE = join(app.getPath('userData'), 'custom-styles.css');
 
@@ -130,6 +131,10 @@ export class SettingsManager {
           this.window.maximize();
         }
       }
+    });
+
+    ipcMain.handle('settings:get-translations', () => {
+      return Extensions.getTranslations().settings;
     });
   }
 

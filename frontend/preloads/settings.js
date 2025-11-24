@@ -1,6 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('settingsAPI', {
+  // Get translations
+  getTranslations: () => ipcRenderer.invoke('settings:get-translations'),
+
   // Load current custom CSS
   loadCSS: () => ipcRenderer.invoke('settings:load-css'),
 

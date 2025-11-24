@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('updateAPI', {
   getUpdateInfo: () => ipcRenderer.invoke('update:get-info'),
+  getTranslations: () => ipcRenderer.invoke('update:get-translations'),
   closeWindow: () => ipcRenderer.send('update:close'),
   later: () => ipcRenderer.send('update:later'),
   install: () => ipcRenderer.invoke('update:install'),

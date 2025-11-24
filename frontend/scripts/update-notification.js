@@ -9,24 +9,53 @@ marked.setOptions({
 });
 
 let updateInfo = null;
+let translations = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Get update info from query params or IPC
+  // Get update info and translations from IPC
   if (typeof window.updateAPI !== 'undefined') {
-    updateInfo = await window.updateAPI.getUpdateInfo();
+    [updateInfo, translations] = await Promise.all([
+      window.updateAPI.getUpdateInfo(),
+      window.updateAPI.getTranslations()
+    ]);
+    applyTranslations();
     renderUpdateInfo(updateInfo);
   }
 
   setupEventListeners();
 });
 
+function applyTranslations() {
+  if (!translations) return;
+
+  // Apply translations to static elements
+  const windowTitle = document.querySelector('.window-title');
+  if (windowTitle) windowTitle.textContent = translations.updater_window_title || 'Software Update';
+
+  const updateTitle = document.querySelector('.update-title');
+  if (updateTitle) updateTitle.textContent = translations.updater_window_update_available || 'Update Available';
+
+  const laterBtn = document.getElementById('laterBtn');
+  if (laterBtn) laterBtn.textContent = translations.updater_later || 'Later';
+
+  const installBtn = document.getElementById('installBtn');
+  if (installBtn) installBtn.textContent = translations.updater_window_download_install || 'Download & Install';
+}
+
 function renderUpdateInfo(info) {
   if (!info) return;
 
-  // Set version number
+  // Set version number with translation
   const versionEl = document.getElementById('versionNumber');
   if (versionEl) {
     versionEl.textContent = info.version || 'Unknown';
+  }
+
+  // Update version label
+  const versionLabel = document.querySelector('.update-version');
+  if (versionLabel && translations) {
+    const versionText = translations.updater_window_version || 'Version';
+    versionLabel.innerHTML = `${versionText} <span class="version-number" id="versionNumber">${info.version || 'Unknown'}</span>`;
   }
 
   // Render changelog markdown
@@ -98,7 +127,8 @@ function setupEventListeners() {
   if (installBtn) {
     installBtn.addEventListener('click', async () => {
       installBtn.disabled = true;
-      installBtn.textContent = 'Downloading...';
+      const downloadingText = translations?.updater_window_downloading || 'Downloading...';
+      installBtn.textContent = downloadingText;
 
       if (typeof window.updateAPI !== 'undefined') {
         await window.updateAPI.install();
@@ -111,7 +141,8 @@ function setupEventListeners() {
     window.updateAPI.onProgress((data) => {
       const installBtn = document.getElementById('installBtn');
       if (installBtn && data.percent !== undefined) {
-        installBtn.textContent = `Downloading... ${data.percent}%`;
+        const downloadingText = translations?.updater_window_downloading || 'Downloading...';
+        installBtn.textContent = `${downloadingText} ${data.percent}%`;
       }
     });
   }

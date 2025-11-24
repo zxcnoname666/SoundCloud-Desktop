@@ -121,19 +121,95 @@ body {
     -webkit-app-region: drag;
     user-select: none;
     align-items: center;
+    gap: 8px;
+    padding-right: 12px;
 
-    i {
+    .traffic-lights {
       display: flex;
-      height: 17px;
-      width: 17px;
-      border-radius: 50%;
-      margin-right: 10px;
+      gap: 8px;
       -webkit-app-region: no-drag;
-      cursor: pointer;
     }
 
-    i:hover {
-      border-radius: 35%;
+    .traffic-light {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(255, 255, 255, 0.1);
+    }
+
+    .traffic-light.close {
+      background: linear-gradient(135deg, #ff5f56 0%, #ff3b30 100%);
+      border: 0.5px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .traffic-light.minimize {
+      background: linear-gradient(135deg, #ffbd2e 0%, #f5a623 100%);
+      border: 0.5px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .traffic-light.maximize {
+      background: linear-gradient(135deg, #28c940 0%, #27c93f 100%);
+      border: 0.5px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .traffic-light:hover {
+      filter: brightness(1.1);
+      transform: scale(1.05);
+    }
+
+    .traffic-light:active {
+      transform: scale(0.95);
+    }
+
+    .traffic-light svg {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      opacity: 0.7;
+    }
+
+    .traffic-light:hover svg {
+      display: block;
+    }
+
+    /* Settings/Auth/Discord buttons */
+    .SettingsButton,
+    .AuthButton,
+    .DiscordButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      -webkit-app-region: no-drag;
+    }
+
+    .SettingsButton:hover,
+    .AuthButton:hover,
+    .DiscordButton:hover {
+      background: rgba(155, 159, 167, 0.1);
+    }
+
+    .SettingsButton svg,
+    .AuthButton svg,
+    .DiscordButton svg {
+      transition: fill 0.2s ease;
+    }
+
+    .SettingsButton:hover svg,
+    .AuthButton:hover svg,
+    .DiscordButton:hover svg {
+      fill: #ff7733;
     }
   }
 }
