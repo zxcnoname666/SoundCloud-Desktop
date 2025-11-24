@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (typeof window.updateAPI !== 'undefined') {
     [updateInfo, translations] = await Promise.all([
       window.updateAPI.getUpdateInfo(),
-      window.updateAPI.getTranslations()
+      window.updateAPI.getTranslations(),
     ]);
     applyTranslations();
     renderUpdateInfo(updateInfo);
@@ -33,13 +33,15 @@ function applyTranslations() {
   if (windowTitle) windowTitle.textContent = translations.updater_window_title || 'Software Update';
 
   const updateTitle = document.querySelector('.update-title');
-  if (updateTitle) updateTitle.textContent = translations.updater_window_update_available || 'Update Available';
+  if (updateTitle)
+    updateTitle.textContent = translations.updater_window_update_available || 'Update Available';
 
   const laterBtn = document.getElementById('laterBtn');
   if (laterBtn) laterBtn.textContent = translations.updater_later || 'Later';
 
   const installBtn = document.getElementById('installBtn');
-  if (installBtn) installBtn.textContent = translations.updater_window_download_install || 'Download & Install';
+  if (installBtn)
+    installBtn.textContent = translations.updater_window_download_install || 'Download & Install';
 }
 
 function renderUpdateInfo(info) {

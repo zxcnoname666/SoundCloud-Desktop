@@ -26,7 +26,9 @@ function applyTranslations() {
 
   // Settings subtitle
   const settingsSubtitle = document.querySelector('.settings-subtitle');
-  if (settingsSubtitle) settingsSubtitle.textContent = translations.settings_subtitle || 'Customize the appearance of SoundCloud with CSS';
+  if (settingsSubtitle)
+    settingsSubtitle.textContent =
+      translations.settings_subtitle || 'Customize the appearance of SoundCloud with CSS';
 
   // Editor label
   const editorLabel = document.querySelector('.editor-label');
