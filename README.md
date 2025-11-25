@@ -21,6 +21,7 @@
 ## Why Choose SoundCloud Desktop?
 
 - **🎧 Native Desktop Experience** - Full-featured SoundCloud desktop client
+- **🎨 Full Customization** - Built-in CSS editor with real-time preview for complete UI customization
 - **🌙 Beautiful Dark Theme** - Eye-friendly interface for music lovers
 - **🌍 Access Anywhere** - Bypass geographical restrictions and geo-blocking with smart RKN detection
 - **🚫 Zero Ads** - Enhanced ad blocker with 39+ tracking domains blocked
@@ -29,6 +30,7 @@
 - **🎵 Streaming Optimized** - Efficient media segment caching for smooth playback
 - **🖥️ Cross-Platform** - Works on Windows 10/11, Linux, and macOS
 - **💾 Lightweight** - Small footprint, minimal system resources
+- **🌐 Multilingual** - Full support for Russian and English
 
 ## Keywords & Use Cases
 
@@ -49,6 +51,39 @@ You can open the page in the application directly from the browser using the
 > `https://soundcloud.com/discover` => `sc://discover`
 
 You can also navigate in app by using url-navbar (like in browsers)
+
+# 🎨 Customization & Settings
+
+## Custom Styles Editor
+
+SoundCloud Desktop includes a powerful built-in CSS editor powered by Monaco Editor (same engine as VS Code):
+
+- **✏️ Real-Time Preview** - See your CSS changes instantly in the main window
+- **💾 Persistent Styles** - Custom styles are saved to `%appdata%/soundcloud/custom-styles.css` and applied on every
+  launch
+- **🎯 IntelliSense Support** - Full autocomplete and syntax highlighting for CSS
+- **🔄 Reset to Default** - One-click restore to default styles
+- **🌙 SoundCloud Dark Theme** - Editor styled to match the app's aesthetic
+
+### How to Access Settings
+
+Click the ⚙️ gear icon in the top-right corner of the window, or use the keyboard shortcut.
+
+### Custom Styles Location
+
+Your custom CSS is stored at:
+
+- **Windows**: `%APPDATA%\soundcloud\custom-styles.css`
+- **Linux/macOS**: `~/.config/soundcloud/custom-styles.css`
+
+## Update Notifications
+
+Beautiful custom update notification window featuring:
+
+- **📋 Markdown Changelog** - Rich formatted release notes with proper styling
+- **📊 Download Progress** - Real-time progress bar for update downloads
+- **🔗 Clickable Links** - External links open in your default browser
+- **🎯 One-Click Install** - Download and install updates with a single button
 
 # 📥 Download & Install
 
