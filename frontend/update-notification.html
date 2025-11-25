@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Available</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1d 0%, #0d0d0f 100%);
+            color: #fff;
+            overflow: hidden;
+            -webkit-app-region: drag;
+            user-select: none;
+        }
+
+        .window-frame {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #1e1e22 0%, #16161a 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        /* macOS Traffic Lights */
+        .titlebar {
+            height: 52px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            -webkit-app-region: drag;
+        }
+
+        .traffic-lights {
+            display: flex;
+            gap: 8px;
+            -webkit-app-region: no-drag;
+        }
+
+        .traffic-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .traffic-light.close {
+            background: linear-gradient(135deg, #ff5f56 0%, #ff3b30 100%);
+            border: 0.5px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .traffic-light.close:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+        }
+
+        .traffic-light.close:active {
+            transform: scale(0.95);
+        }
+
+        /* SVG Icon for close */
+        .traffic-light.close svg {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            opacity: 0.7;
+        }
+
+        .traffic-light.close:hover svg {
+            display: block;
+        }
+
+        .window-title {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.3px;
+        }
+
+        /* Content Area */
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 32px 40px 24px;
+            overflow: hidden;
+        }
+
+        .update-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .update-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, #ff5500, #ff7733);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(255, 85, 0, 0.3);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 8px 32px rgba(255, 85, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 48px rgba(255, 85, 0, 0.5);
+            }
+        }
+
+        .update-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        .update-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .update-version {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+        }
+
+        .update-version .version-number {
+            color: #ff5500;
+            font-weight: 700;
+        }
+
+        /* Scrollable Changelog */
+        .changelog-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 24px;
+            -webkit-app-region: no-drag;
+            overflow-anchor: none;
+        }
+
+        .changelog-container::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .changelog-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            margin: 4px 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .changelog-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #ff5500 0%, #ff7733 50%, #ff5500 100%);
+            border-radius: 6px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            box-shadow:
+                0 0 6px rgba(255, 85, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .changelog-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #ff7733 0%, #ff9966 50%, #ff7733 100%);
+            box-shadow:
+                0 0 12px rgba(255, 85, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .changelog-container::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(180deg, #ff9966 0%, #ffaa77 50%, #ff9966 100%);
+            box-shadow:
+                0 0 16px rgba(255, 85, 0, 0.8),
+                inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Markdown Styles */
+        .changelog-content {
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.7;
+            user-select: text;
+            -webkit-app-region: no-drag;
+        }
+
+        .changelog-content h1,
+        .changelog-content h2,
+        .changelog-content h3,
+        .changelog-content h4 {
+            color: #fff;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+        }
+
+        .changelog-content h1 {
+            font-size: 1.8em;
+            border-bottom: 2px solid rgba(255, 85, 0, 0.3);
+            padding-bottom: 0.3em;
+        }
+
+        .changelog-content h2 {
+            font-size: 1.5em;
+            color: #ff7733;
+        }
+
+        .changelog-content h3 {
+            font-size: 1.3em;
+        }
+
+        .changelog-content p {
+            margin: 0.8em 0;
+        }
+
+        .changelog-content ul,
+        .changelog-content ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+
+        .changelog-content li {
+            margin: 0.5em 0;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .changelog-content code {
+            background: rgba(255, 85, 0, 0.15);
+            color: #ff9966;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+
+        .changelog-content pre {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+
+        .changelog-content pre code {
+            background: none;
+            color: #e0e0e0;
+            padding: 0;
+        }
+
+        .changelog-content a {
+            color: #ff7733;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 119, 51, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .changelog-content a:hover {
+            color: #ff9966;
+            border-bottom-color: #ff9966;
+        }
+
+        .changelog-content blockquote {
+            border-left: 3px solid #ff5500;
+            padding-left: 16px;
+            margin: 1em 0;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        .changelog-content strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .changelog-content em {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .changelog-content hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 2em 0;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            -webkit-app-region: no-drag;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff5500, #ff7733);
+            color: white;
+            box-shadow: 0 4px 16px rgba(255, 85, 0, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(255, 85, 0, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        /* Loading state */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="window-frame">
+        <!-- Titlebar with macOS traffic lights -->
+        <div class="titlebar">
+            <div class="traffic-lights">
+                <div class="traffic-light close" id="closeBtn">
+                    <svg viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="1" y1="1" x2="5" y2="5" stroke="#4d0000" stroke-width="1.2" stroke-linecap="round"/>
+                        <line x1="5" y1="1" x2="1" y2="5" stroke="#4d0000" stroke-width="1.2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="window-title">Software Update</div>
+            <div style="width: 28px;"></div> <!-- Spacer for centering -->
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-wrapper">
+            <div class="update-header">
+                <div class="update-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+                <h1 class="update-title">Update Available</h1>
+                <p class="update-version">Version <span class="version-number" id="versionNumber">Loading...</span></p>
+            </div>
+
+            <!-- Scrollable Changelog -->
+            <div class="changelog-container">
+                <div class="changelog-content" id="changelogContent">
+                    <p style="text-align: center; color: rgba(255,255,255,0.5);">Loading changelog...</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons (Always visible at bottom) -->
+            <div class="action-buttons">
+                <button class="btn btn-secondary" id="laterBtn">Later</button>
+                <button class="btn btn-primary" id="installBtn">Download & Install</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./scripts/update-notification.js"></script>
+</body>
+</html>

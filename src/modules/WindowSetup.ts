@@ -821,7 +821,7 @@ export class WindowSetup {
         nodeFetchResponse.status,
         nodeFetchResponse.statusText,
         assetCache
-      );
+      ).catch(console.error);
     }
 
     // Возвращаем wrapped stream клиенту

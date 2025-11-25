@@ -4,6 +4,7 @@ import { pipeline } from 'node:stream/promises';
 import { type BrowserWindow, app, dialog } from 'electron';
 import fetch from 'node-fetch';
 import { Extensions } from './Extensions.js';
+import { UpdateNotificationManager } from './UpdateNotificationManager.js';
 
 export class Version {
   public major = -1;
@@ -90,19 +91,24 @@ export class Version {
     updateInfo: any,
     loaderWindow?: BrowserWindow
   ): Promise<boolean> {
-    const translations = Extensions.getTranslations().updater;
+    // Find asset for current platform
+    const asset = Version.findAssetForPlatform(updateInfo.assets);
+    if (!asset) {
+      console.error(`No installer found for platform: ${process.platform}`);
+      return false;
+    }
 
-    const result = await dialog.showMessageBox({
-      type: 'info',
-      title: translations.updater_title,
-      message: translations.updater_details,
-      detail: `${translations.updater_notes}\n${updateInfo.body || 'No release notes available'}`,
-      buttons: [translations.updater_install, translations.updater_later],
-      defaultId: 0,
-      cancelId: 1,
+    // Prepare update info for custom window
+    const updateNotificationManager = UpdateNotificationManager.getInstance();
+    const shouldInstall = await updateNotificationManager.showUpdateNotification({
+      version: updateInfo.tag_name,
+      changelog: updateInfo.body || 'No release notes available.',
+      downloadUrl: asset.browser_download_url,
+      assetName: asset.name,
+      assetSize: asset.size,
     });
 
-    if (result.response === 0) {
+    if (shouldInstall) {
       return await Version.downloadAndInstallUpdate(updateInfo, loaderWindow);
     }
 
@@ -209,6 +215,15 @@ export class Version {
                 total: formatSize(totalSize),
               });
             }
+
+            // Отправляем прогресс в update notification window
+            const updateNotificationManager = UpdateNotificationManager.getInstance();
+            const percent = totalSize > 0 ? Math.round((downloadedSize / totalSize) * 100) : 0;
+            updateNotificationManager.sendProgress({
+              percent: percent,
+              downloaded: formatSize(downloadedSize),
+              total: formatSize(totalSize),
+            });
           }
           callback(null, chunk);
         },
