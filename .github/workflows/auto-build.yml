@@ -2,13 +2,24 @@ name: Release
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: 'patch'
 
 permissions:
   contents: write
 
 jobs:
   version:
-    if: contains(github.event.head_commit.message, '!release')
+    if: contains(github.event.head_commit.message, '!release') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,7 +28,15 @@ jobs:
 
       - name: Bump version
         run: |
-          RELEASE_TYPE=$(echo "${{ github.event.head_commit.message }}" | grep -oP '!release:\s*\K(major|minor|patch)' || echo "patch")
+          # Determine release type: manual input or from commit message
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RELEASE_TYPE="${{ github.event.inputs.version_type }}"
+          else
+            RELEASE_TYPE=$(echo "${{ github.event.head_commit.message }}" | grep -oP '!release:\s*\K(major|minor|patch)' || echo "patch")
+          fi
+
+          echo "Release type: $RELEASE_TYPE"
+
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
@@ -43,7 +62,7 @@ jobs:
 
   build:
     needs: version
-    if: contains(github.event.head_commit.message, '!release')
+    if: contains(github.event.head_commit.message, '!release') || github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
