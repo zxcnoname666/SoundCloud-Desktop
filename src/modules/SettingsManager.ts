@@ -1,10 +1,10 @@
-import {existsSync} from 'node:fs';
-import {readFile, writeFile} from 'node:fs/promises';
-import {join} from 'node:path';
-import {app, BrowserWindow, ipcMain} from 'electron';
-import {Extensions} from './Extensions.js';
+import { existsSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { BrowserWindow, app, ipcMain } from 'electron';
+import { Extensions } from './Extensions.js';
 
-const CUSTOM_STYLES_FILE = join(app.getPath('appData'), "soundcloud", 'custom-styles.css');
+const CUSTOM_STYLES_FILE = join(app.getPath('appData'), 'soundcloud', 'custom-styles.css');
 
 const DEFAULT_CSS = `/* SoundCloud Desktop - Custom Styles */
 /* Add your custom CSS here to customize the appearance of SoundCloud */

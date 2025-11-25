@@ -128,7 +128,7 @@ body {
       display: flex;
       gap: 8px;
       -webkit-app-region: no-drag;
-        flex-direction: row-reverse;
+      flex-direction: row-reverse;
     }
 
     .traffic-light {
