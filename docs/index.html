@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Лучший неофициальный SoundCloud клиент для Windows, Linux & macOS. Без рекламы, с обходом блокировок РКН и поддержкой прокси."
+          name="description">
+    <meta content="soundcloud, desktop, soundcloud client, soundcloud app, music player, adblock, proxy, rkn bypass"
+          name="keywords">
+    <meta content="SoundCloud Desktop - Unofficial Desktop Client" property="og:title">
+    <meta content="Слушай музыку без рекламы и блокировок" property="og:description">
+    <meta content="website" property="og:type">
+    <meta content="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png"
+          property="og:image">
+    <title>SoundCloud Desktop - Unofficial Desktop Client</title>
+    <link href="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png" rel="icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Light theme */
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #fafafa;
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --accent: #FF5500;
+            --accent-hover: #ff6a1a;
+            --border: rgba(0, 0, 0, 0.1);
+            --shadow: rgba(0, 0, 0, 0.1);
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --glass: rgba(255, 255, 255, 0.7);
+        }
+
+        [data-theme="dark"] {
+            /* Dark theme */
+            --bg-primary: #000000;
+            --bg-secondary: #1d1d1f;
+            --bg-tertiary: #2d2d2f;
+            --text-primary: #f5f5f7;
+            --text-secondary: #a1a1a6;
+            --accent: #FF5500;
+            --accent-hover: #ff6a1a;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: rgba(0, 0, 0, 0.5);
+            --card-bg: rgba(29, 29, 31, 0.8);
+            --glass: rgba(29, 29, 31, 0.7);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* macOS-style scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-secondary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 15px 0;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 140px 30px 80px;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-icon {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 30px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        h1 {
+            font-size: 64px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--accent), #ff8c42);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 28px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+
+        .description {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border-radius: 100px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 85, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 85, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px var(--shadow);
+            border-color: var(--accent);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* Download Section */
+        .download {
+            padding: 80px 30px;
+            background: var(--bg-secondary);
+            text-align: center;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 40px auto 0;
+        }
+
+        .platform-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 30px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .platform-card:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .platform-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .platform-card h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .platform-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 80px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 30px;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #ff8c42);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 30px 30px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 42px;
+            }
+
+            .subtitle {
+                font-size: 20px;
+            }
+
+            .description {
+                font-size: 16px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav>
+    <div class="nav-content">
+        <a class="logo" href="#">
+            <img alt="SoundCloud Desktop"
+                 src="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png">
+            <span>SoundCloud Desktop</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features">Возможности</a>
+            <a href="#download">Скачать</a>
+            <a href="https://github.com/zxcnoname666/SoundCloud-Desktop">GitHub</a>
+            <a href="https://github.com/zxcnoname666/SoundCloud-Desktop/discussions">Форум</a>
+            <button aria-label="Toggle theme" class="theme-toggle" onclick="toggleTheme()">🌓</button>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <img alt="SoundCloud Desktop Icon"
+         class="hero-icon"
+         src="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png">
+    <h1>SoundCloud Desktop</h1>
+    <p class="subtitle">Лучший неофициальный десктопный клиент</p>
+    <p class="description">
+        Наслаждайся музыкой на SoundCloud без рекламы и ограничений.
+        Полноценное десктопное приложение для Windows, Linux и macOS с обходом блокировок РКН.
+    </p>
+    <div class="cta-buttons">
+        <a class="btn btn-primary" href="https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest">
+            ⬇️ Скачать бесплатно
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/zxcnoname666/SoundCloud-Desktop">
+            ⭐ GitHub
+        </a>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+    <h2 class="section-title">Возможности</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🚫</div>
+            <h3>Без рекламы</h3>
+            <p>Встроенная блокировка 39+ трекинговых и рекламных доменов. Наслаждайся музыкой без отвлечений.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🌍</div>
+            <h3>Обход блокировок</h3>
+            <p>Умное определение блокировок РКН и автоматическое переключение на прокси для доступа к заблокированным
+                трекам.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Молниеносная скорость</h3>
+            <p>Агрессивное 4-дневное кэширование и оптимизация TypeScript для максимальной производительности.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Умная система прокси</h3>
+            <p>Автоматическая ротация прокси при исчерпании квоты. Поддержка Cloudflare Workers в один клик.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🎵</div>
+            <h3>Оптимизация для музыки</h3>
+            <p>Эффективное кэширование медиа-сегментов для плавного воспроизведения без задержек.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🖥️</div>
+            <h3>Кроссплатформенность</h3>
+            <p>Работает на Windows 10/11, Linux (AppImage, Snap) и macOS (Intel + Apple Silicon).</p>
+        </div>
+    </div>
+</section>
+
+<!-- Download Section -->
+<section class="download" id="download">
+    <h2 class="section-title">Скачать для вашей платформы</h2>
+    <div class="download-grid">
+        <div class="platform-card"
+             onclick="window.location.href='https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest'">
+            <div class="platform-icon">🪟</div>
+            <h3>Windows</h3>
+            <p>Windows 10/11<br>Installer & Portable</p>
+        </div>
+
+        <div class="platform-card"
+             onclick="window.location.href='https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest'">
+            <div class="platform-icon">🐧</div>
+            <h3>Linux</h3>
+            <p>Ubuntu, Debian, Fedora<br>AppImage, Snap, deb/rpm</p>
+        </div>
+
+        <div class="platform-card"
+             onclick="window.location.href='https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest'">
+            <div class="platform-icon">🍎</div>
+            <h3>macOS</h3>
+            <p>Big Sur 11+<br>Intel & Apple Silicon</p>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats">
+    <h2 class="section-title">Статистика проекта</h2>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-number" id="stars">Loading...</div>
+            <div class="stat-label">GitHub Stars</div>
+        </div>
+
+        <div class="stat-item">
+            <div class="stat-number" id="downloads">Loading...</div>
+            <div class="stat-label">Загрузок</div>
+        </div>
+
+        <div class="stat-item">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Платформы</div>
+        </div>
+
+        <div class="stat-item">
+            <div class="stat-number">39+</div>
+            <div class="stat-label">Заблокировано доменов</div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-links">
+        <a href="https://github.com/zxcnoname666/SoundCloud-Desktop">GitHub</a>
+        <a href="https://github.com/zxcnoname666/SoundCloud-Desktop/releases">Releases</a>
+        <a href="https://github.com/zxcnoname666/SoundCloud-Desktop/discussions">Discussions</a>
+        <a href="https://github.com/zxcnoname666/SoundCloud-Desktop/issues">Issues</a>
+        <a href="https://github.com/zxcnoname666/SoundCloud-Desktop/blob/main/README-EN.md">English</a>
+    </div>
+    <p class="copyright">
+        © 2024 SoundCloud Desktop. MIT License.<br>
+        Не аффилировано с SoundCloud Ltd. Сделано с ❤️ для музыки без ограничений.
+    </p>
+</footer>
+
+<script>
+    // Theme toggle
+    function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Fetch GitHub stats
+    async function fetchGitHubStats() {
+        try {
+            const response = await fetch('https://api.github.com/repos/zxcnoname666/SoundCloud-Desktop');
+            const data = await response.json();
+
+            document.getElementById('stars').textContent = data.stargazers_count || '0';
+
+            // Fetch release downloads
+            const downloadsData = await fetch('https://img.shields.io/github/downloads/zxcnoname666/SoundCloud-Desktop/total.json')
+                .then(res => res.json());
+
+            let value = downloadsData.value;
+            let multiplier = 1;
+            if (value.includes('k') || value.includes('K')) {
+                multiplier = 1000;
+                value = value.replace(/[kK]/g, '');
+            } else if (value.includes('M')) {
+                multiplier = 1000000;
+                value = value.replace(/M/g, '');
+            } else if (value.includes('B')) {
+                multiplier = 1000000000;
+                value = value.replace(/B/g, '');
+            }
+            const totalDownloads = Math.round(parseFloat(value) * multiplier) || 0;
+
+            document.getElementById('downloads').textContent = totalDownloads.toLocaleString();
+        } catch (error) {
+            console.error('Error fetching GitHub stats:', error);
+            document.getElementById('stars').textContent = '—';
+            document.getElementById('downloads').textContent = '—';
+        }
+    }
+
+    // Load stats on page load
+    fetchGitHubStats();
+</script>
+</body>
+</html>

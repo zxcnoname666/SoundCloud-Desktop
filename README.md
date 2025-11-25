@@ -1,137 +1,338 @@
-<p>
-<a href="https://soundcloud.com" alt="soundcloud">
-<img src="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png" width="200px" align="right" style="border-radius: 50%;" />
+<p align="center">
+<a href="https://soundcloud.com">
+<img src="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png" width="180px" style="border-radius: 50%;" />
 </a>
+</p>
 
-# 🎵 SoundCloud Desktop - Unofficial Desktop Client
+<h1 align="center">🎵 SoundCloud Desktop</h1>
 
-[![Downloads](https://img.shields.io/github/downloads/zxcnoname666/SoundCloud-Desktop/total)](https://github.com/zxcnoname666/SoundCloud-Desktop/releases)
-[![Stars](https://img.shields.io/github/stars/zxcnoname666/SoundCloud-Desktop)](https://github.com/zxcnoname666/SoundCloud-Desktop/stargazers)
-[![License](https://img.shields.io/github/license/zxcnoname666/SoundCloud-Desktop)](LICENSE)
-[![Latest Release](https://img.shields.io/github/v/release/zxcnoname666/SoundCloud-Desktop)](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+<p align="center">
+<b>Неофициальный десктопный клиент SoundCloud для Windows, Linux и macOS</b><br>
+Слушай музыку без рекламы и блокировок РКН
+</p>
 
-> **The best unofficial SoundCloud desktop application** for Windows, Linux & macOS with built-in ad-blocking, geo-unblocking, and proxy support.
+<p align="center">
+<a href="https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest">
+<img src="https://img.shields.io/github/v/release/zxcnoname666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Версия" alt="Последний релиз"/>
+</a>
+<a href="https://github.com/zxcnoname666/SoundCloud-Desktop/releases">
+<img src="https://img.shields.io/github/downloads/zxcnoname666/SoundCloud-Desktop/total?style=for-the-badge&logo=download&color=FF5500&label=Скачиваний" alt="Загрузки"/>
+</a>
+<a href="https://github.com/zxcnoname666/SoundCloud-Desktop/stargazers">
+<img src="https://img.shields.io/github/stars/zxcnoname666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Звёзды" alt="Stars"/>
+</a>
+<a href="https://github.com/zxcnoname666/SoundCloud-Desktop/blob/main/LICENSE">
+<img src="https://img.shields.io/badge/Лицензия-MIT-FF5500?style=for-the-badge" alt="License"/>
+</a>
+</p>
 
-[⬇️ Download Latest Release](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest) | [📖 Discussions](https://github.com/zxcnoname666/SoundCloud-Desktop/discussions) | [🐛 Report Bug](https://github.com/zxcnoname666/SoundCloud-Desktop/issues)
+<p align="center">
+<a href="https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest">
+<img src="https://img.shields.io/badge/⬇️_Скачать-Последнюю_Версию-FF5500?style=for-the-badge&logo=download" alt="Download"/>
+</a>
+<a href="https://github.com/zxcnoname666/SoundCloud-Desktop/blob/main/README-EN.md">
+<img src="https://img.shields.io/badge/🌍_English-README-0066FF?style=for-the-badge" alt="English"/>
+</a>
+<a href="https://github.com/zxcnoname666/SoundCloud-Desktop/discussions">
+<img src="https://img.shields.io/badge/💬_Обсуждения-Форум-00CC66?style=for-the-badge&logo=github" alt="Discussions"/>
+</a>
+<a href="https://github.com/zxcnoname666/SoundCloud-Desktop/issues">
+<img src="https://img.shields.io/badge/🐛_Баги-Issues-FF3333?style=for-the-badge&logo=github" alt="Issues"/>
+</a>
+</p>
 
-# Select language
+---
 
-### EN [RU](https://github.com/zxcnoname666/SoundCloud-Desktop/blob/main/README-RU.md)
+## 🎯 Что это такое?
 
-## Why Choose SoundCloud Desktop?
+**SoundCloud Desktop** — это **лучший неофициальный десктопный клиент для SoundCloud** с расширенными возможностями,
+которых нет в официальном веб-плеере. Приложение создано специально для комфортного прослушивания музыки на компьютере с
+полной блокировкой рекламы и обходом всех ограничений.
 
-- **🎧 Native Desktop Experience** - Full-featured SoundCloud desktop client
-- **🎨 Full Customization** - Built-in CSS editor with real-time preview for complete UI customization
-- **🌙 Beautiful Dark Theme** - Eye-friendly interface for music lovers
-- **🌍 Access Anywhere** - Bypass geographical restrictions and geo-blocking with smart RKN detection
-- **🚫 Zero Ads** - Enhanced ad blocker with 39+ tracking domains blocked
-- **⚡ Lightning Fast** - Optimized TypeScript codebase with aggressive 4-day asset caching
-- **🔒 Privacy Focused** - Smart proxy system with automatic rotation on quota exhaustion
-- **🎵 Streaming Optimized** - Efficient media segment caching for smooth playback
-- **🖥️ Cross-Platform** - Works on Windows 10/11, Linux, and macOS
-- **💾 Lightweight** - Small footprint, minimal system resources
-- **🌐 Multilingual** - Full support for Russian and English
+### 🔥 Почему выбирают SoundCloud Desktop?
 
-## Keywords & Use Cases
+<table>
+<tr>
+<td width="50%">
 
-Perfect for:
-- Music producers and DJs looking for a dedicated SoundCloud desktop player
-- Users in restricted regions needing geo-unblocking
-- Anyone tired of SoundCloud web ads
-- Musicians managing multiple SoundCloud accounts
-- Podcast listeners preferring desktop apps
-- Streaming enthusiasts wanting offline-capable music player
+#### 🎨 Полная кастомизация
 
-# App Protocol
+- Встроенный **CSS редактор** на базе Monaco Editor
+- Предпросмотр изменений в реальном времени
+- IntelliSense и подсветка синтаксиса
+- Сохранение стилей между сеансами
 
-You can open the page in the application directly from the browser using the
-`sc://` protocol.
+#### 🚫 Полное отсутствие рекламы
 
-> You need to replace `https://soundcloud.com/...` to `sc://...` like
-> `https://soundcloud.com/discover` => `sc://discover`
+Встроенная блокировка **39+ трекинговых и рекламных доменов**:
 
-You can also navigate in app by using url-navbar (like in browsers)
+- Google Analytics, DoubleClick
+- Quantcast, Taboola
+- Facebook Pixel, Twitter Analytics
+- И многие другие рекламные сервисы
 
-# 🎨 Customization & Settings
+#### 🌍 Обход блокировок РКН
 
-## Custom Styles Editor
+- Умное определение блокировок Роскомнадзора
+- Автоматическое переключение на прокси
+- Доступ к заблокированным трекам из любого региона
+- Работает даже при медленном интернете
 
-SoundCloud Desktop includes a powerful built-in CSS editor powered by Monaco Editor (same engine as VS Code):
+#### ⚡ Невероятная скорость
 
-- **✏️ Real-Time Preview** - See your CSS changes instantly in the main window
-- **💾 Persistent Styles** - Custom styles are saved to `%appdata%/soundcloud/custom-styles.css` and applied on every
-  launch
-- **🎯 IntelliSense Support** - Full autocomplete and syntax highlighting for CSS
-- **🔄 Reset to Default** - One-click restore to default styles
-- **🌙 SoundCloud Dark Theme** - Editor styled to match the app's aesthetic
+- Агрессивное **4-дневное кэширование** статических файлов
+- Оптимизированное кэширование аудио сегментов (.m4s, .ts)
+- Молниеносная загрузка благодаря TypeScript
 
-### How to Access Settings
+</td>
+<td width="50%">
 
-Click the ⚙️ gear icon in the top-right corner of the window, or use the keyboard shortcut.
+#### 🔒 Умная система прокси
 
-### Custom Styles Location
+- **Автоматическая ротация** при исчерпании квоты
+- Определение "зависших" соединений после 19KB
+- Множественные прокси для надёжности
+- Cloudflare Workers в один клик
 
-Your custom CSS is stored at:
+#### 🎵 Оптимизация для музыки
 
-- **Windows**: `%APPDATA%\soundcloud\custom-styles.css`
-- **Linux/macOS**: `~/.config/soundcloud/custom-styles.css`
+- Эффективное кэширование медиа-сегментов
+- Плавное воспроизведение без задержек
+- Минимальное потребление трафика
+- Поддержка высокого качества аудио
 
-## Update Notifications
+#### 🌐 Мультиязычность
 
-Beautiful custom update notification window featuring:
+- Полная поддержка **русского** и **английского** языков
+- Автоматическое определение системного языка
+- Легкая смена языка в настройках
 
-- **📋 Markdown Changelog** - Rich formatted release notes with proper styling
-- **📊 Download Progress** - Real-time progress bar for update downloads
-- **🔗 Clickable Links** - External links open in your default browser
-- **🎯 One-Click Install** - Download and install updates with a single button
+#### 🖥️ Кроссплатформенность
 
-# 📥 Download & Install
+- **Windows** 10/11 (Installer)
+- **Linux** (AppImage)
+- **macOS** (Intel + Apple Silicon)
 
-## Windows
+</td>
+</tr>
+</table>
 
-1. Go to [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
-2. Download `SoundCloudInstaller.exe`
-3. Run the installer and follow instructions
+### 🎧 Для кого это приложение?
 
-## Linux
+✅ **Музыкальные продюсеры и диджеи** — полноценный десктопный плеер для работы  
+✅ **Пользователи из России** — обход блокировок РКН и доступ ко всему SoundCloud  
+✅ **Все, кто устал от рекламы** — чистое прослушивание музыки без отвлечений  
+✅ **Музыканты** — управление несколькими аккаунтами SoundCloud  
+✅ **Подкастеры и слушатели** — удобное десктопное приложение для подкастов  
+✅ **Меломаны** — расширенные возможности для стриминга музыки
 
-1. Go to [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
-2. Download `soundcloud-*.AppImage`
-3. Make it executable: `chmod +x soundcloud-*.AppImage`
-4. Run the AppImage
+---
 
-## macOS
+## 📥 Установка
 
-1. Go to [latest release page](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
-2. Download `soundcloud-*.dmg`
-3. Open the DMG and drag the app to Applications
+### 💻 Windows
 
-# ⚙️ Configuration
+<details>
+<summary><b>Развернуть инструкцию для Windows</b></summary>
 
-## Language Settings
+1. Перейдите на [страницу релизов](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+2. Скачайте **`SoundCloudInstaller.exe`** (универсальный установщик)
+3. Запустите установщик
+4. Следуйте инструкциям мастера установки
+5. Готово! Приложение появится в меню «Пуск»
 
-You can customize the application language via `config.json5` file in the app directory.
+**Системные требования:**
 
-## 🔒 Proxy Configuration
+- Windows 10 (1809+) или Windows 11
+- 4 ГБ RAM (рекомендуется 8 ГБ)
+- 200 МБ свободного места на диске
 
-Configure proxy settings to bypass geo-restrictions with intelligent features:
+</details>
 
-### Smart Proxy Features
+### 🐧 Linux
 
-- **🔍 RKN Blocking Detection** - Automatically detects blocking with "connection hanging" after 19KB of data
-- **🔄 Automatic Proxy Rotation** - Removes failed proxies (429/500 errors) and rotates to next available
-- **💾 Aggressive Caching** - 4-day cache for static assets (.js, .css, images, audio segments)
-- **🎵 Media Segment Optimization** - Smart caching for .m4s and .ts segments with query stripping
-- **🚫 Enhanced Ad Blocking** - Blocks 39+ tracking/advertising domains (Google Analytics, Quantcast, Taboola, etc.)
-- **📊 Usage Metrics** - Collects domain usage statistics in dev mode
+<details>
+<summary><b>Развернуть инструкцию для Linux</b></summary>
 
-### Config locations (priority order)
+1. Перейдите на [страницу релизов](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+2. Скачайте **`soundcloud-{version}.AppImage`** (например, `soundcloud-3.2.0.AppImage`)
+3. Сделайте файл исполняемым:
 
-1. **User folder**: `%APPDATA%/soundcloud/config.proxy.json5` (Windows) or `~/.config/soundcloud/config.proxy.json5` (
-   Linux/macOS)
-2. **App folder**: `config.proxy.json5` in app directory
+```bash
+chmod +x soundcloud-*.AppImage
+```
 
-### Configuration format
+4. Запустите приложение:
+
+```bash
+./soundcloud-*.AppImage
+```
+
+**Системные требования:**
+
+- Ubuntu 20.04+ / Debian 11+ / Fedora 35+ или аналоги
+- 4 ГБ RAM
+- 200 МБ свободного места
+
+</details>
+
+### 🍎 macOS
+
+<details>
+<summary><b>Развернуть инструкцию для macOS</b></summary>
+
+1. Перейдите на [страницу релизов](https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest)
+2. Скачайте файл для вашего процессора:
+    - **Apple Silicon (M1/M2/M3):** `soundcloud-{version}-arm64.dmg`
+    - **Intel:** `soundcloud-{version}.dmg`
+3. Откройте скачанный DMG файл
+4. Перетащите **SoundCloud Desktop** в папку **Applications**
+5. Первый запуск: `Правый клик → Открыть` (из-за безопасности macOS)
+
+**Системные требования:**
+
+- macOS 11 Big Sur или новее
+- 4 ГБ RAM
+- 200 МБ свободного места
+
+</details>
+
+---
+
+## 🔗 Протокол приложения `sc://`
+
+Открывайте любую страницу SoundCloud прямо в приложении из браузера!
+
+### Как это работает?
+
+Просто замените `https://soundcloud.com/` на `sc://` в любой ссылке:
+
+```
+https://soundcloud.com/discover  →  sc://discover
+https://soundcloud.com/you/library  →  sc://you/library
+https://soundcloud.com/artist/track  →  sc://artist/track
+```
+
+### Примеры использования:
+
+- **Открыть топ чарты:** `sc://charts`
+- **Открыть библиотеку:** `sc://you/library`
+- **Открыть плейлист:** `sc://username/sets/playlist-name`
+
+**Бонус:** Приложение имеет встроенную URL-панель (как в браузере) для быстрой навигации! 🚀
+
+---
+
+## 🎨 Кастомизация и настройки
+
+### CSS Редактор
+
+SoundCloud Desktop включает мощный встроенный CSS редактор на базе **Monaco Editor** (тот же движок, что в VS Code):
+
+**Возможности:**
+
+- ✏️ **Предпросмотр в реальном времени** — видите изменения мгновенно
+- 💾 **Автосохранение** — стили применяются при каждом запуске
+- 🎯 **IntelliSense** — автодополнение и подсветка синтаксиса
+- 🔄 **Сброс к стандартным** — восстановление в один клик
+- 🌙 **Темная тема** — стилизован под эстетику SoundCloud
+
+**Как открыть:**  
+Нажмите на иконку ⚙️ в правом верхнем углу окна
+
+**Расположение файла:**
+
+- Windows: `%APPDATA%\soundcloud\custom-styles.css`
+- Linux/macOS: `~/.config/soundcloud/custom-styles.css`
+
+### Уведомления об обновлениях
+
+Красивые кастомные уведомления с:
+
+- 📋 Markdown changelog с форматированием
+- 📊 Прогресс-бар загрузки обновлений
+- 🔗 Кликабельные ссылки
+- 🎯 Установка в один клик
+
+---
+
+## ⚙️ Настройка и конфигурация
+
+### 🌐 Настройки языка и интерфейса
+
+Для настройки языка создайте файл `config.json5` в директории приложения:
+
+**Расположение:**
+
+- Windows: `%APPDATA%\soundcloud\config.json5`
+- Linux/macOS: `~/.config/soundcloud/config.json5`
+
+**Формат файла:**
+
+```json5
+{
+  // Настройки прокси (загружаются из config.proxy.json5)
+  proxy: [],
+  
+  // Автоматические обновления
+  autoUpdate: true,
+  
+  // Настройки локализации
+  translations: {
+    // Русский (также используется для kk, ky, be локалей)
+    ru: {
+      proxy_available_not_found: "Доступные прокси-серверы не найдены",
+      // ... другие переводы
+    }
+  }
+}
+```
+
+> **Примечание:** Если файл существует, он имеет приоритет над встроенными настройками при сборке.
+
+### 🔒 Настройка прокси (для обхода блокировок)
+
+<details>
+<summary><b>📖 Подробная инструкция по настройке прокси</b></summary>
+
+#### Зачем нужен прокси?
+
+Прокси позволяет обходить блокировки Роскомнадзора и получать доступ к заблокированным трекам без VPN.
+
+#### Умные возможности прокси:
+
+🔍 **Автоматическое определение блокировок РКН**  
+Приложение автоматически распознаёт "зависшие" соединения после передачи 19 КБ данных
+
+🔄 **Автоматическая ротация прокси**  
+При получении ошибок 429/500 приложение автоматически переключается на следующий прокси из списка
+
+💾 **Агрессивное кэширование**  
+4-дневный кэш для статических файлов (.js, .css, изображения, аудио сегменты)
+
+🎵 **Оптимизация медиа-сегментов**  
+Умное кэширование .m4s и .ts сегментов с автоматическим удалением query-параметров
+
+🚫 **Расширенная блокировка рекламы**  
+39+ трекинговых/рекламных доменов (Google Analytics, Quantcast, Taboola, etc.)
+
+📊 **Метрики использования**  
+Сбор статистики использования доменов в режиме разработки
+
+#### Создание конфигурации
+
+**Создайте файл** `config.proxy.json5` в одной из директорий (по приоритету):
+
+1. **Папка пользователя** (рекомендуется):
+    - Windows: `%APPDATA%\soundcloud\config.proxy.json5`
+    - Linux/macOS: `~/.config/soundcloud/config.proxy.json5`
+
+2. **Папка приложения:** `config.proxy.json5` в директории с исполняемым файлом
+
+> **Важно:** Если файл существует в папке пользователя, он имеет приоритет над файлом в папке приложения. Встроенная
+> конфигурация при сборке не используется, если существует пользовательский файл.
+
+#### Формат конфигурации:
 
 ```json5
 {
@@ -143,55 +344,136 @@ Configure proxy settings to bypass geo-restrictions with intelligent features:
 }
 ```
 
-**Multiple proxies**: When quota exhausts on one proxy (429/500), the app automatically switches to the next. When all proxies fail, they're restored and rotation starts again.
+**Множественные прокси:** При исчерпании квоты на одном прокси (ошибки 429/500), приложение автоматически переключается
+на следующий. Когда все прокси недоступны, они восстанавливаются и ротация начинается снова.
 
-### Cloudflare Worker Proxy (Recommended)
+#### Cloudflare Worker Proxy (Рекомендуется) ⭐
 
-1. Use the ready-made Worker code from `_proxy/cloudflare-proxy.js`
-2. Deploy it to Cloudflare Workers (free tier available)
-3. Add your Worker URL to proxy config
-4. See `_proxy/README.md` for detailed setup instructions
+Самый простой и бесплатный способ настроить прокси:
 
-**Alternative proxy formats:**
+1. Используйте готовый код Worker'а из `_proxy/cloudflare-proxy.js`
+2. Разверните его в Cloudflare Workers (бесплатный тариф: 100,000 запросов/день)
+3. Добавьте URL вашего Worker'а в `config.proxy.json5`
+4. Подробные инструкции: `_proxy/README.md`
 
-- `http://host:port`, `https://host:port`
+**Альтернативные форматы прокси:**
 
-# 🔨 Development & Building
+- `http://host:port`
+- `https://host:port`
+- `socks5://host:port` (скоро)
 
-## Requirements
+</details>
 
-- **Node.js** 18+
-- **pnpm** 8+
-- **Rust** (for native modules)
+---
 
-## Setup
+## 🛠️ Разработка
+
+<details>
+<parameter name="summary"><b>👨‍💻 Для разработчиков</b></summary>
+
+### Требования
+
+- **Node.js** 22+ (рекомендуется 25 LTS)
+- **pnpm** 10+ (менеджер пакетов)
+- **Rust** 1.70+ (для нативных модулей)
+
+### Быстрый старт
 
 ```bash
-# Install pnpm
+# 1. Установите pnpm (если ещё не установлен)
 npm install -g pnpm
 
-# Install dependencies  
+# 2. Клонируйте репозиторий
+git clone https://github.com/zxcnoname666/SoundCloud-Desktop.git
+cd SoundCloud-Desktop
+
+# 3. Установите зависимости
 pnpm install
 
-# Development mode
+# 4. Запустите в режиме разработки
 pnpm dev
 
-# Build for production
+# 5. Сборка для production
 pnpm build
 ```
 
-# Credits
+### Доступные команды
 
-Names and images own by [SoundCloud](https://soundcloud.com)
+| Команда                 | Описание                                   |
+|-------------------------|--------------------------------------------|
+| `pnpm dev`              | Сборка и запуск в dev режиме               |
+| `pnpm dev:watch`        | Запуск с пропуском копирования             |
+| `pnpm build`            | Полная production сборка для всех платформ |
+| `pnpm build:app`        | Сборка только приложения                   |
+| `pnpm build:production` | Production сборка без упаковки             |
+| `pnpm start`            | Запуск собранного приложения               |
+| `pnpm type-check`       | Проверка типов TypeScript                  |
+| `pnpm lint`             | Проверка кода ESLint                       |
+| `pnpm biome:check`      | Проверка кода Biome                        |
+| `pnpm biome:write`      | Форматирование кода Biome                  |
+| `pnpm format`           | Автоформатирование кода                    |
 
-This app was created out of personal necessity.
+</details>
 
-Also known as: SoundCloud Desktop Client, SoundCloud App, Unofficial SoundCloud, Desktop SoundCloud Player
+---
 
+## 🤝 Поддержка проекта
+
+### ⭐ Поставь звезду!
+
+Если тебе нравится SoundCloud Desktop — поставь ⭐ этому репозиторию!
+
+### 🐛 Нашёл баг?
+
+[Создай issue](https://github.com/zxcnoname666/SoundCloud-Desktop/issues/new) с подробным описанием проблемы.
+
+### 💡 Есть идея?
+
+[Открой discussion](https://github.com/zxcnoname666/SoundCloud-Desktop/discussions/new) и поделись своими предложениями!
+
+### 🔧 Хочешь помочь?
+
+Pull requests приветствуются! Для больших изменений сначала открой issue для обсуждения.
+
+---
+
+## 📊 Статистика
 
 <p align="center">
-  <img src="https://api.star-history.com/svg?repos=zxcnoname666/Soundcloud-Desktop&type=Date"/>
+<img src="https://api.star-history.com/svg?repos=zxcnoname666/SoundCloud-Desktop&type=Date" alt="Star History Chart" />
 </p>
+
 <p align="center">
-   <img src="https://count.getloli.com/get/@soundcloud-desktop">
+<img src="https://count.getloli.com/get/@soundcloud-desktop" alt="Visitors" />
+</p>
+
+---
+
+## 📄 Лицензия
+
+Этот проект распространяется под лицензией MIT. См. файл [LICENSE](LICENSE) для подробностей.
+
+**Дисклеймер:** Названия и изображения принадлежат [SoundCloud](https://soundcloud.com). Это приложение не аффилировано
+с SoundCloud Ltd.
+
+---
+
+## 📎 Связанные термины
+
+*Для улучшения поиска проекта:* `soundcloud desktop`, `soundcloud приложение`, `soundcloud клиент`,
+`soundcloud windows`, `soundcloud linux`, `soundcloud macos`, `soundcloud без рекламы`, `soundcloud обход блокировок`,
+`soundcloud ркн`, `soundcloud россия`, `soundcloud desktop client`, `soundcloud app`, `soundcloud player`,
+`unofficial soundcloud`, `soundcloud прокси`, `soundcloud vpn`, `музыкальный плеер`, `desktop music player`,
+`soundcloud альтернатива`
+
+---
+
+<p align="center">
+<b>Сделано с ❤️ для музыки без ограничений</b>
+</p>
+
+<p align="center">
+<a href="https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest">
+<img src="https://img.shields.io/badge/⬇️_Скачать_Сейчас-FF5500?style=for-the-badge&logo=download&logoColor=white" alt="Download Now" height="50"/>
+</a>
 </p>
