@@ -130,6 +130,7 @@ jobs:
         uses: zxcnoname666/release-helper@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_TYPE: ${{ github.event.inputs.version_type }}
           BUILD_COMMAND: "echo 'Using pre-built artifacts'"
           ASSET_PATTERNS: "artifacts/*/*"
           OPENAI_API_BASE_URL: ${{ secrets.AI_BASE_URL }}
