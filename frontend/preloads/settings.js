@@ -20,4 +20,10 @@ contextBridge.exposeInMainWorld('settingsAPI', {
   closeWindow: () => ipcRenderer.send('settings:close'),
   minimize: () => ipcRenderer.send('settings:minimize'),
   maximize: () => ipcRenderer.send('settings:maximize'),
+
+    // Data management
+    getCacheSize: () => ipcRenderer.invoke('settings:get-cache-size'),
+    clearCache: () => ipcRenderer.invoke('settings:clear-cache'),
+    getAppDataSize: () => ipcRenderer.invoke('settings:get-appdata-size'),
+    clearAppData: () => ipcRenderer.invoke('settings:clear-appdata'),
 });

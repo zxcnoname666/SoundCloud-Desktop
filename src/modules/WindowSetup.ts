@@ -1,20 +1,11 @@
-import { join } from 'node:path';
-import { Readable } from 'node:stream';
-import {
-  BrowserWindow,
-  Menu,
-  Tray,
-  app,
-  globalShortcut,
-  nativeImage,
-  protocol,
-  shell,
-} from 'electron';
+import {join} from 'node:path';
+import {Readable} from 'node:stream';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import type { WindowBounds } from '../types/config.js';
-import { AssetCache } from './AssetCache.js';
-import { ProxyManager } from './ProxyManager.js';
-import { ProxyMetricsCollector } from './ProxyMetricsCollector.js';
+import type {WindowBounds} from '../types/config.js';
+import {AssetCache} from './AssetCache.js';
+import {ProxyManager} from './ProxyManager.js';
+import {ProxyMetricsCollector} from './ProxyMetricsCollector.js';
 
 interface DomainCheckResult {
   shouldProxy: boolean;
@@ -87,10 +78,13 @@ export class WindowSetup {
       const contextMenu = Menu.buildFromTemplate([
         {
           label: 'Show App',
+            type: 'normal',
           click: () => window.show(),
         },
+          {type: 'separator'},
         {
           label: 'Quit',
+            type: 'normal',
           click: () => app.exit(0),
         },
       ]);

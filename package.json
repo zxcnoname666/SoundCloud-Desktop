@@ -27,7 +27,10 @@
     "type": "git",
     "url": "git+https://github.com/zxcnoname666/SoundCloud-Desktop.git"
   },
-  "author": "zxcnoname666",
+  "author": {
+    "name": "zxcnoname666",
+    "email": "no-reply@github.com"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/zxcnoname666/SoundCloud-Desktop/issues"
@@ -104,6 +107,20 @@
             "x64",
             "ia32"
           ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ],
       "icon": "icons/appLogo.ico"
@@ -111,8 +128,12 @@
     "linux": {
       "target": [
         "AppImage",
+        "snap",
+        "deb",
+        "rpm",
         "zip"
       ],
+      "artifactName": "soundcloud-${version}-linux-${arch}.${ext}",
       "icon": "icons/appLogo.png",
       "category": "Audio"
     },
@@ -124,6 +145,13 @@
             "x64",
             "arm64"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "icon": "icons/appLogo.png"
@@ -131,9 +159,36 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "artifactName": "SoundCloudInstaller.${ext}",
+      "artifactName": "SoundCloudInstaller-${arch}.${ext}",
       "shortcutName": "SoundCloud",
       "license": "LICENSE"
+    },
+    "portable": {
+      "artifactName": "SoundCloudPortable-${arch}.${ext}"
+    },
+    "snap": {
+      "confinement": "classic",
+      "summary": "SoundCloud Desktop App",
+      "grade": "stable"
+    },
+    "deb": {
+      "artifactName": "soundcloud-${version}-${arch}.${ext}",
+      "depends": [
+        "gconf2",
+        "gconf-service",
+        "libnotify4",
+        "libappindicator1",
+        "libxtst6",
+        "libnss3"
+      ]
+    },
+    "rpm": {
+      "artifactName": "soundcloud-${version}-${arch}.${ext}",
+      "depends": [
+        "libXScrnSaver",
+        "libappindicator",
+        "libnotify"
+      ]
     }
   }
 }

@@ -254,6 +254,33 @@ Beautiful custom update notifications with:
 - 🔗 Clickable links
 - 🎯 One-click installation
 
+### 🗂️ Data Management
+
+The settings window includes powerful data management tools:
+
+**Clear Cache**
+
+Remove cached files and request data to free up disk space:
+
+- **What it clears**: Asset cache (images, scripts, media segments), Electron session cache
+- **Cache location**: System temp directory (`soundcloud-cache`)
+- **Effect**: May temporarily slow down the app on next launch as assets are re-downloaded
+- **When to use**: When experiencing caching issues or to free up space
+
+**Clear All Data**
+
+Complete reset of all application data:
+
+- **What it removes**:
+    - Custom CSS styles
+    - All application settings
+    - Cached data
+- **Effect**: Resets the app to its initial state
+- **⚠️ Warning**: This action cannot be undone!
+- **When to use**: When troubleshooting issues or starting fresh
+
+Both actions show real-time data size and require confirmation before proceeding.
+
 ---
 
 ## ⚙️ Configuration

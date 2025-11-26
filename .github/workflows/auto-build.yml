@@ -66,13 +66,6 @@ jobs:
     strategy:
       matrix:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
-        include:
-          - os: windows-latest
-            asset_name: "soundcloud-*.exe"
-          - os: ubuntu-latest
-            asset_name: "soundcloud-*.AppImage"
-          - os: macos-latest
-            asset_name: "soundcloud-*.dmg"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -99,16 +92,42 @@ jobs:
           profile: minimal
           override: true
 
+      - name: Install Snapcraft (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo snap install snapcraft --classic
+
       - name: Build application
         run: pnpm build
 
-      - name: Upload artifacts
+      - name: Upload Windows artifacts
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-build
+          name: windows-build
           path: |
             dist/*.exe
+            dist/*Portable*.exe
+            dist/*.zip
+
+      - name: Upload Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: |
             dist/*.AppImage
+            dist/*.snap
+            dist/*.deb
+            dist/*.rpm
+            dist/*.zip
+
+      - name: Upload macOS artifacts
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: |
             dist/*.dmg
             dist/*.zip
 

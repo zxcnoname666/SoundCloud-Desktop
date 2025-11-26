@@ -1,10 +1,10 @@
-import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
-import { type BrowserWindow, app, dialog } from 'electron';
+import {createHash} from 'node:crypto';
+import {createReadStream, createWriteStream} from 'node:fs';
+import {pipeline} from 'node:stream/promises';
+import {app, type BrowserWindow, dialog} from 'electron';
 import fetch from 'node-fetch';
-import { Extensions } from './Extensions.js';
-import { UpdateNotificationManager } from './UpdateNotificationManager.js';
+import {Extensions} from './Extensions.js';
+import {UpdateNotificationManager} from './UpdateNotificationManager.js';
 
 export class Version {
   public major = -1;
@@ -257,21 +257,75 @@ export class Version {
     });
   }
 
+    private static detectInstallationFormat(): string {
+        const platform = process.platform;
+
+        if (platform === 'linux') {
+            // Check for Snap
+            if (process.env['SNAP'] || process.env['SNAP_NAME']) {
+                return 'snap';
+            }
+
+            // Check for AppImage
+            if (process.env['APPIMAGE']) {
+                return 'AppImage';
+            }
+
+            // Check for deb installation
+            try {
+                const {execSync} = require('node:child_process');
+                execSync('dpkg -s soundcloud', {stdio: 'ignore'});
+                return 'deb';
+            } catch {
+                // Not installed via deb
+            }
+
+            // Check for rpm installation
+            try {
+                const {execSync} = require('node:child_process');
+                execSync('rpm -q soundcloud', {stdio: 'ignore'});
+                return 'rpm';
+            } catch {
+                // Not installed via rpm
+            }
+
+            // Default to AppImage for Linux
+            return 'AppImage';
+        }
+
+        if (platform === 'win32') {
+            // Check if running portable version (in temp or user directory)
+            const appPath = app.getPath('exe');
+            if (appPath.includes('Portable') || !appPath.includes('Program Files')) {
+                return 'portable';
+            }
+            return 'installer';
+        }
+
+        if (platform === 'darwin') {
+            return 'dmg';
+        }
+
+        return 'unknown';
+    }
+
   private static findAssetForPlatform(assets: any[]): any {
     const platform = process.platform;
+      const format = Version.detectInstallationFormat();
 
-    // Определяем возможные паттерны для платформы
     let platformPatterns: RegExp[] = [];
 
     switch (platform) {
       case 'win32':
-        platformPatterns = [
-          /soundcloud.*\.exe$/i,
-          /.*-win.*\.exe$/i,
-          /.*-windows.*\.exe$/i,
-          /.*setup.*\.exe$/i,
-          /.*installer.*\.exe$/i,
-        ];
+          if (format === 'portable') {
+              platformPatterns = [/SoundCloudPortable.*\.exe$/i, /.*[Pp]ortable.*\.exe$/i];
+          } else {
+              platformPatterns = [
+                  /SoundCloudInstaller.*\.exe$/i,
+                  /.*[Ii]nstaller.*\.exe$/i,
+                  /.*[Ss]etup.*\.exe$/i,
+              ];
+          }
         break;
       case 'darwin':
         platformPatterns = [
@@ -282,17 +336,24 @@ export class Version {
         ];
         break;
       case 'linux':
-        platformPatterns = [
-          /soundcloud.*\.AppImage$/i,
-          /.*-linux.*\.AppImage$/i,
-          /.*\.AppImage$/i,
-          /soundcloud.*\.deb$/i,
-          /.*-linux.*\.deb$/i,
-        ];
+          if (format === 'snap') {
+              platformPatterns = [/soundcloud.*\.snap$/i, /.*-linux.*\.snap$/i];
+          } else if (format === 'deb') {
+              platformPatterns = [/soundcloud.*\.deb$/i, /.*-linux.*\.deb$/i];
+          } else if (format === 'rpm') {
+              platformPatterns = [/soundcloud.*\.rpm$/i, /.*-linux.*\.rpm$/i];
+          } else {
+              // AppImage or unknown - default to AppImage
+              platformPatterns = [
+                  /soundcloud.*\.AppImage$/i,
+                  /.*-linux.*\.AppImage$/i,
+                  /.*\.AppImage$/i,
+              ];
+          }
         break;
     }
 
-    // Ищем подходящий ассет по регулярным выражениям
+      // Search for matching asset
     for (const pattern of platformPatterns) {
       const asset = assets.find((a: any) => pattern.test(a.name));
       if (asset) return asset;
@@ -320,46 +381,135 @@ export class Version {
 
   private static async installUpdate(filePath: string): Promise<boolean> {
     try {
-      const { spawn } = require('node:child_process');
+        const {spawn, execSync} = require('node:child_process');
       const platform = process.platform;
+        const format = Version.detectInstallationFormat();
+        const translations = Extensions.getTranslations().updater;
 
       if (platform === 'win32') {
-        // Windows - запускаем exe
+          const isPortable = format === 'portable';
+
+          if (isPortable) {
+              // Portable - показываем инструкцию по замене
+              await dialog.showMessageBox({
+                  type: 'info',
+                  title: 'Update Downloaded',
+                  message: `Portable version updated!\n\nUpdate downloaded to:\n${filePath}\n\nPlease close the application and replace the executable manually.`,
+                  buttons: ['OK'],
+              });
+              return false;
+          }
+          // Installer - запускаем установщик
         spawn(filePath, [], {
           detached: true,
           stdio: 'ignore',
         });
-      } else if (platform === 'darwin') {
-        // macOS - монтируем DMG и запускаем установщик
+          app.quit();
+          return true;
+      }
+        if (platform === 'darwin') {
+            // macOS - открываем DMG
         spawn('open', [filePath], {
           detached: true,
           stdio: 'ignore',
         });
-      } else if (platform === 'linux') {
+            app.quit();
+            return true;
+        }
+        if (platform === 'linux') {
+            if (filePath.endsWith('.snap')) {
+                // Snap - показываем инструкцию (обновление через snap refresh)
+                await dialog.showMessageBox({
+                    type: 'info',
+                    title: 'Snap Update Available',
+                    message:
+                        'A new version is available!\n\nTo update Snap package, run:\nsudo snap refresh soundcloud\n\nOr visit Snap Store for automatic updates.',
+                    buttons: ['OK'],
+                });
+                return false;
+            }
         if (filePath.endsWith('.AppImage')) {
-          // AppImage - делаем исполняемым и запускаем
-          require('node:fs').chmodSync(filePath, '755');
-          spawn(filePath, [], {
-            detached: true,
-            stdio: 'ignore',
-          });
+            // AppImage - заменяем текущий файл
+            const currentAppImage = process.env['APPIMAGE'];
+
+            if (currentAppImage) {
+                const fs = require('node:fs');
+
+                // Делаем новый AppImage исполняемым
+                fs.chmodSync(filePath, '755');
+
+                // Копируем новый AppImage на место старого
+                const backupPath = `${currentAppImage}.backup`;
+                fs.copyFileSync(currentAppImage, backupPath);
+
+                try {
+                    fs.copyFileSync(filePath, currentAppImage);
+
+                    // Запускаем новый AppImage
+                    spawn(currentAppImage, [], {
+                        detached: true,
+                        stdio: 'ignore',
+                    });
+
+                    app.quit();
+                    return true;
+                } catch (error) {
+                    // Восстанавливаем из бэкапа в случае ошибки
+                    fs.copyFileSync(backupPath, currentAppImage);
+                    throw error;
+                }
+            } else {
+                // Если не можем определить текущий AppImage, запускаем новый
+                require('node:fs').chmodSync(filePath, '755');
+                spawn(filePath, [], {
+                    detached: true,
+                    stdio: 'ignore',
+                });
+                app.quit();
+                return true;
+            }
         } else if (filePath.endsWith('.deb')) {
-          // DEB пакет - используем dpkg или показываем инструкции
-          const translations = Extensions.getTranslations().updater;
+            // DEB - показываем инструкцию с командой установки
+            const fileName = require('node:path').basename(filePath);
+            await dialog.showMessageBox({
+                type: 'info',
+                title: translations.updater_manual_install_title || 'Update Downloaded',
+                message: `Update downloaded to:\n${filePath}\n\nTo install, run:\nsudo apt install ./${fileName}\n\nOr double-click the file to install via GUI.`,
+                buttons: ['OK'],
+            });
+
+            // Пытаемся открыть файл через xdg-open для GUI установки
+            try {
+                execSync(`xdg-open "${filePath}"`, {stdio: 'ignore'});
+            } catch {
+                // Игнорируем ошибку, если xdg-open не доступен
+            }
+
+            return false;
+        } else if (filePath.endsWith('.rpm')) {
+            // RPM - показываем инструкцию с командой установки
+            const fileName = require('node:path').basename(filePath);
           await dialog.showMessageBox({
             type: 'info',
-            title: translations.updater_manual_install_title,
-            message: translations.updater_manual_install_message.replace('{path}', filePath),
+              title: 'Update Downloaded',
+              message: `Update downloaded to:\n${filePath}\n\nTo install, run:\nsudo rpm -U ${fileName}\n\nOr for DNF:\nsudo dnf install ${fileName}\n\nOr double-click the file to install via GUI.`,
             buttons: ['OK'],
           });
+
+            // Пытаемся открыть файл через xdg-open для GUI установки
+            try {
+                execSync(`xdg-open "${filePath}"`, {stdio: 'ignore'});
+            } catch {
+                // Игнорируем ошибку
+            }
+
           return false;
         }
       }
 
-      app.quit();
-      return true;
+        return false;
     } catch (error) {
-      console.error('Failed to start installer:', error);
+        console.error('Failed to install update:', error);
       return false;
     }
   }
