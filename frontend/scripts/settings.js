@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await initializeMonaco();
   setupEventListeners();
-    await loadDataSizes();
+  await loadDataSizes();
 });
 
 function applyTranslations() {
@@ -50,55 +50,55 @@ function applyTranslations() {
   const saveBtn = document.getElementById('saveBtn');
   if (saveBtn) saveBtn.textContent = translations.settings_btn_save || 'Save & Apply';
 
-    // Data management section
-    const sectionTitle = document.querySelector('.section-title');
-    if (sectionTitle)
-        sectionTitle.textContent = translations.settings_section_data || 'Data Management';
+  // Data management section
+  const sectionTitle = document.querySelector('.section-title');
+  if (sectionTitle)
+    sectionTitle.textContent = translations.settings_section_data || 'Data Management';
 
-    const sectionSubtitle = document.querySelector('.section-subtitle');
-    if (sectionSubtitle)
-        sectionSubtitle.textContent =
-            translations.settings_section_data_subtitle || 'Clear cache and user data';
+  const sectionSubtitle = document.querySelector('.section-subtitle');
+  if (sectionSubtitle)
+    sectionSubtitle.textContent =
+      translations.settings_section_data_subtitle || 'Clear cache and user data';
 
-    // Cache card
-    const cacheCardTitle = document.querySelector('.data-card:first-child .card-title');
-    if (cacheCardTitle)
-        cacheCardTitle.textContent = translations.settings_btn_clear_cache || 'Clear Cache';
+  // Cache card
+  const cacheCardTitle = document.querySelector('.data-card:first-child .card-title');
+  if (cacheCardTitle)
+    cacheCardTitle.textContent = translations.settings_btn_clear_cache || 'Clear Cache';
 
-    const cacheCardDesc = document.querySelector('.data-card:first-child .card-description');
-    if (cacheCardDesc)
-        cacheCardDesc.textContent =
-            translations.settings_btn_clear_cache_desc || 'Remove cached files and request data';
+  const cacheCardDesc = document.querySelector('.data-card:first-child .card-description');
+  if (cacheCardDesc)
+    cacheCardDesc.textContent =
+      translations.settings_btn_clear_cache_desc || 'Remove cached files and request data';
 
-    const clearCacheBtn = document.getElementById('clearCacheBtn');
-    if (clearCacheBtn) {
-        clearCacheBtn.innerHTML = `
+  const clearCacheBtn = document.getElementById('clearCacheBtn');
+  if (clearCacheBtn) {
+    clearCacheBtn.innerHTML = `
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
       </svg>
       ${translations.settings_btn_clear_cache || 'Clear Cache'}
     `;
-    }
+  }
 
-    // AppData card
-    const appDataCardTitle = document.querySelector('.data-card:last-child .card-title');
-    if (appDataCardTitle)
-        appDataCardTitle.textContent = translations.settings_btn_clear_appdata || 'Clear All Data';
+  // AppData card
+  const appDataCardTitle = document.querySelector('.data-card:last-child .card-title');
+  if (appDataCardTitle)
+    appDataCardTitle.textContent = translations.settings_btn_clear_appdata || 'Clear All Data';
 
-    const appDataCardDesc = document.querySelector('.data-card:last-child .card-description');
-    if (appDataCardDesc)
-        appDataCardDesc.textContent =
-            translations.settings_btn_clear_appdata_desc || 'Remove all user settings and styles';
+  const appDataCardDesc = document.querySelector('.data-card:last-child .card-description');
+  if (appDataCardDesc)
+    appDataCardDesc.textContent =
+      translations.settings_btn_clear_appdata_desc || 'Remove all user settings and styles';
 
-    const clearAppDataBtn = document.getElementById('clearAppDataBtn');
-    if (clearAppDataBtn) {
-        clearAppDataBtn.innerHTML = `
+  const clearAppDataBtn = document.getElementById('clearAppDataBtn');
+  if (clearAppDataBtn) {
+    clearAppDataBtn.innerHTML = `
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M14.5,9L15.9,10.4L13.3,13L15.9,15.6L14.5,17L11.9,14.4L9.3,17L7.9,15.6L10.5,13L7.9,10.4L9.3,9L11.9,11.6L14.5,9Z"/>
       </svg>
       ${translations.settings_btn_clear_appdata || 'Clear All Data'}
     `;
-    }
+  }
 }
 
 async function initializeMonaco() {
@@ -213,18 +213,18 @@ function setupEventListeners() {
   // Close button
   const closeBtn = document.getElementById('closeBtn');
   if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-          // Revert to original CSS (non-blocking, fire and forget)
+    closeBtn.addEventListener('click', () => {
+      // Revert to original CSS (non-blocking, fire and forget)
       if (typeof window.settingsAPI !== 'undefined') {
-          try {
-              window.settingsAPI.previewCSS(originalCSS);
-          } catch (error) {
-              // Ignore errors
-              console.debug('Failed to revert CSS:', error);
-          }
+        try {
+          window.settingsAPI.previewCSS(originalCSS);
+        } catch (error) {
+          // Ignore errors
+          console.debug('Failed to revert CSS:', error);
+        }
       }
-          // Close immediately without waiting
-          setTimeout(() => closeWindow(), 100);
+      // Close immediately without waiting
+      setTimeout(() => closeWindow(), 100);
     });
   }
 
@@ -251,18 +251,18 @@ function setupEventListeners() {
   // Cancel button
   const cancelBtn = document.getElementById('cancelBtn');
   if (cancelBtn) {
-      cancelBtn.addEventListener('click', () => {
-          // Revert to original CSS (non-blocking, fire and forget)
+    cancelBtn.addEventListener('click', () => {
+      // Revert to original CSS (non-blocking, fire and forget)
       if (typeof window.settingsAPI !== 'undefined') {
-          try {
-              window.settingsAPI.previewCSS(originalCSS);
-          } catch (error) {
-              // Ignore errors
-              console.debug('Failed to revert CSS:', error);
-          }
+        try {
+          window.settingsAPI.previewCSS(originalCSS);
+        } catch (error) {
+          // Ignore errors
+          console.debug('Failed to revert CSS:', error);
+        }
       }
-          // Close immediately without waiting
-          setTimeout(() => closeWindow(), 100);
+      // Close immediately without waiting
+      setTimeout(() => closeWindow(), 100);
     });
   }
 
@@ -297,87 +297,87 @@ function setupEventListeners() {
       if (typeof window.settingsAPI !== 'undefined') {
         const defaultCSS = await window.settingsAPI.getDefaultCSS();
         editor.setValue(defaultCSS);
-          showStatus(translations?.settings_status_reset || 'Reset to default styles', 'success');
+        showStatus(translations?.settings_status_reset || 'Reset to default styles', 'success');
       }
     });
   }
 
-    // Clear cache button
-    const clearCacheBtn = document.getElementById('clearCacheBtn');
-    if (clearCacheBtn) {
-        clearCacheBtn.addEventListener('click', async () => {
-            if (typeof window.settingsAPI === 'undefined') return;
+  // Clear cache button
+  const clearCacheBtn = document.getElementById('clearCacheBtn');
+  if (clearCacheBtn) {
+    clearCacheBtn.addEventListener('click', async () => {
+      if (typeof window.settingsAPI === 'undefined') return;
 
-            const confirmed = confirm(
-                translations?.settings_confirm_clear_cache ||
-                'Are you sure you want to clear the cache? This may slow down the app on next launch.'
-            );
+      const confirmed = confirm(
+        translations?.settings_confirm_clear_cache ||
+          'Are you sure you want to clear the cache? This may slow down the app on next launch.'
+      );
 
-            if (!confirmed) return;
+      if (!confirmed) return;
 
-            clearCacheBtn.disabled = true;
-            clearCacheBtn.textContent = 'Clearing...';
+      clearCacheBtn.disabled = true;
+      clearCacheBtn.textContent = 'Clearing...';
 
-            try {
-                const result = await window.settingsAPI.clearCache();
-                if (result.success) {
-                    showStatus(
-                        translations?.settings_cache_cleared || 'Cache cleared successfully!',
-                        'success'
-                    );
-                    await loadDataSizes();
-                } else {
-                    showStatus(`Failed to clear cache: ${result.error}`, 'error');
-                }
-            } catch (error) {
-                showStatus(`Failed to clear cache: ${error}`, 'error');
-            } finally {
-                clearCacheBtn.disabled = false;
-                clearCacheBtn.innerHTML = `
+      try {
+        const result = await window.settingsAPI.clearCache();
+        if (result.success) {
+          showStatus(
+            translations?.settings_cache_cleared || 'Cache cleared successfully!',
+            'success'
+          );
+          await loadDataSizes();
+        } else {
+          showStatus(`Failed to clear cache: ${result.error}`, 'error');
+        }
+      } catch (error) {
+        showStatus(`Failed to clear cache: ${error}`, 'error');
+      } finally {
+        clearCacheBtn.disabled = false;
+        clearCacheBtn.innerHTML = `
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
           </svg>
           ${translations?.settings_btn_clear_cache || 'Clear Cache'}
         `;
-            }
-        });
-    }
+      }
+    });
+  }
 
-    // Clear AppData button
-    const clearAppDataBtn = document.getElementById('clearAppDataBtn');
-    if (clearAppDataBtn) {
-        clearAppDataBtn.addEventListener('click', async () => {
-            if (typeof window.settingsAPI === 'undefined') return;
+  // Clear AppData button
+  const clearAppDataBtn = document.getElementById('clearAppDataBtn');
+  if (clearAppDataBtn) {
+    clearAppDataBtn.addEventListener('click', async () => {
+      if (typeof window.settingsAPI === 'undefined') return;
 
-            const confirmed = confirm(
-                translations?.settings_confirm_clear_appdata ||
-                'Are you sure you want to delete ALL application data? This action cannot be undone!\n\nThis will remove:\n• Custom CSS styles\n• All settings\n• Cached data'
-            );
+      const confirmed = confirm(
+        translations?.settings_confirm_clear_appdata ||
+          'Are you sure you want to delete ALL application data? This action cannot be undone!\n\nThis will remove:\n• Custom CSS styles\n• All settings\n• Cached data'
+      );
 
-            if (!confirmed) return;
+      if (!confirmed) return;
 
-            clearAppDataBtn.disabled = true;
-            clearAppDataBtn.textContent = 'Clearing...';
+      clearAppDataBtn.disabled = true;
+      clearAppDataBtn.textContent = 'Clearing...';
 
-            try {
-                const result = await window.settingsAPI.clearAppData();
-                if (result.success) {
-                    showStatus(
-                        translations?.settings_appdata_cleared || 'All application data cleared successfully!',
-                        'success'
-                    );
-                    // Reload original CSS after clearing appdata
-                    originalCSS = '';
-                    editor.setValue(await window.settingsAPI.getDefaultCSS());
-                    await loadDataSizes();
-                } else {
-                    showStatus(`Failed to clear data: ${result.error}`, 'error');
-                }
-            } catch (error) {
-                showStatus(`Failed to clear data: ${error}`, 'error');
-            } finally {
-                clearAppDataBtn.disabled = false;
-                clearAppDataBtn.innerHTML = `
+      try {
+        const result = await window.settingsAPI.clearAppData();
+        if (result.success) {
+          showStatus(
+            translations?.settings_appdata_cleared || 'All application data cleared successfully!',
+            'success'
+          );
+          // Reload original CSS after clearing appdata
+          originalCSS = '';
+          editor.setValue(await window.settingsAPI.getDefaultCSS());
+          await loadDataSizes();
+        } else {
+          showStatus(`Failed to clear data: ${result.error}`, 'error');
+        }
+      } catch (error) {
+        showStatus(`Failed to clear data: ${error}`, 'error');
+      } finally {
+        clearAppDataBtn.disabled = false;
+        clearAppDataBtn.innerHTML = `
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M14.5,9L15.9,10.4L13.3,13L15.9,15.6L14.5,17L11.9,14.4L9.3,17L7.9,15.6L10.5,13L7.9,10.4L9.3,9L11.9,11.6L14.5,9Z"/>
           </svg>
@@ -407,37 +407,37 @@ function closeWindow() {
 }
 
 async function loadDataSizes() {
-    if (typeof window.settingsAPI === 'undefined') return;
+  if (typeof window.settingsAPI === 'undefined') return;
 
-    try {
-        // Load cache size
-        const cacheResult = await window.settingsAPI.getCacheSize();
-        const cacheSizeEl = document.getElementById('cacheSize');
-        if (cacheSizeEl) {
-            if (cacheResult.success) {
-                cacheSizeEl.textContent =
-                    translations?.settings_cache_size.replace('{size}', cacheResult.size) ||
-                    `Cache size: ${cacheResult.size}`;
-            } else {
-                cacheSizeEl.textContent = 'N/A';
-            }
-        }
-
-        // Load appdata size
-        const appDataResult = await window.settingsAPI.getAppDataSize();
-        const appDataSizeEl = document.getElementById('appDataSize');
-        if (appDataSizeEl) {
-            if (appDataResult.success) {
-                appDataSizeEl.textContent =
-                    translations?.settings_appdata_size.replace('{size}', appDataResult.size) ||
-                    `Data size: ${appDataResult.size}`;
-            } else {
-                appDataSizeEl.textContent = 'N/A';
-            }
-        }
-    } catch (error) {
-        console.error('Failed to load data sizes:', error);
+  try {
+    // Load cache size
+    const cacheResult = await window.settingsAPI.getCacheSize();
+    const cacheSizeEl = document.getElementById('cacheSize');
+    if (cacheSizeEl) {
+      if (cacheResult.success) {
+        cacheSizeEl.textContent =
+          translations?.settings_cache_size.replace('{size}', cacheResult.size) ||
+          `Cache size: ${cacheResult.size}`;
+      } else {
+        cacheSizeEl.textContent = 'N/A';
+      }
     }
+
+    // Load appdata size
+    const appDataResult = await window.settingsAPI.getAppDataSize();
+    const appDataSizeEl = document.getElementById('appDataSize');
+    if (appDataSizeEl) {
+      if (appDataResult.success) {
+        appDataSizeEl.textContent =
+          translations?.settings_appdata_size.replace('{size}', appDataResult.size) ||
+          `Data size: ${appDataResult.size}`;
+      } else {
+        appDataSizeEl.textContent = 'N/A';
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load data sizes:', error);
+  }
 }
 
 // Cleanup on unload

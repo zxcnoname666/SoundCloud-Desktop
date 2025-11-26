@@ -1,19 +1,19 @@
 import http from 'node:http';
 import https from 'node:https';
-import {URL} from 'node:url';
+import { URL } from 'node:url';
 import fetch from 'node-fetch';
-import type {ProxyManagerInterface} from '../types/global.js';
-import {ConfigManager} from '../utils/config.js';
-import {Extensions} from './Extensions.js';
-import type {NotificationManager} from './NotificationManager.js';
-import {WindowSetup} from './WindowSetup';
+import type { ProxyManagerInterface } from '../types/global.js';
+import { ConfigManager } from '../utils/config.js';
+import { Extensions } from './Extensions.js';
+import type { NotificationManager } from './NotificationManager.js';
+import { WindowSetup } from './WindowSetup';
 
 interface ProxyInfo {
   source: string;
   domain: string;
   path?: string;
   headers?: Record<string, string>;
-    protocol: 'http:' | 'https:';
+  protocol: 'http:' | 'https:';
   // Система strikes для отслеживания ошибок подряд
   strikes: number;
   // Время до которого прокси заблокирована (Unix timestamp в ms)
@@ -28,7 +28,7 @@ export class ProxyManager implements ProxyManagerInterface {
   private activeProxies: ProxyInfo[] = []; // Активные прокси (из которых берём)
   private notifyManager: NotificationManager | null = null;
   private httpsAgent: https.Agent;
-    private httpAgent: http.Agent;
+  private httpAgent: http.Agent;
 
   // Конфигурация системы strikes
   private readonly MAX_STRIKES = 3; // Максимум ошибок подряд
@@ -42,10 +42,10 @@ export class ProxyManager implements ProxyManagerInterface {
       minVersion: 'TLSv1',
     });
 
-      // Создаем http.Agent для HTTP прокси
-      this.httpAgent = new http.Agent({
-          keepAlive: true,
-      });
+    // Создаем http.Agent для HTTP прокси
+    this.httpAgent = new http.Agent({
+      keepAlive: true,
+    });
   }
 
   static getInstance(): ProxyManager {
@@ -105,7 +105,7 @@ export class ProxyManager implements ProxyManagerInterface {
             ...headers,
             'X-Target': encodedTargetUrl,
           },
-            agent: proxy.protocol === 'https:' ? this.httpsAgent : this.httpAgent,
+          agent: proxy.protocol === 'https:' ? this.httpsAgent : this.httpAgent,
         };
 
         if (options.body) {
@@ -278,7 +278,7 @@ export class ProxyManager implements ProxyManagerInterface {
             headers: url.searchParams.has('headers')
               ? JSON.parse(decodeURIComponent(url.searchParams.get('headers')!))
               : undefined,
-              protocol: url.protocol as 'http:' | 'https:',
+            protocol: url.protocol as 'http:' | 'https:',
             // Инициализируем систему strikes
             strikes: 0,
             blockedUntil: 0,
