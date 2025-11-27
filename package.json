@@ -50,6 +50,7 @@
     ],
     "onlyBuiltDependencies": [
       "electron",
+      "electron-winstaller",
       "simple-git-hooks"
     ]
   },
