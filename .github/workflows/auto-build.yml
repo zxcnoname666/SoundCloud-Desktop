@@ -120,15 +120,15 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Build application
+      - name: Build application (macOS Universal)
+        if: matrix.os == 'macos-latest'
+        run: pnpm run build:production && node scripts/forge-make.cjs --arch=universal
+
+      - name: Build application (Windows/Linux)
+        if: matrix.os != 'macos-latest'
         env:
           SQUIRREL_TEMP: ${{ github.workspace }}/SquirrelTemp
-        run: |
-          if [ "${{ matrix.os }}" = "macos-latest" ]; then
-            pnpm run build:production && node scripts/forge-make.cjs --arch=universal
-          else
-            pnpm build
-          fi
+        run: pnpm build
 
       - name: Upload Windows artifacts
         if: matrix.os == 'windows-latest'
