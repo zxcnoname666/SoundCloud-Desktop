@@ -7,9 +7,11 @@
   "scripts": {
     "dev": "tsx build.ts && electron dist/init.js --dev",
     "dev:watch": "tsx build.ts --skip-copy && electron dist/init.js --dev",
-    "build": "pnpm run build:production && electron-builder",
+    "build": "pnpm run build:production && node scripts/forge-make.cjs",
     "build:app": "tsx build.ts",
     "build:production": "tsx build.ts --production",
+    "package": "node scripts/forge-package.cjs",
+    "make": "node scripts/forge-make.cjs",
     "start": "electron dist/init.js",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx --fix",
@@ -57,13 +59,20 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
+    "@electron-forge/cli": "^7.10.2",
+    "@electron-forge/maker-appx": "^7.10.2",
+    "@electron-forge/maker-deb": "^7.10.2",
+    "@electron-forge/maker-dmg": "^7.10.2",
+    "@electron-forge/maker-rpm": "^7.10.2",
+    "@electron-forge/maker-squirrel": "^7.10.2",
+    "@electron-forge/maker-zip": "^7.10.2",
     "@eslint/js": "^9.39.1",
+    "@reforged/maker-appimage": "^5.1.0",
     "@types/discord-rpc": "^4.0.10",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.47.0",
-    "electron": "^39.2.3",
-    "electron-builder": "^26.0.12",
+    "electron": "^38.7.1",
     "esbuild": "^0.27.0",
     "eslint": "^9.39.1",
     "simple-git-hooks": "^2.13.1",
@@ -78,116 +87,124 @@
     "node-fetch": "^3.3.2",
     "qurre-socket": "^1.1.0"
   },
-  "build": {
-    "publish": false,
-    "directories": {
-      "app": "dist"
-    },
-    "asarUnpack": [
-      "bins/**/*"
-    ],
-    "files": [
-      "!.build/*",
-      "!.git/*",
-      "**/*",
-      "!**/linux-unpacked/**",
-      "!**/win-unpacked/**",
-      "!**/mac-unpacked/**",
-      "!**/mac/**",
-      "!update_info.json",
-      "!_ignore/*",
-      "!_proxy/*"
-    ],
-    "appId": "SoundCloud",
-    "win": {
-      "target": [
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "name": "SoundCloud",
+        "executableName": "soundcloud",
+        "dir": "dist",
+        "asar": false,
+        "icon": "icons/appLogo",
+        "appBundleId": "com.soundcloud.desktop",
+        "appCategoryType": "public.app-category.music",
+        "ignore": [
+          "^\\/\\.debug($|\\/)",
+          "^\\/_ignore($|\\/)",
+          "^\\/_proxy($|\\/)"
+        ]
+      },
+      "rebuildConfig": {
+        "onlyModules": []
+      },
+      "makers": [
         {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin",
+            "linux",
+            "win32"
+          ],
+          "config": {}
         },
         {
-          "target": "portable",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
+          "name": "@electron-forge/maker-squirrel",
+          "platforms": [
+            "win32"
+          ],
+          "config": {
+            "name": "SoundCloud",
+            "setupIcon": "icons/appLogo.ico",
+            "loadingGif": "icons/appLogo.png"
+          }
         },
         {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
+          "name": "@electron-forge/maker-deb",
+          "platforms": [
+            "linux"
+          ],
+          "config": {
+            "options": {
+              "name": "soundcloud",
+              "productName": "SoundCloud",
+              "icon": "icons/appLogo.png",
+              "categories": [
+                "Audio",
+                "Music"
+              ],
+              "section": "sound",
+              "priority": "optional",
+              "depends": [
+                "gconf2",
+                "gconf-service",
+                "libnotify4",
+                "libappindicator1",
+                "libxtst6",
+                "libnss3"
+              ]
+            }
+          }
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "platforms": [
+            "linux"
+          ],
+          "config": {
+            "options": {
+              "name": "soundcloud",
+              "productName": "SoundCloud",
+              "icon": "icons/appLogo.png",
+              "categories": [
+                "Audio",
+                "Music"
+              ],
+              "requires": [
+                "libXScrnSaver",
+                "libappindicator",
+                "libnotify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "@electron-forge/maker-dmg",
+          "platforms": [
+            "darwin"
+          ],
+          "config": {
+            "name": "SoundCloud",
+            "icon": "icons/appLogo.png"
+          }
+        },
+        {
+          "name": "@reforged/maker-appimage",
+          "platforms": [
+            "linux"
+          ],
+          "config": {
+            "options": {
+              "name": "soundcloud",
+              "productName": "SoundCloud",
+              "genericName": "Music Player",
+              "description": "SoundCloud Desktop App",
+              "categories": [
+                "Audio",
+                "Music"
+              ],
+              "icon": "icons/appLogo.png"
+            }
+          }
         }
-      ],
-      "icon": "icons/appLogo.ico"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "snap",
-        "deb",
-        "rpm",
-        "zip"
-      ],
-      "artifactName": "soundcloud-${version}-linux-${arch}.${ext}",
-      "icon": "icons/appLogo.png",
-      "category": "Audio"
-    },
-    "mac": {
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "icons/appLogo.png"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "artifactName": "SoundCloudInstaller-${arch}.${ext}",
-      "shortcutName": "SoundCloud",
-      "license": "LICENSE"
-    },
-    "portable": {
-      "artifactName": "SoundCloudPortable-${arch}.${ext}"
-    },
-    "snap": {
-      "confinement": "classic",
-      "summary": "SoundCloud Desktop App",
-      "grade": "stable"
-    },
-    "deb": {
-      "artifactName": "soundcloud-${version}-${arch}.${ext}",
-      "depends": [
-        "gconf2",
-        "gconf-service",
-        "libnotify4",
-        "libappindicator1",
-        "libxtst6",
-        "libnss3"
-      ]
-    },
-    "rpm": {
-      "artifactName": "soundcloud-${version}-${arch}.${ext}",
-      "depends": [
-        "libXScrnSaver",
-        "libappindicator",
-        "libnotify"
       ]
     }
   }

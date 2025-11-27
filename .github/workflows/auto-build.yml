@@ -74,6 +74,9 @@ jobs:
           fetch-depth: 0
           ref: main
 
+      - name: Pull latest changes
+        run: git pull origin main
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -81,6 +84,19 @@ jobs:
 
       - name: Enable pnpm
         run: corepack enable
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -92,11 +108,6 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Install Snapcraft (Linux only)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo snap install snapcraft --classic
-
       - name: Build application
         run: pnpm build
 
@@ -106,9 +117,8 @@ jobs:
         with:
           name: windows-build
           path: |
-            dist/*.exe
-            dist/*Portable*.exe
-            dist/*.zip
+            dist/out/make/**/*.exe
+            dist/out/make/**/*.zip
 
       - name: Upload Linux artifacts
         if: matrix.os == 'ubuntu-latest'
@@ -116,11 +126,10 @@ jobs:
         with:
           name: linux-build
           path: |
-            dist/*.AppImage
-            dist/*.snap
-            dist/*.deb
-            dist/*.rpm
-            dist/*.zip
+            dist/out/make/**/*.AppImage
+            dist/out/make/**/*.deb
+            dist/out/make/**/*.rpm
+            dist/out/make/**/*.zip
 
       - name: Upload macOS artifacts
         if: matrix.os == 'macos-latest'
@@ -128,8 +137,8 @@ jobs:
         with:
           name: macos-build
           path: |
-            dist/*.dmg
-            dist/*.zip
+            dist/out/make/**/*.dmg
+            dist/out/make/**/*.zip
 
   release:
     needs: build

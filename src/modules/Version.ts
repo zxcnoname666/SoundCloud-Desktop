@@ -1,10 +1,10 @@
-import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
-import { type BrowserWindow, app, dialog } from 'electron';
+import {createHash} from 'node:crypto';
+import {createReadStream, createWriteStream} from 'node:fs';
+import {pipeline} from 'node:stream/promises';
+import {app, type BrowserWindow, dialog} from 'electron';
 import fetch from 'node-fetch';
-import { Extensions } from './Extensions.js';
-import { UpdateNotificationManager } from './UpdateNotificationManager.js';
+import {Extensions} from './Extensions.js';
+import {UpdateNotificationManager} from './UpdateNotificationManager.js';
 
 export class Version {
   public major = -1;
@@ -311,55 +311,166 @@ export class Version {
 
   private static findAssetForPlatform(assets: any[]): any {
     const platform = process.platform;
+      const arch = process.arch;
     const format = Version.detectInstallationFormat();
 
-    let platformPatterns: RegExp[] = [];
+      // Маппинг архитектур Node.js -> имена в файлах
+      const archMap: Record<string, string[]> = {
+          x64: ['x64', 'amd64', 'x86_64'],
+          ia32: ['ia32', 'x86', 'i386'],
+          arm64: ['arm64', 'aarch64'],
+          arm: ['arm', 'armv7'],
+      };
+
+      const archAliases = archMap[arch] || [arch];
+
+      /**
+       * Ищет asset по списку паттернов с поддержкой приоритета архитектур
+       * @param patterns - Массив паттернов в порядке приоритета
+       * @returns Найденный asset или null
+       */
+      const findAsset = (patterns: RegExp[]): any => {
+          for (const pattern of patterns) {
+              const asset = assets.find((a: any) => pattern.test(a.name));
+              if (asset) return asset;
+          }
+          return null;
+      };
+
+      /**
+       * Создаёт паттерны для поиска с учётом архитектуры и фаллбеками
+       */
+      const createPatternsWithFallback = (
+          primaryPatterns: string[],
+          fallbackPatterns: string[]
+      ): RegExp[] => {
+          const patterns: RegExp[] = [];
+
+          // 1. Паттерны с архитектурой (высокий приоритет)
+          for (const archAlias of archAliases) {
+              for (const pattern of primaryPatterns) {
+                  patterns.push(new RegExp(pattern.replace('{arch}', archAlias), 'i'));
+              }
+          }
+
+          // 2. Фаллбек паттерны (без архитектуры или универсальные)
+          for (const pattern of fallbackPatterns) {
+              patterns.push(new RegExp(pattern, 'i'));
+          }
+
+          return patterns;
+      };
+
+      let patterns: RegExp[] = [];
 
     switch (platform) {
       case 'win32':
         if (format === 'portable') {
-          platformPatterns = [/SoundCloudPortable.*\.exe$/i, /.*[Pp]ortable.*\.exe$/i];
+            patterns = createPatternsWithFallback(
+                [
+                    '^SoundCloudPortable-{arch}\\.exe$',
+                    '-{arch}-win\\.zip$',
+                    'Portable-{arch}\\.exe$',
+                ],
+                [
+                    '^SoundCloudPortable\\.exe$', // Универсальный portable
+                    '-win\\.zip$',
+                    'Portable.*\\.exe$',
+                ]
+            );
         } else {
-          platformPatterns = [
-            /SoundCloudInstaller.*\.exe$/i,
-            /.*[Ii]nstaller.*\.exe$/i,
-            /.*[Ss]etup.*\.exe$/i,
-          ];
+            patterns = createPatternsWithFallback(
+                [
+                    '^SoundCloudInstaller-{arch}\\.exe$',
+                    '-{arch}-win\\.zip$',
+                    'Installer-{arch}\\.exe$',
+                    'Setup-{arch}\\.exe$',
+                ],
+                [
+                    '^SoundCloudInstaller\\.exe$', // Универсальный installer
+                    '-win\\.zip$',
+                    'Installer.*\\.exe$',
+                    'Setup.*\\.exe$',
+                ]
+            );
         }
         break;
+
       case 'darwin':
-        platformPatterns = [
-          /soundcloud.*\.dmg$/i,
-          /.*-mac.*\.dmg$/i,
-          /.*-darwin.*\.dmg$/i,
-          /.*-macos.*\.dmg$/i,
-        ];
+          patterns = createPatternsWithFallback(
+              [
+                  '^[Ss]oundcloud-.*-{arch}\\.dmg$',
+                  '^[Ss]oundcloud-.*-{arch}-mac\\.zip$',
+                  '-{arch}-darwin\\.dmg$',
+                  '-{arch}-macos\\.dmg$',
+              ],
+              [
+                  '^[Ss]oundcloud\\.dmg$', // SoundCloud.dmg (default from forge)
+                  '^[Ss]oundcloud-[0-9.]+\\.dmg$', // soundcloud-3.3.0.dmg
+                  '^[Ss]oundcloud-.*-mac\\.zip$',
+                  '-mac\\.dmg$',
+                  '-darwin\\.dmg$',
+                  '-macos\\.dmg$',
+              ]
+          );
         break;
-      case 'linux':
-        if (format === 'snap') {
-          platformPatterns = [/soundcloud.*\.snap$/i, /.*-linux.*\.snap$/i];
-        } else if (format === 'deb') {
-          platformPatterns = [/soundcloud.*\.deb$/i, /.*-linux.*\.deb$/i];
-        } else if (format === 'rpm') {
-          platformPatterns = [/soundcloud.*\.rpm$/i, /.*-linux.*\.rpm$/i];
+
+        case 'linux': {
+            const linuxExtension =
+                format === 'snap' ? 'snap' : format === 'deb' ? 'deb' : format === 'rpm' ? 'rpm' : 'AppImage';
+
+            if (linuxExtension === 'AppImage') {
+                patterns = createPatternsWithFallback(
+                    [
+                        `^[Ss]oundcloud-.*-{arch}\\.${linuxExtension}$`,
+                        `^[Ss]oundcloud-.*-linux-{arch}\\.${linuxExtension}$`,
+                        `-{arch}\\.${linuxExtension}$`,
+                    ],
+                    [
+                        `^[Ss]oundcloud.*\\.${linuxExtension}$`,
+                        `.*-linux.*\\.${linuxExtension}$`,
+                        `.*\\.${linuxExtension}$`,
+                    ]
+                );
+            } else if (linuxExtension === 'deb') {
+                // deb files from forge use underscores: soundcloud_3.3.0_amd64.deb
+                patterns = createPatternsWithFallback(
+                    [
+                        `^soundcloud[_-].*[_-]{arch}\\.${linuxExtension}$`,
+                    ],
+                    [
+                        `^soundcloud.*\\.${linuxExtension}$`,
+                        `.*\\.${linuxExtension}$`,
+                    ]
+                );
+            } else if (linuxExtension === 'rpm') {
+                // rpm files from forge: soundcloud-3.3.0-1.x86_64.rpm
+                patterns = createPatternsWithFallback(
+                    [
+                        `^soundcloud-.*[-.]\\d+\\.{arch}\\.${linuxExtension}$`,
+                    ],
+                    [
+                        `^soundcloud.*\\.${linuxExtension}$`,
+                        `.*\\.${linuxExtension}$`,
+                    ]
+                );
         } else {
-          // AppImage or unknown - default to AppImage
-          platformPatterns = [
-            /soundcloud.*\.AppImage$/i,
-            /.*-linux.*\.AppImage$/i,
-            /.*\.AppImage$/i,
-          ];
+                patterns = createPatternsWithFallback(
+                    [
+                        `^soundcloud-.*-{arch}\\.${linuxExtension}$`,
+                        `^soundcloud-.*-linux-{arch}\\.${linuxExtension}$`,
+                    ],
+                    [
+                        `^soundcloud.*\\.${linuxExtension}$`,
+                        `.*\\.${linuxExtension}$`,
+                    ]
+                );
         }
         break;
+        }
     }
 
-    // Search for matching asset
-    for (const pattern of platformPatterns) {
-      const asset = assets.find((a: any) => pattern.test(a.name));
-      if (asset) return asset;
-    }
-
-    return null;
+      return findAsset(patterns);
   }
 
   private static getExpectedHash(updateInfo: any, fileName: string): string | undefined {
