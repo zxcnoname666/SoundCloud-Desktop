@@ -95,6 +95,7 @@ jobs:
           public-hoist-pattern[]=macos-alias
           public-hoist-pattern[]=fs-xattr
           public-hoist-pattern[]=appdmg
+          public-hoist-pattern[]=*
           shamefully-hoist=true
           EOF
 
