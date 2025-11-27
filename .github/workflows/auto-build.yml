@@ -101,6 +101,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Setup 7-Zip for Squirrel (Windows only)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install 7zip.install -y
+
       - name: Setup build tools & rebuild (macOS only)
         if: matrix.os == 'macos-latest'
         run: |
@@ -116,7 +121,14 @@ jobs:
           override: true
 
       - name: Build application
-        run: pnpm build
+        env:
+          SQUIRREL_TEMP: ${{ github.workspace }}/SquirrelTemp
+        run: |
+          if [ "${{ matrix.os }}" = "macos-latest" ]; then
+            pnpm run build:production && cd dist && electron-forge make --arch=universal
+          else
+            pnpm build
+          fi
 
       - name: Upload Windows artifacts
         if: matrix.os == 'windows-latest'
