@@ -70,9 +70,9 @@ export default {
       name: '@electron-forge/maker-dmg',
       platforms: ['darwin'],
       config: {
-          name: 'SoundCloud-Desktop',
-          icon: 'icons/appLogo.icns',
-          format: 'ULFO',
+        name: 'SoundCloud-Desktop',
+        icon: 'icons/appLogo.icns',
+        format: 'ULFO',
       },
     },
     {
