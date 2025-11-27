@@ -134,10 +134,14 @@ jobs:
       - name: List build output (debug)
         shell: bash
         run: |
-          echo "=== Listing dist/out/make directory ==="
-          ls -laR dist/out/make/ || echo "Directory does not exist"
-          echo "=== Find all distributable files ==="
-          find dist/out/make/ -type f 2>/dev/null || echo "No files found"
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Listing all out directories ==="
+          find . -type d -name "out" 2>/dev/null || echo "No out dirs"
+          echo "=== Listing all dist directories ==="
+          find . -type d -name "dist" 2>/dev/null || echo "No dist dirs"
+          echo "=== Finding all .exe, .dmg, .deb, .rpm, .AppImage, .zip files ==="
+          find . -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.deb" -o -name "*.rpm" -o -name "*.AppImage" -o -name "*.zip" \) 2>/dev/null || echo "No files found"
 
       - name: Upload Windows artifacts
         if: matrix.os == 'windows-latest'
