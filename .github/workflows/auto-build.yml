@@ -94,16 +94,19 @@ jobs:
         name: Setup pnpm cache
         with:
           path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ matrix.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-pnpm-store-${{ matrix.os }}-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Rebuild native modules (macOS only)
+      - name: Setup build tools & rebuild (macOS only)
         if: matrix.os == 'macos-latest'
-        run: pnpm rebuild
+        run: |
+          pnpm install -g node-gyp
+          cd node_modules/macos-alias && node-gyp rebuild && cd ../..
+          cd node_modules/fs-xattr && node-gyp rebuild && cd ../..
 
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
