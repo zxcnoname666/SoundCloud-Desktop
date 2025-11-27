@@ -114,6 +114,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Rebuild native modules
+        run: pnpx electron-rebuild
+
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:

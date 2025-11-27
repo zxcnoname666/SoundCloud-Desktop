@@ -93,7 +93,6 @@
         "name": "SoundCloud",
         "executableName": "soundcloud",
         "dir": "dist",
-        "arch": "universal",
         "asar": false,
         "icon": "icons/appLogo",
         "appBundleId": "com.soundcloud.desktop",
