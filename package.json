@@ -97,6 +97,9 @@
         "icon": "icons/appLogo",
         "appBundleId": "com.soundcloud.desktop",
         "appCategoryType": "public.app-category.music",
+        "osxUniversal": {
+          "mergeASARs": true
+        },
         "ignore": [
           "^\\/\\.debug($|\\/)",
           "^\\/_ignore($|\\/)",
@@ -123,8 +126,7 @@
           ],
           "config": {
             "name": "SoundCloud",
-            "setupIcon": "icons/appLogo.ico",
-            "loadingGif": "icons/appLogo.png"
+            "setupIcon": "icons/appLogo.ico"
           }
         },
         {
