@@ -89,7 +89,14 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           rm -f .npmrc
-          echo "shamefully-hoist=true" > .npmrc
+          cat > .npmrc << EOF
+          node-linker=hoisted
+          public-hoist-pattern[]=*@electron-forge*
+          public-hoist-pattern[]=macos-alias
+          public-hoist-pattern[]=fs-xattr
+          public-hoist-pattern[]=appdmg
+          shamefully-hoist=true
+          EOF
 
       - name: Get pnpm store directory
         shell: bash
