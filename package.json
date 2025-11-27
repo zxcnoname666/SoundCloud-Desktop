@@ -98,7 +98,8 @@
         "appBundleId": "com.soundcloud.desktop",
         "appCategoryType": "public.app-category.music",
         "osxUniversal": {
-          "mergeASARs": true
+          "mergeASARs": true,
+          "x64ArchFiles": "Contents/Resources/app.asar.unpacked/bins/*.node"
         },
         "ignore": [
           "^\\/\\.debug($|\\/)",
