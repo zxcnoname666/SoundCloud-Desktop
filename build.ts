@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import {execSync} from 'node:child_process';
-import {cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
-import {join} from 'node:path';
-import {build as esbuild} from 'esbuild';
+import { execSync } from 'node:child_process';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { build as esbuild } from 'esbuild';
 
 interface BuildOptions {
   skipTypeCheck?: boolean;
@@ -70,8 +70,8 @@ class Builder {
         format: 'esm',
         outfile: join(this.distDir, 'init.js'),
         external: ['electron'],
-          minify: isProduction || true,
-          sourcemap: !isProduction,
+        minify: isProduction || true,
+        sourcemap: !isProduction,
         keepNames: true,
         logLevel: 'info',
         treeShaking: true,
@@ -184,39 +184,35 @@ class Builder {
 
     const distPackageJson = {
       name: rootPackageJson.name,
-        productName: 'SoundCloud',
+      productName: 'SoundCloud',
       version: rootPackageJson.version,
       description: rootPackageJson.description,
       type: rootPackageJson.type,
       author: rootPackageJson.author,
-        license: rootPackageJson.license,
+      license: rootPackageJson.license,
       main: 'init.js',
-        devDependencies: {
-            electron: rootPackageJson.devDependencies?.electron || '^38.0.0',
-        },
-        config: {
-            forge: {
-                packagerConfig: {
-                    name: 'SoundCloud',
-                    executableName: 'soundcloud',
-                    asar: {
-                        unpack: '{bins/**/*,*.node}',
-                    },
-                    icon: 'icons/appLogo',
-                    appBundleId: 'com.soundcloud.desktop',
-                    appCategoryType: 'public.app-category.music',
-                    ignore: [
-                        '^\\/\\.debug($|\\/)',
-                        '^\\/_ignore($|\\/)',
-                        '^\\/_proxy($|\\/)',
-                    ],
-                },
-                rebuildConfig: {
-                    onlyModules: [],
-                },
-                makers: rootPackageJson.config?.forge?.makers || [],
+      devDependencies: {
+        electron: rootPackageJson.devDependencies?.electron || '^38.0.0',
+      },
+      config: {
+        forge: {
+          packagerConfig: {
+            name: 'SoundCloud',
+            executableName: 'soundcloud',
+            asar: {
+              unpack: '{bins/**/*,*.node}',
             },
+            icon: 'icons/appLogo',
+            appBundleId: 'com.soundcloud.desktop',
+            appCategoryType: 'public.app-category.music',
+            ignore: ['^\\/\\.debug($|\\/)', '^\\/_ignore($|\\/)', '^\\/_proxy($|\\/)'],
+          },
+          rebuildConfig: {
+            onlyModules: [],
+          },
+          makers: rootPackageJson.config?.forge?.makers || [],
         },
+      },
     };
 
     writeFileSync(
