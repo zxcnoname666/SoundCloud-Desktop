@@ -85,19 +85,6 @@ jobs:
       - name: Enable pnpm
         run: corepack enable
 
-      - name: Configure pnpm for macOS
-        if: matrix.os == 'macos-latest'
-        run: |
-          rm -f .npmrc
-          cat > .npmrc << EOF
-          node-linker=hoisted
-          public-hoist-pattern[]=*@electron-forge*
-          public-hoist-pattern[]=macos-alias
-          public-hoist-pattern[]=fs-xattr
-          public-hoist-pattern[]=appdmg
-          shamefully-hoist=true
-          EOF
-
       - name: Get pnpm store directory
         shell: bash
         run: |
@@ -107,15 +94,16 @@ jobs:
         name: Setup pnpm cache
         with:
           path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ matrix.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-${{ matrix.os }}-
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Rebuild native modules
-        run: pnpx @electron/rebuild
+      - name: Rebuild native modules (macOS only)
+        if: matrix.os == 'macos-latest'
+        run: pnpm rebuild
 
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
