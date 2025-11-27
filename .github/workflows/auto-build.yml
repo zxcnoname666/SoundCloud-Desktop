@@ -131,6 +131,14 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: pnpm build
 
+      - name: List build output (debug)
+        shell: bash
+        run: |
+          echo "=== Listing dist/out/make directory ==="
+          ls -laR dist/out/make/ || echo "Directory does not exist"
+          echo "=== Find all distributable files ==="
+          find dist/out/make/ -type f 2>/dev/null || echo "No files found"
+
       - name: Upload Windows artifacts
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
