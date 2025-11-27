@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import { execSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { build as esbuild } from 'esbuild';
+import {execSync} from 'node:child_process';
+import {cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {build as esbuild} from 'esbuild';
 
 interface BuildOptions {
   skipTypeCheck?: boolean;
@@ -205,6 +205,10 @@ class Builder {
             icon: 'icons/appLogo',
             appBundleId: 'com.soundcloud.desktop',
             appCategoryType: 'public.app-category.music',
+              osxUniversal: {
+                  mergeASARs: true,
+                  x64ArchFiles: '*',
+              },
             ignore: ['^\\/\\.debug($|\\/)', '^\\/_ignore($|\\/)', '^\\/_proxy($|\\/)'],
           },
           rebuildConfig: {

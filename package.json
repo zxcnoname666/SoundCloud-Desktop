@@ -89,27 +89,6 @@
   },
   "config": {
     "forge": {
-      "packagerConfig": {
-        "name": "SoundCloud",
-        "executableName": "soundcloud",
-        "dir": "dist",
-        "asar": false,
-        "icon": "icons/appLogo",
-        "appBundleId": "com.soundcloud.desktop",
-        "appCategoryType": "public.app-category.music",
-        "osxUniversal": {
-          "mergeASARs": true,
-          "x64ArchFiles": "*"
-        },
-        "ignore": [
-          "^\\/\\.debug($|\\/)",
-          "^\\/_ignore($|\\/)",
-          "^\\/_proxy($|\\/)"
-        ]
-      },
-      "rebuildConfig": {
-        "onlyModules": []
-      },
       "makers": [
         {
           "name": "@electron-forge/maker-zip",
