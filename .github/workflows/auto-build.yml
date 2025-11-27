@@ -125,7 +125,7 @@ jobs:
           SQUIRREL_TEMP: ${{ github.workspace }}/SquirrelTemp
         run: |
           if [ "${{ matrix.os }}" = "macos-latest" ]; then
-            pnpm run build:production && cd dist && electron-forge make --arch=universal
+            pnpm run build:production && node scripts/forge-make.cjs --arch=universal
           else
             pnpm build
           fi
