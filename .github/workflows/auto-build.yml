@@ -101,6 +101,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Rebuild native modules (macOS only)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd node_modules/macos-alias
+          npm rebuild
+          cd ../..
+
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
