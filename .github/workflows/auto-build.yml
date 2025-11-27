@@ -101,16 +101,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Setup 7-Zip for Squirrel (Windows only)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          choco install 7zip.install -y
-          refreshenv
-          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-          Write-Host "7-Zip installed at: $(Get-Command 7z.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path)"
-          New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\SquirrelTemp"
-
       - name: Setup build tools & rebuild (macOS only)
         if: matrix.os == 'macos-latest'
         run: |
@@ -131,8 +121,6 @@ jobs:
 
       - name: Build application (Windows)
         if: matrix.os == 'windows-latest'
-        env:
-          SQUIRREL_TEMP: ${{ github.workspace }}/SquirrelTemp
         run: pnpm build
 
       - name: Build application (Linux)

@@ -45,7 +45,6 @@
     },
     "ignoredBuiltDependencies": [
       "@biomejs/biome",
-      "electron-winstaller",
       "esbuild",
       "register-scheme"
     ],
