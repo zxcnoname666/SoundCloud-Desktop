@@ -151,6 +151,8 @@ jobs:
           path: |
             dist/out/make/**/*.exe
             dist/out/make/**/*.zip
+            out/make/**/*.exe
+            out/make/**/*.zip
 
       - name: Upload Linux artifacts
         if: matrix.os == 'ubuntu-latest'
@@ -162,6 +164,10 @@ jobs:
             dist/out/make/**/*.deb
             dist/out/make/**/*.rpm
             dist/out/make/**/*.zip
+            out/make/**/*.AppImage
+            out/make/**/*.deb
+            out/make/**/*.rpm
+            out/make/**/*.zip
 
       - name: Upload macOS artifacts
         if: matrix.os == 'macos-latest'
@@ -171,6 +177,8 @@ jobs:
           path: |
             dist/out/make/**/*.dmg
             dist/out/make/**/*.zip
+            out/make/**/*.dmg
+            out/make/**/*.zip
 
   release:
     needs: build
