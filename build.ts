@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import { execSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { build as esbuild } from 'esbuild';
+import {execSync} from 'node:child_process';
+import {cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {build as esbuild} from 'esbuild';
 
 interface BuildOptions {
   skipTypeCheck?: boolean;
@@ -119,7 +119,7 @@ class Builder {
       { src: 'bins', desc: 'native binaries' },
     ];
 
-    const configFiles = ['config.json5', 'config.proxy.json5', 'LICENSE'];
+      const configFiles = ['config.json5', 'config.proxy.json5', 'LICENSE', 'forge.config.js'];
 
     // Copy directories
     for (const asset of assets) {
@@ -193,29 +193,6 @@ class Builder {
       main: 'init.js',
       devDependencies: {
         electron: rootPackageJson.devDependencies?.electron || '^38.0.0',
-      },
-      config: {
-        forge: {
-          packagerConfig: {
-            name: 'SoundCloud',
-            executableName: 'soundcloud',
-            asar: {
-              unpack: '{bins/**/*,*.node}',
-            },
-            icon: 'icons/appLogo',
-            appBundleId: 'com.soundcloud.desktop',
-            appCategoryType: 'public.app-category.music',
-            osxUniversal: {
-              mergeASARs: true,
-              x64ArchFiles: '*',
-            },
-            ignore: ['^\\/\\.debug($|\\/)', '^\\/_ignore($|\\/)', '^\\/_proxy($|\\/)'],
-          },
-          rebuildConfig: {
-            onlyModules: [],
-          },
-          makers: rootPackageJson.config?.forge?.makers || [],
-        },
       },
     };
 
