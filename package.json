@@ -99,7 +99,7 @@
         "appCategoryType": "public.app-category.music",
         "osxUniversal": {
           "mergeASARs": true,
-          "singleArchFiles": "Contents/Resources/app.asar.unpacked/bins/*.node"
+          "singleArchFiles": "**/*.node"
         },
         "ignore": [
           "^\\/\\.debug($|\\/)",
