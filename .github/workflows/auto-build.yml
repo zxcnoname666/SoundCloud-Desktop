@@ -104,7 +104,7 @@ jobs:
       - name: Setup build tools & rebuild (macOS only)
         if: matrix.os == 'macos-latest'
         run: |
-          pnpm install -g node-gyp
+          npm install -g node-gyp
           cd node_modules/macos-alias && node-gyp rebuild && cd ../..
           cd node_modules/fs-xattr && node-gyp rebuild && cd ../..
 
