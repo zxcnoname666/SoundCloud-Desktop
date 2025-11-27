@@ -38,7 +38,7 @@ export default {
         options: {
           name: 'soundcloud',
           productName: 'SoundCloud',
-          icon: 'icons/appLogo.png',
+            icon: 'icons/appLogo.svg',
           categories: ['Audio', 'Music'],
           section: 'sound',
           priority: 'optional',
@@ -60,7 +60,7 @@ export default {
         options: {
           name: 'soundcloud',
           productName: 'SoundCloud',
-          icon: 'icons/appLogo.png',
+            icon: 'icons/appLogo.svg',
           categories: ['Audio', 'Music'],
           requires: ['libXScrnSaver', 'libappindicator', 'libnotify'],
         },
@@ -85,7 +85,7 @@ export default {
           genericName: 'Music Player',
           description: 'SoundCloud Desktop App',
           categories: ['Audio', 'Music'],
-          icon: 'icons/appLogo.png',
+            icon: 'icons/appLogo.svg',
         },
       },
     },
