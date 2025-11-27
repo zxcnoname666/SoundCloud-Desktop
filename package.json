@@ -99,7 +99,7 @@
         "appCategoryType": "public.app-category.music",
         "osxUniversal": {
           "mergeASARs": true,
-          "x64ArchFiles": "Contents/Resources/app.asar.unpacked/bins/native_utils.node"
+          "x64ArchFiles": "*"
         },
         "ignore": [
           "^\\/\\.debug($|\\/)",
