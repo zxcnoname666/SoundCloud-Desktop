@@ -109,6 +109,7 @@ jobs:
           refreshenv
           $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
           Write-Host "7-Zip installed at: $(Get-Command 7z.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path)"
+          New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\SquirrelTemp"
 
       - name: Setup build tools & rebuild (macOS only)
         if: matrix.os == 'macos-latest'
@@ -128,10 +129,14 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: pnpm run build:production && node scripts/forge-make.cjs --arch=universal
 
-      - name: Build application (Windows/Linux)
-        if: matrix.os != 'macos-latest'
+      - name: Build application (Windows)
+        if: matrix.os == 'windows-latest'
         env:
           SQUIRREL_TEMP: ${{ github.workspace }}/SquirrelTemp
+        run: pnpm build
+
+      - name: Build application (Linux)
+        if: matrix.os == 'ubuntu-latest'
         run: pnpm build
 
       - name: Upload Windows artifacts

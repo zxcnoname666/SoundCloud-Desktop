@@ -29,10 +29,7 @@
     "type": "git",
     "url": "git+https://github.com/zxcnoname666/SoundCloud-Desktop.git"
   },
-  "author": {
-    "name": "zxcnoname666",
-    "email": "no-reply@github.com"
-  },
+  "author": "zxcnoname666",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/zxcnoname666/SoundCloud-Desktop/issues"
