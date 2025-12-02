@@ -13,13 +13,13 @@
 
 <p align="center">
 <a href="https://github.com/zxcnoname666/SoundCloud-Desktop/releases/latest">
-<img src="https://img.shields.io/github/v/release/zxcnoname666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Версия" alt="Последний релиз"/>
+<img src="https://img.shields.io/github/v/release/zxcnoname666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=VERSION" alt="Последний релиз"/>
 </a>
 <a href="https://github.com/zxcnoname666/SoundCloud-Desktop/releases">
-<img src="https://img.shields.io/github/downloads/zxcnoname666/SoundCloud-Desktop/total?style=for-the-badge&logo=download&color=FF5500&label=Скачиваний" alt="Загрузки"/>
+<img src="https://img.shields.io/github/downloads/zxcnoname666/SoundCloud-Desktop/total?style=for-the-badge&logo=download&color=FF5500&label=Downloads" alt="Загрузки"/>
 </a>
 <a href="https://github.com/zxcnoname666/SoundCloud-Desktop/stargazers">
-<img src="https://img.shields.io/github/stars/zxcnoname666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Звёзды" alt="Stars"/>
+<img src="https://img.shields.io/github/stars/zxcnoname666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Stars" alt="Stars"/>
 </a>
 <a href="https://github.com/zxcnoname666/SoundCloud-Desktop/blob/main/LICENSE">
 <img src="https://img.shields.io/badge/Лицензия-MIT-FF5500?style=for-the-badge" alt="License"/>
