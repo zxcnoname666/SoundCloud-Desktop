@@ -470,6 +470,10 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 </p>
 
 <p align="center">
+<img src="https://zxcnoname666.github.io/download-history/zxcnoname666_SoundCloud-Desktop.svg" alt="Downloads Chart" />
+</p>
+
+<p align="center">
 <img src="https://count.getloli.com/get/@soundcloud-desktop" alt="Visitors" />
 </p>
 

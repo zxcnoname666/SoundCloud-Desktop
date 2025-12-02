@@ -471,6 +471,10 @@ Pull requests приветствуются! Для больших изменен
 </p>
 
 <p align="center">
+<img src="https://zxcnoname666.github.io/download-history/zxcnoname666_SoundCloud-Desktop.svg" alt="Downloads Chart" />
+</p>
+
+<p align="center">
 <img src="https://count.getloli.com/get/@soundcloud-desktop" alt="Visitors" />
 </p>
 
