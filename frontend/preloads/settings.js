@@ -1,9 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('ipcRenderer', {
-    on: (channel, func) => ipcRenderer.on(channel, func),
-    once: (channel, func) => ipcRenderer.once(channel, func),
-    removeListener: (channel, func) => ipcRenderer.removeListener(channel, func),
+  on: (channel, func) => ipcRenderer.on(channel, func),
+  once: (channel, func) => ipcRenderer.once(channel, func),
+  removeListener: (channel, func) => ipcRenderer.removeListener(channel, func),
 });
 
 contextBridge.exposeInMainWorld('settingsAPI', {
@@ -27,13 +27,14 @@ contextBridge.exposeInMainWorld('settingsAPI', {
   minimize: () => ipcRenderer.send('settings:minimize'),
   maximize: () => ipcRenderer.send('settings:maximize'),
 
-    // Data management
-    getCacheSize: () => ipcRenderer.invoke('settings:get-cache-size'),
-    clearCache: () => ipcRenderer.invoke('settings:clear-cache'),
-    getAppDataSize: () => ipcRenderer.invoke('settings:get-appdata-size'),
-    clearAppData: () => ipcRenderer.invoke('settings:clear-appdata'),
+  // Data management
+  getCacheSize: () => ipcRenderer.invoke('settings:get-cache-size'),
+  clearCache: () => ipcRenderer.invoke('settings:clear-cache'),
+  getAppDataSize: () => ipcRenderer.invoke('settings:get-appdata-size'),
+  clearAppData: () => ipcRenderer.invoke('settings:clear-appdata'),
 
-    // UI Preferences
-    getUIPreferences: () => ipcRenderer.invoke('settings:get-ui-preferences'),
-    saveUIPreferences: (preferences) => ipcRenderer.invoke('settings:save-ui-preferences', preferences),
+  // UI Preferences
+  getUIPreferences: () => ipcRenderer.invoke('settings:get-ui-preferences'),
+  saveUIPreferences: (preferences) =>
+    ipcRenderer.invoke('settings:save-ui-preferences', preferences),
 });

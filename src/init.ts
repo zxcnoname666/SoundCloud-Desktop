@@ -55,6 +55,31 @@ class SoundCloudApp {
     this.initializeConfig();
   }
 
+  async initialize(): Promise<void> {
+    // Проверяем что мы в Electron среде
+    if (!app || typeof app.whenReady !== 'function') {
+      console.error('❌ This application must be run in Electron environment');
+      console.info('💡 Try running: pnpm start (after pnpm build:app)');
+      process.exit(1);
+    }
+
+    await app.whenReady();
+
+    // Инициализируем NotificationManager после того как Electron готов
+    this.notifyManager = NotificationManager.getInstance();
+
+    // Инициализируем AuthManager для работы с аутентификацией SoundCloud
+    const authManager = AuthManager.getInstance();
+    authManager.initialize();
+
+    this.discordManager = DiscordAuthManager.getInstance();
+
+    registerDiscordIPCHandlers();
+
+    this.setupAppEvents();
+    await this.startup();
+  }
+
   /**
    * Setup global error handlers to gracefully handle unexpected errors
    * This prevents the application from crashing on unhandled promise rejections
@@ -82,31 +107,6 @@ class SoundCloudApp {
       // For uncaught exceptions, we may need to exit depending on severity
       // But log it first
     });
-  }
-
-  async initialize(): Promise<void> {
-    // Проверяем что мы в Electron среде
-    if (!app || typeof app.whenReady !== 'function') {
-      console.error('❌ This application must be run in Electron environment');
-      console.info('💡 Try running: pnpm start (after pnpm build:app)');
-      process.exit(1);
-    }
-
-    await app.whenReady();
-
-    // Инициализируем NotificationManager после того как Electron готов
-    this.notifyManager = NotificationManager.getInstance();
-
-    // Инициализируем AuthManager для работы с аутентификацией SoundCloud
-    const authManager = AuthManager.getInstance();
-    authManager.initialize();
-
-    this.discordManager = DiscordAuthManager.getInstance();
-
-    registerDiscordIPCHandlers();
-
-    this.setupAppEvents();
-    await this.startup();
   }
 
   private initializeConfig(): void {

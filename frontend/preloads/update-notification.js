@@ -13,5 +13,5 @@ contextBridge.exposeInMainWorld('updateAPI', {
     ipcRenderer.on('update:progress', (_event, data) => {
       callback(data);
     });
-  }
+  },
 });

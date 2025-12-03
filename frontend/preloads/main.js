@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 });
 
 contextBridge.exposeInMainWorld('settingsAPI', {
-    getUIPreferences: () => ipcRenderer.invoke('settings:get-ui-preferences'),
+  getUIPreferences: () => ipcRenderer.invoke('settings:get-ui-preferences'),
 });
 
 const SetupHeader = () => {
@@ -86,7 +86,7 @@ window.addEventListener('DOMContentLoaded', () => {
   SetupHeader();
 
   for (const type of ['chrome', 'node', 'electron']) {
-    console.log(`${type}-version`, process.versions[type]);
+    console.info(`${type}-version`, process.versions[type]);
   }
 });
 

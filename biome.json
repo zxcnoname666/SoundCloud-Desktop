@@ -52,8 +52,7 @@
       ".git/**",
       ".pnpm-store/**",
       "**/.pnpm/**",
-      "_proxy/**",
-      "frontend/preloads/**"
+      "_proxy/**"
     ]
   }
 }

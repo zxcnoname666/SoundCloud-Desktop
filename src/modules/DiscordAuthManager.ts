@@ -162,33 +162,6 @@ export class DiscordAuthManager {
   }
 
   /**
-   * Attempt to reconnect with exponential backoff
-   */
-  private attemptReconnect(): void {
-    if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
-      console.warn('Max reconnection attempts reached');
-      return;
-    }
-
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
-
-    this.reconnectAttempts++;
-    const delay = Math.min(1000 * 2 ** this.reconnectAttempts, 30000);
-
-    console.debug(
-      `Reconnecting to Discord in ${delay}ms (attempt ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS})`
-    );
-
-    this.reconnectTimeout = setTimeout(async () => {
-      this.reconnectTimeout = null;
-      await this.connect();
-    }, delay);
-  }
-
-  /**
    * Clear current Discord activity
    */
   async clearActivity(): Promise<void> {
@@ -233,6 +206,43 @@ export class DiscordAuthManager {
    */
   isConnected(): boolean {
     return this.clientReady;
+  }
+
+  /**
+   * Cleanup resources
+   */
+  cleanup(): void {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+  }
+
+  /**
+   * Attempt to reconnect with exponential backoff
+   */
+  private attemptReconnect(): void {
+    if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
+      console.warn('Max reconnection attempts reached');
+      return;
+    }
+
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+
+    this.reconnectAttempts++;
+    const delay = Math.min(1000 * 2 ** this.reconnectAttempts, 30000);
+
+    console.debug(
+      `Reconnecting to Discord in ${delay}ms (attempt ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS})`
+    );
+
+    this.reconnectTimeout = setTimeout(async () => {
+      this.reconnectTimeout = null;
+      await this.connect();
+    }, delay);
   }
 
   /**
@@ -356,16 +366,6 @@ export class DiscordAuthManager {
         console.warn('Unexpected error during client destroy:', error);
       }
       // Intentionally suppress expected transport errors
-    }
-  }
-
-  /**
-   * Cleanup resources
-   */
-  cleanup(): void {
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
     }
   }
 

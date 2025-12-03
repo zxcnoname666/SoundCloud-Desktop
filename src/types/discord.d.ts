@@ -91,12 +91,12 @@ declare module 'discord-rpc' {
    * Discord RPC client
    */
   export class Client {
-    constructor(options: ClientOptions);
-
     /** Currently logged in user, null if not connected */
     user: User | null;
     /** Application information (type depends on discord-rpc internal implementation) */
     application: unknown;
+
+    constructor(options: ClientOptions);
 
     /**
      * Login to Discord RPC

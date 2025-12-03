@@ -54,14 +54,6 @@ export class AssetCache {
   // Медиа-сегменты, для которых нужно отсекать query параметры при кэшировании
   // (подписи в query меняются, но контент файла одинаковый)
   private readonly MEDIA_SEGMENT_EXTENSIONS = ['.m4s', '.ts', '.mp4', '.m3u8', '.mp3'];
-
-  /**
-   * Проверяет, является ли URL медиа-стримом
-   */
-  isMediaStream(url: string): boolean {
-    return this.MEDIA_SEGMENT_EXTENSIONS.some((ext) => url.includes(ext));
-  }
-
   // Паттерны для определения динамических запросов
   private readonly DYNAMIC_PATTERNS = [
     /\/api\//i,
@@ -87,6 +79,13 @@ export class AssetCache {
   static async initialize(): Promise<void> {
     const instance = AssetCache.getInstance();
     await instance.start();
+  }
+
+  /**
+   * Проверяет, является ли URL медиа-стримом
+   */
+  isMediaStream(url: string): boolean {
+    return this.MEDIA_SEGMENT_EXTENSIONS.some((ext) => url.includes(ext));
   }
 
   /**
@@ -204,43 +203,6 @@ export class AssetCache {
   }
 
   /**
-   * Генерирует ключ кэша для URL
-   * Для медиа-сегментов (.m4s, .ts) отсекает query параметры
-   */
-  private getCacheKey(url: string): string {
-    let cacheUrl = url;
-
-    // Для медиа-сегментов отсекаем query параметры (подписи меняются, контент нет)
-    const hasMediaSegmentExt = this.MEDIA_SEGMENT_EXTENSIONS.some((ext) => url.includes(ext));
-
-    if (hasMediaSegmentExt) {
-      // Убираем всё после ? (включая подпись)
-      const questionMarkIndex = url.indexOf('?');
-      if (questionMarkIndex !== -1) {
-        cacheUrl = url.substring(0, questionMarkIndex);
-      }
-    }
-
-    return createHash('sha1').update(cacheUrl).digest('hex');
-  }
-
-  /**
-   * Получает путь к файлу с метаданными кэша
-   */
-  private getCacheMetadataPath(url: string): string {
-    const key = this.getCacheKey(url);
-    return join(this.cacheDir, `${key}.json`);
-  }
-
-  /**
-   * Получает путь к файлу с бинарными данными кэша
-   */
-  private getCacheDataPath(url: string): string {
-    const key = this.getCacheKey(url);
-    return join(this.cacheDir, `${key}.bin`);
-  }
-
-  /**
    * Получает ассет из кэша
    * Возвращает Buffer вместо Response, чтобы избежать проблем с body
    */
@@ -311,6 +273,43 @@ export class AssetCache {
     } catch (error) {
       console.warn('Failed to clear cache:', error);
     }
+  }
+
+  /**
+   * Генерирует ключ кэша для URL
+   * Для медиа-сегментов (.m4s, .ts) отсекает query параметры
+   */
+  private getCacheKey(url: string): string {
+    let cacheUrl = url;
+
+    // Для медиа-сегментов отсекаем query параметры (подписи меняются, контент нет)
+    const hasMediaSegmentExt = this.MEDIA_SEGMENT_EXTENSIONS.some((ext) => url.includes(ext));
+
+    if (hasMediaSegmentExt) {
+      // Убираем всё после ? (включая подпись)
+      const questionMarkIndex = url.indexOf('?');
+      if (questionMarkIndex !== -1) {
+        cacheUrl = url.substring(0, questionMarkIndex);
+      }
+    }
+
+    return createHash('sha1').update(cacheUrl).digest('hex');
+  }
+
+  /**
+   * Получает путь к файлу с метаданными кэша
+   */
+  private getCacheMetadataPath(url: string): string {
+    const key = this.getCacheKey(url);
+    return join(this.cacheDir, `${key}.json`);
+  }
+
+  /**
+   * Получает путь к файлу с бинарными данными кэша
+   */
+  private getCacheDataPath(url: string): string {
+    const key = this.getCacheKey(url);
+    return join(this.cacheDir, `${key}.bin`);
   }
 
   /**

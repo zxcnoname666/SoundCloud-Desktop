@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Settings - SoundCloud Desktop</title>
     <style>
         * {
@@ -674,169 +674,171 @@
     </style>
 </head>
 <body>
-    <div class="window-frame">
-        <!-- Titlebar -->
-        <div class="titlebar">
-            <div class="traffic-lights">
-                <div class="traffic-light close" id="closeBtn">
-                    <svg viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
-                        <line x1="1" y1="1" x2="5" y2="5" stroke="#4d0000" stroke-width="1.2" stroke-linecap="round"/>
-                        <line x1="5" y1="1" x2="1" y2="5" stroke="#4d0000" stroke-width="1.2" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div class="traffic-light minimize" id="minimizeBtn">
-                    <svg viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
-                        <line x1="1" y1="3" x2="5" y2="3" stroke="#6b4d00" stroke-width="1.2" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div class="traffic-light maximize" id="maximizeBtn">
-                    <svg viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
-                        <polyline points="1,2 1,1 2,1" fill="none" stroke="#004d00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                        <polyline points="4,5 5,5 5,4" fill="none" stroke="#004d00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
+<div class="window-frame">
+    <!-- Titlebar -->
+    <div class="titlebar">
+        <div class="traffic-lights">
+            <div class="traffic-light close" id="closeBtn">
+                <svg viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
+                    <line stroke="#4d0000" stroke-linecap="round" stroke-width="1.2" x1="1" x2="5" y1="1" y2="5"/>
+                    <line stroke="#4d0000" stroke-linecap="round" stroke-width="1.2" x1="5" x2="1" y1="1" y2="5"/>
+                </svg>
             </div>
-            <div class="window-title">Settings</div>
-            <div style="width: 52px;"></div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="content-wrapper">
-            <!-- Window Controls Style Section -->
-            <div class="window-controls-section">
-                <div class="section-header">
-                    <h2 class="section-title">Window Controls</h2>
-                    <p class="section-subtitle">Choose your preferred window button style</p>
-                </div>
-
-                <div class="controls-style-selector">
-                    <div class="style-card" data-style="macos" id="macosStyleCard">
-                        <div class="style-preview">
-                            <div class="preview-titlebar">
-                                <div class="preview-traffic-lights">
-                                    <div class="preview-light close"></div>
-                                    <div class="preview-light minimize"></div>
-                                    <div class="preview-light maximize"></div>
-                                </div>
-                                <div class="preview-title">SoundCloud</div>
-                            </div>
-                        </div>
-                        <div class="style-info">
-                            <h3>macOS Style</h3>
-                            <p>Classic traffic lights on the left</p>
-                        </div>
-                        <div class="style-checkmark">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="style-card" data-style="windows" id="windowsStyleCard">
-                        <div class="style-preview">
-                            <div class="preview-titlebar">
-                                <div class="preview-title">SoundCloud</div>
-                                <div class="preview-windows-controls">
-                                    <div class="preview-win-btn minimize">─</div>
-                                    <div class="preview-win-btn maximize">□</div>
-                                    <div class="preview-win-btn close">✕</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="style-info">
-                            <h3>Windows Style</h3>
-                            <p>Modern controls on the right</p>
-                        </div>
-                        <div class="style-checkmark">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+            <div class="traffic-light minimize" id="minimizeBtn">
+                <svg viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
+                    <line stroke="#6b4d00" stroke-linecap="round" stroke-width="1.2" x1="1" x2="5" y1="3" y2="3"/>
+                </svg>
             </div>
-
-            <!-- Data Management Section -->
-            <div class="data-management-section">
-                <div class="section-header">
-                    <h2 class="section-title">Data Management</h2>
-                    <p class="section-subtitle">Clear cache and user data</p>
-                </div>
-
-                <div class="data-cards">
-                    <!-- Cache Card -->
-                    <div class="data-card">
-                        <div class="card-icon cache-icon">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5,3C3.89,3 3,3.89 3,5V19C3,20.11 3.89,21 5,21H19C20.11,21 21,20.11 21,19V5C21,3.89 20.11,3 19,3H5M5,5H19V19H5V5M7,7V9H17V7H7M7,11V13H17V11H7M7,15V17H14V15H7Z"/>
-                            </svg>
-                        </div>
-                        <div class="card-content">
-                            <h3 class="card-title">Clear Cache</h3>
-                            <p class="card-description">Remove cached files and request data</p>
-                            <div class="card-size" id="cacheSize">Calculating...</div>
-                        </div>
-                        <button class="btn btn-danger-outline" id="clearCacheBtn">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                            </svg>
-                            Clear Cache
-                        </button>
-                    </div>
-
-                    <!-- AppData Card -->
-                    <div class="data-card">
-                        <div class="card-icon appdata-icon">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11.5C14.8,12.6 14.4,13.5 13.5,13.5H10.5C9.6,13.5 9.2,12.6 9.2,11.5V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.4,8.7 10.4,10V11.3H13.6V10C13.6,8.7 12.8,8.2 12,8.2Z"/>
-                            </svg>
-                        </div>
-                        <div class="card-content">
-                            <h3 class="card-title">Clear All Data</h3>
-                            <p class="card-description">Remove all user settings and styles</p>
-                            <div class="card-size" id="appDataSize">Calculating...</div>
-                        </div>
-                        <button class="btn btn-danger" id="clearAppDataBtn">
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M14.5,9L15.9,10.4L13.3,13L15.9,15.6L14.5,17L11.9,14.4L9.3,17L7.9,15.6L10.5,13L7.9,10.4L9.3,9L11.9,11.6L14.5,9Z"/>
-                            </svg>
-                            Clear All Data
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Header -->
-            <div class="settings-header">
-                <h1 class="settings-title">Custom Styles</h1>
-                <p class="settings-subtitle">Customize the appearance of SoundCloud with CSS</p>
-            </div>
-
-            <!-- Monaco Editor -->
-            <div class="editor-container">
-                <div class="editor-label">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
-                    </svg>
-                    CSS Editor
-                </div>
-                <div id="monaco-editor"></div>
-            </div>
-
-            <!-- Status Message -->
-            <div class="status-message" id="statusMessage"></div>
-
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="btn btn-reset" id="resetBtn">Reset to Default</button>
-                <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
-                <button class="btn btn-primary" id="saveBtn">Save & Apply</button>
+            <div class="traffic-light maximize" id="maximizeBtn">
+                <svg viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
+                    <polyline fill="none" points="1,2 1,1 2,1" stroke="#004d00" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="1"/>
+                    <polyline fill="none" points="4,5 5,5 5,4" stroke="#004d00" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="1"/>
+                </svg>
             </div>
         </div>
+        <div class="window-title">Settings</div>
+        <div style="width: 52px;"></div>
     </div>
 
-    <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
-    <script src="./scripts/settings.js"></script>
-    <script src="./scripts/settings-window-controls.js"></script>
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <!-- Window Controls Style Section -->
+        <div class="window-controls-section">
+            <div class="section-header">
+                <h2 class="section-title">Window Controls</h2>
+                <p class="section-subtitle">Choose your preferred window button style</p>
+            </div>
+
+            <div class="controls-style-selector">
+                <div class="style-card" data-style="macos" id="macosStyleCard">
+                    <div class="style-preview">
+                        <div class="preview-titlebar">
+                            <div class="preview-traffic-lights">
+                                <div class="preview-light close"></div>
+                                <div class="preview-light minimize"></div>
+                                <div class="preview-light maximize"></div>
+                            </div>
+                            <div class="preview-title">SoundCloud</div>
+                        </div>
+                    </div>
+                    <div class="style-info">
+                        <h3>macOS Style</h3>
+                        <p>Classic traffic lights on the left</p>
+                    </div>
+                    <div class="style-checkmark">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="style-card" data-style="windows" id="windowsStyleCard">
+                    <div class="style-preview">
+                        <div class="preview-titlebar">
+                            <div class="preview-title">SoundCloud</div>
+                            <div class="preview-windows-controls">
+                                <div class="preview-win-btn minimize">─</div>
+                                <div class="preview-win-btn maximize">□</div>
+                                <div class="preview-win-btn close">✕</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="style-info">
+                        <h3>Windows Style</h3>
+                        <p>Modern controls on the right</p>
+                    </div>
+                    <div class="style-checkmark">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Management Section -->
+        <div class="data-management-section">
+            <div class="section-header">
+                <h2 class="section-title">Data Management</h2>
+                <p class="section-subtitle">Clear cache and user data</p>
+            </div>
+
+            <div class="data-cards">
+                <!-- Cache Card -->
+                <div class="data-card">
+                    <div class="card-icon cache-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5,3C3.89,3 3,3.89 3,5V19C3,20.11 3.89,21 5,21H19C20.11,21 21,20.11 21,19V5C21,3.89 20.11,3 19,3H5M5,5H19V19H5V5M7,7V9H17V7H7M7,11V13H17V11H7M7,15V17H14V15H7Z"/>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Clear Cache</h3>
+                        <p class="card-description">Remove cached files and request data</p>
+                        <div class="card-size" id="cacheSize">Calculating...</div>
+                    </div>
+                    <button class="btn btn-danger-outline" id="clearCacheBtn">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+                        </svg>
+                        Clear Cache
+                    </button>
+                </div>
+
+                <!-- AppData Card -->
+                <div class="data-card">
+                    <div class="card-icon appdata-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11.5C14.8,12.6 14.4,13.5 13.5,13.5H10.5C9.6,13.5 9.2,12.6 9.2,11.5V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.4,8.7 10.4,10V11.3H13.6V10C13.6,8.7 12.8,8.2 12,8.2Z"/>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Clear All Data</h3>
+                        <p class="card-description">Remove all user settings and styles</p>
+                        <div class="card-size" id="appDataSize">Calculating...</div>
+                    </div>
+                    <button class="btn btn-danger" id="clearAppDataBtn">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M14.5,9L15.9,10.4L13.3,13L15.9,15.6L14.5,17L11.9,14.4L9.3,17L7.9,15.6L10.5,13L7.9,10.4L9.3,9L11.9,11.6L14.5,9Z"/>
+                        </svg>
+                        Clear All Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="settings-header">
+            <h1 class="settings-title">Custom Styles</h1>
+            <p class="settings-subtitle">Customize the appearance of SoundCloud with CSS</p>
+        </div>
+
+        <!-- Monaco Editor -->
+        <div class="editor-container">
+            <div class="editor-label">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                </svg>
+                CSS Editor
+            </div>
+            <div id="monaco-editor"></div>
+        </div>
+
+        <!-- Status Message -->
+        <div class="status-message" id="statusMessage"></div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-reset" id="resetBtn">Reset to Default</button>
+            <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+            <button class="btn btn-primary" id="saveBtn">Save & Apply</button>
+        </div>
+    </div>
+</div>
+
+<script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
+<script src="./scripts/settings.js"></script>
+<script src="./scripts/settings-window-controls.js"></script>
 </body>
 </html>

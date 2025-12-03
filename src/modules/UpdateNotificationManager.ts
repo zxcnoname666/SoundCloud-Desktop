@@ -36,6 +36,12 @@ export class UpdateNotificationManager {
     });
   }
 
+  sendProgress(data: { percent: number; downloaded: string; total: string }): void {
+    if (this.window && !this.window.isDestroyed()) {
+      this.window.webContents.send('update:progress', data);
+    }
+  }
+
   private createWindow(): void {
     if (this.window && !this.window.isDestroyed()) {
       this.window.focus();
@@ -116,12 +122,6 @@ export class UpdateNotificationManager {
     ipcMain.handle('update:get-translations', () => {
       return Extensions.getTranslations().updater;
     });
-  }
-
-  sendProgress(data: { percent: number; downloaded: string; total: string }): void {
-    if (this.window && !this.window.isDestroyed()) {
-      this.window.webContents.send('update:progress', data);
-    }
   }
 
   private closeWindow(): void {

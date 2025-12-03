@@ -107,6 +107,36 @@ export class SettingsManager {
     return defaultPreferences;
   }
 
+  async applyCustomCSS(css?: string): Promise<void> {
+    const cssToApply = css || (await this.loadCustomCSS());
+    await this.injectCSS(cssToApply, true);
+  }
+
+  initializeCustomStyles(): void {
+    // Apply custom styles when webview is ready (non-blocking)
+    if (!this.mainWindow || this.mainWindow.isDestroyed()) {
+      return;
+    }
+
+    // Wait for window to be ready, then apply styles
+    this.mainWindow.webContents.once('did-finish-load', () => {
+      // Give it a moment for webview to initialize
+      setTimeout(() => {
+        this.applyCustomCSS().catch((error) => {
+          console.error('Failed to apply custom styles:', error);
+        });
+      }, 1000);
+    });
+  }
+
+  /**
+   * Get current window controls style
+   */
+  async getWindowControlsStyle(): Promise<WindowControlsStyle> {
+    const prefs = await this.loadUIPreferences();
+    return prefs.windowControlsStyle;
+  }
+
   private async loadCustomCSS(): Promise<string> {
     try {
       if (existsSync(CUSTOM_STYLES_FILE)) {
@@ -121,11 +151,6 @@ export class SettingsManager {
 
   private async saveCustomCSS(css: string): Promise<void> {
     await writeFile(CUSTOM_STYLES_FILE, css, 'utf-8');
-  }
-
-  async applyCustomCSS(css?: string): Promise<void> {
-    const cssToApply = css || (await this.loadCustomCSS());
-    await this.injectCSS(cssToApply, true);
   }
 
   private async injectCSS(css: string, persistent: boolean): Promise<void> {
@@ -172,23 +197,6 @@ export class SettingsManager {
     } catch (error) {
       console.error('Failed to inject CSS:', error);
     }
-  }
-
-  initializeCustomStyles(): void {
-    // Apply custom styles when webview is ready (non-blocking)
-    if (!this.mainWindow || this.mainWindow.isDestroyed()) {
-      return;
-    }
-
-    // Wait for window to be ready, then apply styles
-    this.mainWindow.webContents.once('did-finish-load', () => {
-      // Give it a moment for webview to initialize
-      setTimeout(() => {
-        this.applyCustomCSS().catch((error) => {
-          console.error('Failed to apply custom styles:', error);
-        });
-      }, 1000);
-    });
   }
 
   /**
@@ -284,14 +292,6 @@ export class SettingsManager {
     if (existsSync(appDataPath)) {
       await rm(appDataPath, { recursive: true, force: true });
     }
-  }
-
-  /**
-   * Get current window controls style
-   */
-  async getWindowControlsStyle(): Promise<WindowControlsStyle> {
-    const prefs = await this.loadUIPreferences();
-    return prefs.windowControlsStyle;
   }
 
   private setupIPC(): void {

@@ -5,7 +5,7 @@ on:
   #  types: [opened, synchronize, reopened]
   #  branches: [main]
   issue_comment:
-    types: [created]
+    types: [ created ]
 
 jobs:
   review:

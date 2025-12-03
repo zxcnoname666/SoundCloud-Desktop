@@ -26,10 +26,6 @@ export class NotificationManager {
     return NotificationManager.instance;
   }
 
-  setWindow(window: BrowserWindow): void {
-    this.window = window;
-  }
-
   // Метод для проверки разрешений (на некоторых системах)
   static async requestPermission(): Promise<boolean> {
     try {
@@ -38,6 +34,10 @@ export class NotificationManager {
       console.warn('⚠️ Failed to check notification permissions:', error);
       return false;
     }
+  }
+
+  setWindow(window: BrowserWindow): void {
+    this.window = window;
   }
 
   showNotification(options: NotificationOptions): void {

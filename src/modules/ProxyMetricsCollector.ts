@@ -58,6 +58,43 @@ export class ProxyMetricsCollector {
   }
 
   /**
+   * Записать использование домена
+   */
+  recordDomainUsage(hostname: string, proxied: boolean, reason: string): void {
+    const existing = this.domainMetrics.get(hostname);
+
+    if (existing) {
+      existing.count++;
+      existing.lastUsed = new Date().toISOString();
+      existing.proxied = proxied;
+      existing.reason = reason;
+    } else {
+      this.domainMetrics.set(hostname, {
+        count: 1,
+        proxied,
+        reason,
+        lastUsed: new Date().toISOString(),
+      });
+    }
+  }
+
+  /**
+   * Получить текущие метрики
+   */
+  getMetrics(): ProxyMetrics {
+    return {
+      domains: this.getSortedMetricsObject(),
+    };
+  }
+
+  /**
+   * Очистить метрики
+   */
+  clearMetrics(): void {
+    this.domainMetrics.clear();
+  }
+
+  /**
    * Запуск сборщика метрик
    */
   private async start(): Promise<void> {
@@ -114,27 +151,6 @@ export class ProxyMetricsCollector {
   }
 
   /**
-   * Записать использование домена
-   */
-  recordDomainUsage(hostname: string, proxied: boolean, reason: string): void {
-    const existing = this.domainMetrics.get(hostname);
-
-    if (existing) {
-      existing.count++;
-      existing.lastUsed = new Date().toISOString();
-      existing.proxied = proxied;
-      existing.reason = reason;
-    } else {
-      this.domainMetrics.set(hostname, {
-        count: 1,
-        proxied,
-        reason,
-        lastUsed: new Date().toISOString(),
-      });
-    }
-  }
-
-  /**
    * Получить отсортированные метрики в виде объекта
    */
   private getSortedMetricsObject(): Record<string, DomainMetric> {
@@ -165,21 +181,5 @@ export class ProxyMetricsCollector {
     } finally {
       this.isSaving = false;
     }
-  }
-
-  /**
-   * Получить текущие метрики
-   */
-  getMetrics(): ProxyMetrics {
-    return {
-      domains: this.getSortedMetricsObject(),
-    };
-  }
-
-  /**
-   * Очистить метрики
-   */
-  clearMetrics(): void {
-    this.domainMetrics.clear();
   }
 }
