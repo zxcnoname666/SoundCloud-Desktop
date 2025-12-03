@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   await initializeMonaco();
   setupEventListeners();
   await loadDataSizes();
-    await loadUIPreferences();
-    setupWindowControlsStyleSelector();
+  await loadUIPreferences();
+  setupWindowControlsStyleSelector();
 });
 
 function applyTranslations() {
@@ -54,25 +54,25 @@ function applyTranslations() {
   if (saveBtn) saveBtn.textContent = translations.settings_btn_save || 'Save & Apply';
 
   // Data management section
-    const sectionTitle = document.querySelector('.data-management-section .section-title');
+  const sectionTitle = document.querySelector('.data-management-section .section-title');
   if (sectionTitle)
     sectionTitle.textContent = translations.settings_section_data || 'Data Management';
 
-    const sectionSubtitle = document.querySelector('.data-management-section .section-subtitle');
+  const sectionSubtitle = document.querySelector('.data-management-section .section-subtitle');
   if (sectionSubtitle)
     sectionSubtitle.textContent =
       translations.settings_section_data_subtitle || 'Clear cache and user data';
 
   // Cache card
-    const cacheCardTitle = document.querySelector(
-        '.data-management-section .data-card:first-child .card-title'
-    );
+  const cacheCardTitle = document.querySelector(
+    '.data-management-section .data-card:first-child .card-title'
+  );
   if (cacheCardTitle)
     cacheCardTitle.textContent = translations.settings_btn_clear_cache || 'Clear Cache';
 
-    const cacheCardDesc = document.querySelector(
-        '.data-management-section .data-card:first-child .card-description'
-    );
+  const cacheCardDesc = document.querySelector(
+    '.data-management-section .data-card:first-child .card-description'
+  );
   if (cacheCardDesc)
     cacheCardDesc.textContent =
       translations.settings_btn_clear_cache_desc || 'Remove cached files and request data';
@@ -88,15 +88,15 @@ function applyTranslations() {
   }
 
   // AppData card
-    const appDataCardTitle = document.querySelector(
-        '.data-management-section .data-card:last-child .card-title'
-    );
+  const appDataCardTitle = document.querySelector(
+    '.data-management-section .data-card:last-child .card-title'
+  );
   if (appDataCardTitle)
     appDataCardTitle.textContent = translations.settings_btn_clear_appdata || 'Clear All Data';
 
-    const appDataCardDesc = document.querySelector(
-        '.data-management-section .data-card:last-child .card-description'
-    );
+  const appDataCardDesc = document.querySelector(
+    '.data-management-section .data-card:last-child .card-description'
+  );
   if (appDataCardDesc)
     appDataCardDesc.textContent =
       translations.settings_btn_clear_appdata_desc || 'Remove all user settings and styles';
@@ -460,59 +460,59 @@ window.addEventListener('beforeunload', () => {
 
 // Window Controls Style functions
 async function loadUIPreferences() {
-    if (typeof window.settingsAPI === 'undefined') return;
+  if (typeof window.settingsAPI === 'undefined') return;
 
-    try {
-        const result = await window.settingsAPI.getUIPreferences();
-        if (result.success && result.preferences) {
-            currentWindowStyle = result.preferences.windowControlsStyle || 'macos';
-            updateSelectedStyleCard(currentWindowStyle);
-        }
-    } catch (error) {
-        console.error('Failed to load UI preferences:', error);
+  try {
+    const result = await window.settingsAPI.getUIPreferences();
+    if (result.success && result.preferences) {
+      currentWindowStyle = result.preferences.windowControlsStyle || 'macos';
+      updateSelectedStyleCard(currentWindowStyle);
     }
+  } catch (error) {
+    console.error('Failed to load UI preferences:', error);
+  }
 }
 
 function setupWindowControlsStyleSelector() {
-    const macosCard = document.getElementById('macosStyleCard');
-    const windowsCard = document.getElementById('windowsStyleCard');
+  const macosCard = document.getElementById('macosStyleCard');
+  const windowsCard = document.getElementById('windowsStyleCard');
 
-    if (macosCard) {
-        macosCard.addEventListener('click', () => selectWindowStyle('macos'));
-    }
+  if (macosCard) {
+    macosCard.addEventListener('click', () => selectWindowStyle('macos'));
+  }
 
-    if (windowsCard) {
-        windowsCard.addEventListener('click', () => selectWindowStyle('windows'));
-    }
+  if (windowsCard) {
+    windowsCard.addEventListener('click', () => selectWindowStyle('windows'));
+  }
 }
 
 async function selectWindowStyle(style) {
-    if (typeof window.settingsAPI === 'undefined') return;
+  if (typeof window.settingsAPI === 'undefined') return;
 
-    currentWindowStyle = style;
-    updateSelectedStyleCard(style);
+  currentWindowStyle = style;
+  updateSelectedStyleCard(style);
 
-    try {
-        const result = await window.settingsAPI.saveUIPreferences({
-            windowControlsStyle: style,
-        });
+  try {
+    const result = await window.settingsAPI.saveUIPreferences({
+      windowControlsStyle: style,
+    });
 
-        if (result.success) {
-            showStatus(`Window style changed to ${style === 'macos' ? 'macOS' : 'Windows'}`, 'success');
-        } else {
-            showStatus(`Failed to save window style: ${result.error}`, 'error');
-        }
-    } catch (error) {
-        showStatus(`Failed to save window style: ${error}`, 'error');
+    if (result.success) {
+      showStatus(`Window style changed to ${style === 'macos' ? 'macOS' : 'Windows'}`, 'success');
+    } else {
+      showStatus(`Failed to save window style: ${result.error}`, 'error');
     }
+  } catch (error) {
+    showStatus(`Failed to save window style: ${error}`, 'error');
+  }
 }
 
 function updateSelectedStyleCard(style) {
-    const macosCard = document.getElementById('macosStyleCard');
-    const windowsCard = document.getElementById('windowsStyleCard');
+  const macosCard = document.getElementById('macosStyleCard');
+  const windowsCard = document.getElementById('windowsStyleCard');
 
-    if (macosCard && windowsCard) {
-        macosCard.classList.toggle('selected', style === 'macos');
-        windowsCard.classList.toggle('selected', style === 'windows');
-    }
+  if (macosCard && windowsCard) {
+    macosCard.classList.toggle('selected', style === 'macos');
+    windowsCard.classList.toggle('selected', style === 'windows');
+  }
 }

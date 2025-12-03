@@ -1,9 +1,9 @@
-import {existsSync, statSync} from 'node:fs';
-import {readdir, readFile, rm, writeFile} from 'node:fs/promises';
-import {join} from 'node:path';
-import {app, BrowserWindow, ipcMain, session} from 'electron';
-import {AssetCache} from './AssetCache.js';
-import {Extensions} from './Extensions.js';
+import { existsSync, statSync } from 'node:fs';
+import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { BrowserWindow, app, ipcMain, session } from 'electron';
+import { AssetCache } from './AssetCache.js';
+import { Extensions } from './Extensions.js';
 
 const CUSTOM_STYLES_FILE = join(app.getPath('appData'), 'soundcloud', 'custom-styles.css');
 const UI_PREFERENCES_FILE = join(app.getPath('appData'), 'soundcloud', 'ui-preferences.json');
@@ -11,7 +11,7 @@ const UI_PREFERENCES_FILE = join(app.getPath('appData'), 'soundcloud', 'ui-prefe
 type WindowControlsStyle = 'macos' | 'windows';
 
 interface UIPreferences {
-    windowControlsStyle: WindowControlsStyle;
+  windowControlsStyle: WindowControlsStyle;
 }
 
 const DEFAULT_CSS = `/* SoundCloud Desktop - Custom Styles */
@@ -59,7 +59,7 @@ export class SettingsManager {
 
     this.window = new BrowserWindow({
       width: 1200,
-        height: 990,
+      height: 990,
       minWidth: 800,
       minHeight: 600,
       show: false,
@@ -86,25 +86,25 @@ export class SettingsManager {
     });
   }
 
-    /**
-     * Load UI preferences from file
-     */
-    async loadUIPreferences(): Promise<UIPreferences> {
-        const defaultPreferences: UIPreferences = {
-            windowControlsStyle: 'macos',
-        };
+  /**
+   * Load UI preferences from file
+   */
+  async loadUIPreferences(): Promise<UIPreferences> {
+    const defaultPreferences: UIPreferences = {
+      windowControlsStyle: 'macos',
+    };
 
-        try {
-            if (existsSync(UI_PREFERENCES_FILE)) {
-                const content = await readFile(UI_PREFERENCES_FILE, 'utf-8');
-                const prefs = JSON.parse(content);
-                return {...defaultPreferences, ...prefs};
-            }
-        } catch (error) {
-            console.error('Failed to load UI preferences:', error);
-        }
+    try {
+      if (existsSync(UI_PREFERENCES_FILE)) {
+        const content = await readFile(UI_PREFERENCES_FILE, 'utf-8');
+        const prefs = JSON.parse(content);
+        return { ...defaultPreferences, ...prefs };
+      }
+    } catch (error) {
+      console.error('Failed to load UI preferences:', error);
+    }
 
-        return defaultPreferences;
+    return defaultPreferences;
   }
 
   private async loadCustomCSS(): Promise<string> {
@@ -286,164 +286,164 @@ export class SettingsManager {
     }
   }
 
-    /**
-     * Get current window controls style
-     */
-    async getWindowControlsStyle(): Promise<WindowControlsStyle> {
+  /**
+   * Get current window controls style
+   */
+  async getWindowControlsStyle(): Promise<WindowControlsStyle> {
+    const prefs = await this.loadUIPreferences();
+    return prefs.windowControlsStyle;
+  }
+
+  private setupIPC(): void {
+    // Load CSS from file
+    ipcMain.handle('settings:load-css', async () => {
+      return await this.loadCustomCSS();
+    });
+
+    // Get default CSS
+    ipcMain.handle('settings:get-default-css', () => {
+      return DEFAULT_CSS;
+    });
+
+    // Save CSS to file
+    ipcMain.handle('settings:save-css', async (_event, css: string) => {
+      try {
+        await this.saveCustomCSS(css);
+        // Apply to main window
+        await this.applyCustomCSS(css);
+        return { success: true };
+      } catch (error) {
+        console.error('Failed to save CSS:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
+    });
+
+    // Preview CSS in real-time
+    ipcMain.on('settings:preview-css', async (_event, css: string) => {
+      await this.injectCSS(css, false);
+    });
+
+    // Window controls
+    ipcMain.on('settings:close', () => {
+      if (this.window && !this.window.isDestroyed()) {
+        // Try to close gracefully first
+        this.window.close();
+
+        // Fallback: force destroy after timeout (Linux issue #81)
+        setTimeout(() => {
+          if (this.window && !this.window.isDestroyed()) {
+            console.warn('Settings window did not close gracefully, forcing destroy');
+            this.window.destroy();
+          }
+        }, 500);
+      }
+    });
+
+    ipcMain.on('settings:minimize', () => {
+      if (this.window && !this.window.isDestroyed()) {
+        this.window.minimize();
+      }
+    });
+
+    ipcMain.on('settings:maximize', () => {
+      if (this.window && !this.window.isDestroyed()) {
+        if (this.window.isMaximized()) {
+          this.window.unmaximize();
+        } else {
+          this.window.maximize();
+        }
+      }
+    });
+
+    ipcMain.handle('settings:get-translations', () => {
+      return Extensions.getTranslations().settings;
+    });
+
+    // Data management handlers
+    ipcMain.handle('settings:get-cache-size', async () => {
+      try {
+        const size = await this.getCacheSize();
+        return { success: true, size };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    ipcMain.handle('settings:clear-cache', async () => {
+      try {
+        await this.clearCache();
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    ipcMain.handle('settings:get-appdata-size', async () => {
+      try {
+        const size = await this.getAppDataSize();
+        return { success: true, size };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    ipcMain.handle('settings:clear-appdata', async () => {
+      try {
+        await this.clearAppData();
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    // UI Preferences handlers
+    ipcMain.handle('settings:get-ui-preferences', async () => {
+      try {
         const prefs = await this.loadUIPreferences();
-        return prefs.windowControlsStyle;
+        return { success: true, preferences: prefs };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    ipcMain.handle('settings:save-ui-preferences', async (_event, preferences: UIPreferences) => {
+      try {
+        await this.saveUIPreferences(preferences);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+  }
+
+  /**
+   * Save UI preferences to file
+   */
+  private async saveUIPreferences(preferences: UIPreferences): Promise<void> {
+    const { mkdir } = await import('node:fs/promises');
+    const dir = join(app.getPath('appData'), 'soundcloud');
+
+    if (!existsSync(dir)) {
+      await mkdir(dir, { recursive: true });
     }
 
-    private setupIPC(): void {
-        // Load CSS from file
-        ipcMain.handle('settings:load-css', async () => {
-            return await this.loadCustomCSS();
-        });
+    await writeFile(UI_PREFERENCES_FILE, JSON.stringify(preferences, null, 2), 'utf-8');
 
-        // Get default CSS
-        ipcMain.handle('settings:get-default-css', () => {
-            return DEFAULT_CSS;
-        });
+    // Notify windows to update
+    this.applyWindowControlsStyle(preferences.windowControlsStyle);
+  }
 
-        // Save CSS to file
-        ipcMain.handle('settings:save-css', async (_event, css: string) => {
-            try {
-                await this.saveCustomCSS(css);
-                // Apply to main window
-                await this.applyCustomCSS(css);
-                return {success: true};
-            } catch (error) {
-                console.error('Failed to save CSS:', error);
-                return {
-                    success: false,
-                    error: error instanceof Error ? error.message : String(error),
-                };
-            }
-        });
+  /**
+   * Apply window controls style to all windows
+   */
+  private applyWindowControlsStyle(style: WindowControlsStyle): void {
+    const windows = [this.mainWindow, this.window].filter((w) => w && !w.isDestroyed());
 
-        // Preview CSS in real-time
-        ipcMain.on('settings:preview-css', async (_event, css: string) => {
-            await this.injectCSS(css, false);
-        });
-
-        // Window controls
-        ipcMain.on('settings:close', () => {
-            if (this.window && !this.window.isDestroyed()) {
-                // Try to close gracefully first
-                this.window.close();
-
-                // Fallback: force destroy after timeout (Linux issue #81)
-                setTimeout(() => {
-                    if (this.window && !this.window.isDestroyed()) {
-                        console.warn('Settings window did not close gracefully, forcing destroy');
-                        this.window.destroy();
-                    }
-                }, 500);
-            }
-        });
-
-        ipcMain.on('settings:minimize', () => {
-            if (this.window && !this.window.isDestroyed()) {
-                this.window.minimize();
-            }
-        });
-
-        ipcMain.on('settings:maximize', () => {
-            if (this.window && !this.window.isDestroyed()) {
-                if (this.window.isMaximized()) {
-                    this.window.unmaximize();
-                } else {
-                    this.window.maximize();
-                }
-            }
-        });
-
-        ipcMain.handle('settings:get-translations', () => {
-            return Extensions.getTranslations().settings;
-        });
-
-        // Data management handlers
-        ipcMain.handle('settings:get-cache-size', async () => {
-            try {
-                const size = await this.getCacheSize();
-                return {success: true, size};
-            } catch (error) {
-                return {success: false, error: String(error)};
-            }
-        });
-
-        ipcMain.handle('settings:clear-cache', async () => {
-            try {
-                await this.clearCache();
-                return {success: true};
-            } catch (error) {
-                return {success: false, error: String(error)};
-            }
-        });
-
-        ipcMain.handle('settings:get-appdata-size', async () => {
-            try {
-                const size = await this.getAppDataSize();
-                return {success: true, size};
-            } catch (error) {
-                return {success: false, error: String(error)};
-            }
-        });
-
-        ipcMain.handle('settings:clear-appdata', async () => {
-            try {
-                await this.clearAppData();
-                return {success: true};
-            } catch (error) {
-                return {success: false, error: String(error)};
-            }
-        });
-
-        // UI Preferences handlers
-        ipcMain.handle('settings:get-ui-preferences', async () => {
-            try {
-                const prefs = await this.loadUIPreferences();
-                return {success: true, preferences: prefs};
-            } catch (error) {
-                return {success: false, error: String(error)};
-            }
-        });
-
-        ipcMain.handle('settings:save-ui-preferences', async (_event, preferences: UIPreferences) => {
-            try {
-                await this.saveUIPreferences(preferences);
-                return {success: true};
-            } catch (error) {
-                return {success: false, error: String(error)};
-            }
-        });
+    for (const win of windows) {
+      win?.webContents.send('ui:window-controls-style-changed', style);
     }
-
-    /**
-     * Save UI preferences to file
-     */
-    private async saveUIPreferences(preferences: UIPreferences): Promise<void> {
-        const {mkdir} = await import('node:fs/promises');
-        const dir = join(app.getPath('appData'), 'soundcloud');
-
-        if (!existsSync(dir)) {
-            await mkdir(dir, {recursive: true});
-        }
-
-        await writeFile(UI_PREFERENCES_FILE, JSON.stringify(preferences, null, 2), 'utf-8');
-
-        // Notify windows to update
-        this.applyWindowControlsStyle(preferences.windowControlsStyle);
-    }
-
-    /**
-     * Apply window controls style to all windows
-     */
-    private applyWindowControlsStyle(style: WindowControlsStyle): void {
-        const windows = [this.mainWindow, this.window].filter((w) => w && !w.isDestroyed());
-
-        for (const win of windows) {
-            win?.webContents.send('ui:window-controls-style-changed', style);
-        }
-    }
+  }
 }
