@@ -6,6 +6,7 @@
 /dist_test/*
 /bins/*
 /artifacts/*
+/out/*
 
 /.idea/*
 /.debug/*

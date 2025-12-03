@@ -1,20 +1,11 @@
-import { join } from 'node:path';
-import { Readable } from 'node:stream';
-import {
-  BrowserWindow,
-  Menu,
-  Tray,
-  app,
-  globalShortcut,
-  nativeImage,
-  protocol,
-  shell,
-} from 'electron';
+import {join} from 'node:path';
+import {Readable} from 'node:stream';
+import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
 import fetch from 'node-fetch';
-import type { WindowBounds } from '../types/config.js';
-import { AssetCache } from './AssetCache.js';
-import { ProxyManager } from './ProxyManager.js';
-import { ProxyMetricsCollector } from './ProxyMetricsCollector.js';
+import type {WindowBounds} from '../types/config.js';
+import {AssetCache} from './AssetCache.js';
+import {ProxyManager} from './ProxyManager.js';
+import {ProxyMetricsCollector} from './ProxyMetricsCollector.js';
 
 interface DomainCheckResult {
   shouldProxy: boolean;
@@ -299,7 +290,11 @@ export class WindowSetup {
     WindowSetup.setupProxyHandler();
 
     // Инициализируем сборщик метрик (только в dev режиме)
-    await ProxyMetricsCollector.initialize();
+      try {
+          await ProxyMetricsCollector.initialize();
+      } catch (e) {
+          console.error('Failed to initialize ProxyMetricsCollector:', e);
+      }
 
     // Инициализируем кэш ассетов
     await AssetCache.initialize();
@@ -326,35 +321,6 @@ export class WindowSetup {
     // Если прокси не найден, это не критично - продолжаем загрузку
     console.warn('⚠️ Proxy not found or failed to initialize, continuing without proxy');
     WindowSetup.proxyInitialized = true;
-  }
-
-  private static getWindowBounds(): WindowBounds {
-    return {
-      width: 1200,
-      height: 800,
-    };
-  }
-
-  private static setupProxyHandler(): void {
-    const httpsHandleMethod = async (request: Request): Promise<Response> => {
-      return await WindowSetup.getProxyResponse(request);
-    };
-
-    // Проверяем каждые 5 секунд, нужно ли включать/выключать прокси
-    setInterval(() => {
-      const proxyManager = ProxyManager.getInstance();
-      const hasProxy = !!proxyManager.getCurrentProxy();
-
-      if (!hasProxy && WindowSetup.proxyRegistered) {
-        protocol.unhandle('https');
-        WindowSetup.proxyRegistered = false;
-        console.info('🚫 Proxy handler disabled');
-      } else if (hasProxy && !WindowSetup.proxyRegistered) {
-        protocol.handle('https', httpsHandleMethod);
-        WindowSetup.proxyRegistered = true;
-        console.info('✅ Proxy handler enabled');
-      }
-    }, 5000);
   }
 
   public static checkAdBlock(parsedUrl: URL): boolean {
@@ -420,6 +386,35 @@ export class WindowSetup {
       host === 'cdn.cookielaw.org'
     );
   }
+
+    private static getWindowBounds(): WindowBounds {
+        return {
+            width: 1200,
+            height: 800,
+        };
+    }
+
+    private static setupProxyHandler(): void {
+        const httpsHandleMethod = async (request: Request): Promise<Response> => {
+            return await WindowSetup.getProxyResponse(request);
+        };
+
+        // Проверяем каждые 5 секунд, нужно ли включать/выключать прокси
+        setInterval(() => {
+            const proxyManager = ProxyManager.getInstance();
+            const hasProxy = !!proxyManager.getCurrentProxy();
+
+            if (!hasProxy && WindowSetup.proxyRegistered) {
+                protocol.unhandle('https');
+                WindowSetup.proxyRegistered = false;
+                console.info('🚫 Proxy handler disabled');
+            } else if (hasProxy && !WindowSetup.proxyRegistered) {
+                protocol.handle('https', httpsHandleMethod);
+                WindowSetup.proxyRegistered = true;
+                console.info('✅ Proxy handler enabled');
+            }
+        }, 5000);
+    }
 
   /**
    * Проверяет, соответствует ли домен маскам для проксирования

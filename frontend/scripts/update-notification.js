@@ -1,4 +1,4 @@
-import { marked } from '../../../node_modules/marked/lib/marked.esm.js';
+import {marked} from '../../node_modules/marked/lib/marked.esm.js';
 
 // Configure marked for security
 marked.setOptions({
