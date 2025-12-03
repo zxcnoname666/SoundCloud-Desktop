@@ -20,6 +20,7 @@ body {
   margin: 0;
 }
 
+/* ===== MAIN NAVBAR ===== */
 #AppNavbarSystem {
   margin: 0;
   font-family: Roboto, sans-serif;
@@ -31,186 +32,233 @@ body {
   z-index: 999;
   -webkit-app-region: drag;
 
-  display: grid;
-  justify-content: space-between;
-  align-items: center;
-  grid-template-columns: 0.6fr 1fr 0.6fr;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 12px;
+}
 
-  .LogoText {
+/* ===== WINDOW CONTROLS LEFT (macOS Traffic Lights Container) ===== */
+.window-controls-left {
+    display: flex;
+    align-items: center;
+    -webkit-app-region: no-drag;
+}
+
+/* ===== MACOS TRAFFIC LIGHTS ===== */
+.traffic-lights.macos-style {
+    display: flex;
+    gap: 8px;
+}
+
+.traffic-lights.macos-style .traffic-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.traffic-lights.macos-style .traffic-light.close {
+    background: linear-gradient(135deg, #ff5f56 0%, #ff3b30 100%);
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
+}
+
+.traffic-lights.macos-style .traffic-light.minimize {
+    background: linear-gradient(135deg, #ffbd2e 0%, #f5a623 100%);
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
+}
+
+.traffic-lights.macos-style .traffic-light.maximize {
+    background: linear-gradient(135deg, #28c940 0%, #27c93f 100%);
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
+}
+
+.traffic-lights.macos-style .traffic-light:hover {
+    filter: brightness(1.1);
+    transform: scale(1.05);
+}
+
+.traffic-lights.macos-style .traffic-light:active {
+    transform: scale(0.95);
+}
+
+.traffic-lights.macos-style .traffic-light svg {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    opacity: 0.7;
+}
+
+.traffic-lights.macos-style .traffic-light:hover svg {
+    display: block;
+}
+
+/* ===== LOGO TEXT ===== */
+.LogoText {
     display: inline-flex;
     align-items: center;
-    font-family: NeonOL;
+    font-family: NeonOL, sans-serif;
     color: #bf7c00;
-    margin: 3px 5px;
     font-size: 22px;
-
-    img {
-      margin-left: 10px;
-      height: 22px;
-      -webkit-app-region: no-drag;
-
-      &,
-      * {
-        cursor: pointer;
-      }
-    }
-  }
-
-  .Locator {
-    height: 20px;
-    border-radius: 8px;
-    background: #83602c33;
-    padding: 5px;
-    display: grid;
-    grid-template-columns: 1fr 20px 20px 20px; /* url | left | right | reload */
-    -webkit-app-region: no-drag;
-
-    .Path {
-      margin-right: 5px;
-      border-right: 1px solid gray;
-      display: flex;
-      font-family: Nunito;
-      font-size: 15px;
-
-      span {
-        color: aliceblue;
-      }
-
-      l {
-        color: #9b9fa7;
-      }
-
-      input {
-        margin-right: 2px;
-        background: #0000;
-        outline: 0;
-        border: 0;
-        padding: 0;
-        color: #9b9fa7;
-        width: 100%;
-      }
-    }
-
-    .button {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 3px;
-      height: 20px;
-      cursor: pointer;
-      margin-right: 3px;
-    }
-
-    .button:last-child {
-      margin-right: 0;
-    }
-
-    .button:hover {
-      background: #68686879;
-    }
-
-    .button.block {
-      background: #2c2c2cd5;
-      cursor: not-allowed;
-    }
-  }
-
-  .ButtonsSelector {
-    display: flex;
-    flex-direction: row-reverse;
+    white-space: nowrap;
     -webkit-app-region: drag;
-    user-select: none;
+}
+
+.LogoText img {
+    margin-left: 10px;
+    height: 22px;
+    cursor: pointer;
+}
+
+/* ===== LOCATOR (ADDRESS BAR) ===== */
+.Locator {
+    flex: 1;
+    display: flex;
     align-items: center;
     gap: 8px;
-    padding-right: 12px;
+    min-width: 0;
+    -webkit-app-region: drag;
 
-    .traffic-lights {
-      display: flex;
-      gap: 8px;
-      -webkit-app-region: no-drag;
-      flex-direction: row-reverse;
+    .button {
+        -webkit-app-region: no-drag;
     }
+}
 
-    .traffic-light {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.2s ease;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(255, 255, 255, 0.1);
-    }
+.Path {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background-color: #2a2a2e;
+    border-radius: 6px;
+    padding: 6px 12px;
+    gap: 4px;
+    min-width: 0;
+    -webkit-app-region: no-drag;
+}
 
-    .traffic-light.close {
-      background: linear-gradient(135deg, #ff5f56 0%, #ff3b30 100%);
-      border: 0.5px solid rgba(0, 0, 0, 0.2);
-    }
+.Path span {
+    color: #9b9fa7;
+    font-size: 13px;
+    white-space: nowrap;
+}
 
-    .traffic-light.minimize {
-      background: linear-gradient(135deg, #ffbd2e 0%, #f5a623 100%);
-      border: 0.5px solid rgba(0, 0, 0, 0.2);
-    }
+.Path l {
+    color: #6c6c70;
+    font-size: 13px;
+}
 
-    .traffic-light.maximize {
-      background: linear-gradient(135deg, #28c940 0%, #27c93f 100%);
-      border: 0.5px solid rgba(0, 0, 0, 0.2);
-    }
+.Path input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+    min-width: 0;
+}
 
-    .traffic-light:hover {
-      filter: brightness(1.1);
-      transform: scale(1.05);
-    }
+.Path input::placeholder {
+    color: #6c6c70;
+}
 
-    .traffic-light:active {
-      transform: scale(0.95);
-    }
+/* Navigation Buttons */
+.Locator .button {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
 
-    .traffic-light svg {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 6px;
-      height: 6px;
-      opacity: 0.7;
-    }
+.Locator .button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
 
-    .traffic-light:hover svg {
-      display: block;
-    }
+.Locator .button:active {
+    background: rgba(255, 255, 255, 0.15);
+}
 
-    /* Settings/Auth/Discord buttons */
-    .SettingsButton,
-    .AuthButton,
-    .DiscordButton {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: all 0.2s ease;
-      -webkit-app-region: no-drag;
-    }
+.Locator .button.block {
+    opacity: 0.3;
+    pointer-events: none;
+}
 
-    .SettingsButton:hover,
-    .AuthButton:hover,
-    .DiscordButton:hover {
-      background: rgba(155, 159, 167, 0.1);
-    }
+/* ===== BUTTONS SELECTOR (Right side buttons) ===== */
+.ButtonsSelector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    -webkit-app-region: no-drag;
+}
 
-    .SettingsButton svg,
-    .AuthButton svg,
-    .DiscordButton svg {
-      transition: fill 0.2s ease;
-    }
+.SettingsButton,
+.AuthButton,
+.DiscordButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
 
-    .SettingsButton:hover svg,
-    .AuthButton:hover svg,
-    .DiscordButton:hover svg {
-      fill: #ff7733;
-    }
-  }
+.SettingsButton:hover,
+.AuthButton:hover,
+.DiscordButton:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.SettingsButton:active,
+.AuthButton:active,
+.DiscordButton:active {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ===== WINDOWS STYLE CONTROLS ===== */
+.windows-controls {
+    display: flex;
+    align-items: center;
+    margin-left: 4px;
+}
+
+.win-btn {
+    width: 46px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.win-btn svg {
+    width: 10px;
+    height: 10px;
+}
+
+.win-btn.minimize:hover,
+.win-btn.maximize:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.win-btn.close:hover {
+    background: #e81123;
+}
+
+.win-btn.close:hover svg line {
+    stroke: #fff !important;
 }

@@ -8,6 +8,10 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   invoke: (name, ...args) => ipcRenderer.invoke(name, ...args),
 });
 
+contextBridge.exposeInMainWorld('settingsAPI', {
+    getUIPreferences: () => ipcRenderer.invoke('settings:get-ui-preferences'),
+});
+
 const SetupHeader = () => {
   const input = document.querySelector('#AppNavbarSystem .Locator .Path input');
 

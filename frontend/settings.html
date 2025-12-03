@@ -109,7 +109,25 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .content-wrapper::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content-wrapper::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .content-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 85, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .content-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 85, 0, 0.5);
         }
 
         .settings-header {
@@ -447,6 +465,212 @@
             color: #ff5252;
             background: rgba(255, 82, 82, 0.1);
         }
+
+        /* Window Controls Style Section */
+        .window-controls-section {
+            padding: 20px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .controls-style-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            -webkit-app-region: no-drag;
+        }
+
+        .style-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .style-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 85, 0, 0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .style-card:hover {
+            border-color: rgba(255, 85, 0, 0.4);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 32px rgba(255, 85, 0, 0.2);
+        }
+
+        .style-card:hover::before {
+            opacity: 1;
+        }
+
+        .style-card.selected {
+            border-color: #ff5500;
+            background: linear-gradient(135deg, rgba(255, 85, 0, 0.15), rgba(255, 85, 0, 0.05));
+            box-shadow: 0 8px 24px rgba(255, 85, 0, 0.3);
+        }
+
+        .style-card.selected::before {
+            opacity: 1;
+        }
+
+        .style-preview {
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #2a2a2e, #1e1e22);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .preview-titlebar {
+            height: 40px;
+            background: rgba(28, 29, 32, 0.95);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            position: relative;
+        }
+
+        .preview-traffic-lights {
+            display: flex;
+            gap: 8px;
+        }
+
+        .preview-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-light.close {
+            background: linear-gradient(135deg, #ff5f56, #ff3b30);
+            border: 0.5px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .preview-light.minimize {
+            background: linear-gradient(135deg, #ffbd2e, #f5a623);
+            border: 0.5px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .preview-light.maximize {
+            background: linear-gradient(135deg, #28c940, #27c93f);
+            border: 0.5px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .preview-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 600;
+        }
+
+        .preview-windows-controls {
+            margin-left: auto;
+            display: flex;
+            gap: 4px;
+        }
+
+        .preview-win-btn {
+            width: 32px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s ease;
+            border-radius: 4px;
+        }
+
+        .preview-win-btn.minimize:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-win-btn.maximize:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-win-btn.close:hover {
+            background: #e81123;
+            color: white;
+        }
+
+        .style-info {
+            position: relative;
+            z-index: 1;
+        }
+
+        .style-info h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .style-info p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+        }
+
+        .style-checkmark {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #ff5500, #ff7733);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0) rotate(-180deg);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 16px rgba(255, 85, 0, 0.4);
+            z-index: 2;
+        }
+
+        .style-card.selected .style-checkmark {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+
+        .style-checkmark svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .style-card:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 8px 24px rgba(255, 85, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 32px rgba(255, 85, 0, 0.5);
+            }
+        }
+
+        .style-card.selected {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
     </style>
 </head>
 <body>
@@ -473,11 +697,65 @@
                 </div>
             </div>
             <div class="window-title">Settings</div>
-            <div style="width: 76px;"></div>
+            <div style="width: 52px;"></div>
         </div>
 
         <!-- Main Content -->
         <div class="content-wrapper">
+            <!-- Window Controls Style Section -->
+            <div class="window-controls-section">
+                <div class="section-header">
+                    <h2 class="section-title">Window Controls</h2>
+                    <p class="section-subtitle">Choose your preferred window button style</p>
+                </div>
+
+                <div class="controls-style-selector">
+                    <div class="style-card" data-style="macos" id="macosStyleCard">
+                        <div class="style-preview">
+                            <div class="preview-titlebar">
+                                <div class="preview-traffic-lights">
+                                    <div class="preview-light close"></div>
+                                    <div class="preview-light minimize"></div>
+                                    <div class="preview-light maximize"></div>
+                                </div>
+                                <div class="preview-title">SoundCloud</div>
+                            </div>
+                        </div>
+                        <div class="style-info">
+                            <h3>macOS Style</h3>
+                            <p>Classic traffic lights on the left</p>
+                        </div>
+                        <div class="style-checkmark">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="style-card" data-style="windows" id="windowsStyleCard">
+                        <div class="style-preview">
+                            <div class="preview-titlebar">
+                                <div class="preview-title">SoundCloud</div>
+                                <div class="preview-windows-controls">
+                                    <div class="preview-win-btn minimize">─</div>
+                                    <div class="preview-win-btn maximize">□</div>
+                                    <div class="preview-win-btn close">✕</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="style-info">
+                            <h3>Windows Style</h3>
+                            <p>Modern controls on the right</p>
+                        </div>
+                        <div class="style-checkmark">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Data Management Section -->
             <div class="data-management-section">
                 <div class="section-header">
@@ -559,5 +837,6 @@
 
     <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
     <script src="./scripts/settings.js"></script>
+    <script src="./scripts/settings-window-controls.js"></script>
 </body>
 </html>
