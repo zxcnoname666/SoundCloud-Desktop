@@ -1,18 +1,18 @@
-import {join} from 'node:path';
-import {app, BrowserWindow, ipcMain, protocol} from 'electron';
-import {Client} from 'qurre-socket';
-import {AppManager} from './modules/AppManager.js';
-import {AuthManager} from './modules/AuthManager.js';
-import {DiscordAuthManager} from './modules/DiscordAuthManager.js';
-import {registerDiscordIPCHandlers} from './modules/DiscordIPCHandlers.js';
-import {Extensions} from './modules/Extensions.js';
-import {NotificationManager} from './modules/NotificationManager.js';
-import {ProxyManager} from './modules/ProxyManager.js';
-import {SettingsManager} from './modules/SettingsManager.js';
-import {TCPPortChecker} from './modules/TCPPortChecker.js';
-import {WindowSetup} from './modules/WindowSetup.js';
-import type {AppContext} from './types/global.js';
-import {ConfigManager} from './utils/config.js';
+import { join } from 'node:path';
+import { BrowserWindow, app, ipcMain, protocol } from 'electron';
+import { Client } from 'qurre-socket';
+import { AppManager } from './modules/AppManager.js';
+import { AuthManager } from './modules/AuthManager.js';
+import { DiscordAuthManager } from './modules/DiscordAuthManager.js';
+import { registerDiscordIPCHandlers } from './modules/DiscordIPCHandlers.js';
+import { Extensions } from './modules/Extensions.js';
+import { NotificationManager } from './modules/NotificationManager.js';
+import { ProxyManager } from './modules/ProxyManager.js';
+import { SettingsManager } from './modules/SettingsManager.js';
+import { TCPPortChecker } from './modules/TCPPortChecker.js';
+import { WindowSetup } from './modules/WindowSetup.js';
+import type { AppContext } from './types/global.js';
+import { ConfigManager } from './utils/config.js';
 
 class SoundCloudApp {
   private context: AppContext;
@@ -27,19 +27,19 @@ class SoundCloudApp {
     app.commandLine.appendSwitch('--tls-version-min', '1.0');
     app.commandLine.appendSwitch('--ssl-version-min', 'tls1');
 
-      // Регистрируем https с stream: true ДО app.whenReady() для отключения буферизации аудио/видео
-      protocol.registerSchemesAsPrivileged([
-          {
-              scheme: 'https',
-              privileges: {
-                  stream: true, // Отключаем буферизацию для <audio> и <video> элементов
-                  standard: true,
-                  secure: true,
-                  supportFetchAPI: true,
-                  corsEnabled: true,
-              },
-          },
-      ]);
+    // Регистрируем https с stream: true ДО app.whenReady() для отключения буферизации аудио/видео
+    protocol.registerSchemesAsPrivileged([
+      {
+        scheme: 'https',
+        privileges: {
+          stream: true, // Отключаем буферизацию для <audio> и <video> элементов
+          standard: true,
+          secure: true,
+          supportFetchAPI: true,
+          corsEnabled: true,
+        },
+      },
+    ]);
 
     this.context = {
       isDev: process.env['NODE_ENV'] === 'development' || process.argv.includes('--dev'),

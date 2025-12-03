@@ -1,12 +1,12 @@
 import http from 'node:http';
 import https from 'node:https';
-import {URL} from 'node:url';
+import { URL } from 'node:url';
 import fetch from 'node-fetch';
-import type {ProxyManagerInterface} from '../types/global.js';
-import {ConfigManager} from '../utils/config.js';
-import {Extensions} from './Extensions.js';
-import type {NotificationManager} from './NotificationManager.js';
-import {WindowSetup} from './WindowSetup';
+import type { ProxyManagerInterface } from '../types/global.js';
+import { ConfigManager } from '../utils/config.js';
+import { Extensions } from './Extensions.js';
+import type { NotificationManager } from './NotificationManager.js';
+import { WindowSetup } from './WindowSetup';
 
 interface ProxyInfo {
   source: string;
@@ -31,7 +31,7 @@ export class ProxyManager implements ProxyManagerInterface {
   private httpAgent: http.Agent;
 
   // Конфигурация системы strikes
-    private readonly MAX_STRIKES = 10; // Максимум ошибок подряд
+  private readonly MAX_STRIKES = 10; // Максимум ошибок подряд
   private readonly INITIAL_BLOCK_DURATION = 60000; // 1 минута
   private readonly MAX_BLOCK_DURATION = 300000; // 5 минут
 
@@ -96,7 +96,7 @@ export class ProxyManager implements ProxyManagerInterface {
         const proxyUrl = this.buildProxyUrl(proxy, encodedTargetUrl);
 
         // Используем большой timeout (5 минут) как fallback на крайний случай
-          // Idle timeout (10 сек без данных) работает только для CSS/JS через readAndCacheStream
+        // Idle timeout (10 сек без данных) работает только для CSS/JS через readAndCacheStream
         const proxyOptions: any = {
           method: method,
           signal: AbortSignal.timeout(300000), // 5 минут

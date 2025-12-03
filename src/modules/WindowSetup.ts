@@ -1,11 +1,20 @@
-import {join} from 'node:path';
-import {Readable} from 'node:stream';
-import {app, BrowserWindow, globalShortcut, Menu, nativeImage, protocol, shell, Tray,} from 'electron';
+import { join } from 'node:path';
+import { Readable } from 'node:stream';
+import {
+  BrowserWindow,
+  Menu,
+  Tray,
+  app,
+  globalShortcut,
+  nativeImage,
+  protocol,
+  shell,
+} from 'electron';
 import fetch from 'node-fetch';
-import type {WindowBounds} from '../types/config.js';
-import {AssetCache} from './AssetCache.js';
-import {ProxyManager} from './ProxyManager.js';
-import {ProxyMetricsCollector} from './ProxyMetricsCollector.js';
+import type { WindowBounds } from '../types/config.js';
+import { AssetCache } from './AssetCache.js';
+import { ProxyManager } from './ProxyManager.js';
+import { ProxyMetricsCollector } from './ProxyMetricsCollector.js';
 
 interface DomainCheckResult {
   shouldProxy: boolean;
@@ -93,7 +102,7 @@ export class WindowSetup {
       WindowSetup.tray.setToolTip('SoundCloud Desktop');
 
       WindowSetup.tray.on('click', () => {
-          console.debug(window.isVisible())
+        console.debug(window.isVisible());
         if (window.isVisible() && !window.isMinimized()) {
           window.hide();
         } else {
@@ -743,37 +752,37 @@ export class WindowSetup {
       // Записываем метрику использования домена
       metricsCollector.recordDomainUsage(url.hostname, shouldProxy, reason);
 
-        const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
-        const requestHeaders = Object.fromEntries(request.headers.entries());
+      const requestBody = request.body ? Buffer.from(await request.arrayBuffer()) : null;
+      const requestHeaders = Object.fromEntries(request.headers.entries());
 
       if (!shouldProxy) {
         // Делаем обычный запрос без прокси
         const response = await fetch(request.url, {
           method: request.method,
-            headers: requestHeaders,
-            body: requestBody,
+          headers: requestHeaders,
+          body: requestBody,
         });
 
-          return WindowSetup.createStreamingResponseWithCache(response, request.url, assetCache, {
-              shouldProxy: false,
-              method: request.method,
-              headers: requestHeaders,
+        return WindowSetup.createStreamingResponseWithCache(response, request.url, assetCache, {
+          shouldProxy: false,
+          method: request.method,
+          headers: requestHeaders,
           body: requestBody,
         });
       }
 
       const response = await proxyManager.sendRequest(request.url, {
         method: request.method,
-          headers: requestHeaders,
+        headers: requestHeaders,
         body: requestBody,
       });
 
-        return WindowSetup.createStreamingResponseWithCache(response, request.url, assetCache, {
-            shouldProxy: true,
-            method: request.method,
-            headers: requestHeaders,
-            body: requestBody,
-        });
+      return WindowSetup.createStreamingResponseWithCache(response, request.url, assetCache, {
+        shouldProxy: true,
+        method: request.method,
+        headers: requestHeaders,
+        body: requestBody,
+      });
     } catch (error) {
       console.error('❌ Proxy request failed:', request.url, error);
       return new Response('Proxy Error', { status: 500 });
@@ -790,10 +799,10 @@ export class WindowSetup {
     url: string,
     assetCache: AssetCache,
     requestOptions?: {
-        shouldProxy: boolean;
-        method: string;
-        headers: Record<string, string>;
-        body: Buffer | null;
+      shouldProxy: boolean;
+      method: string;
+      headers: Record<string, string>;
+      body: Buffer | null;
     }
   ): Response {
     // Собираем заголовки
@@ -819,35 +828,35 @@ export class WindowSetup {
     // Конвертируем Node.js Readable в Web ReadableStream
     const webStream = Readable.toWeb(nodeFetchResponse.body) as ReadableStream;
 
-      // Для медиа-стримов: raw stream без обработки + повторный запрос для кэша
-      if (assetCache.isMediaStream(url)) {
-          // Запускаем кэширование в фоне через повторный запрос
-          if (nodeFetchResponse.ok && requestOptions) {
-              WindowSetup.cacheInBackground(
-                  url,
-                  headersObj,
-                  nodeFetchResponse.status,
-                  nodeFetchResponse.statusText,
-                  assetCache,
-                  requestOptions
-              ).catch(console.error);
-          }
-
-          // Возвращаем raw stream клиенту (без wrapper, без задержек)
-          return new Response(webStream, {
-              status: nodeFetchResponse.status,
-              statusText: nodeFetchResponse.statusText,
-              headers: responseHeaders,
-          });
+    // Для медиа-стримов: raw stream без обработки + повторный запрос для кэша
+    if (assetCache.isMediaStream(url)) {
+      // Запускаем кэширование в фоне через повторный запрос
+      if (nodeFetchResponse.ok && requestOptions) {
+        WindowSetup.cacheInBackground(
+          url,
+          headersObj,
+          nodeFetchResponse.status,
+          nodeFetchResponse.statusText,
+          assetCache,
+          requestOptions
+        ).catch(console.error);
       }
 
-      // Для остальных (CSS/JS/картинки): раздваиваем stream
-      const [clientStream, cacheStream] = webStream.tee();
+      // Возвращаем raw stream клиенту (без wrapper, без задержек)
+      return new Response(webStream, {
+        status: nodeFetchResponse.status,
+        statusText: nodeFetchResponse.statusText,
+        headers: responseHeaders,
+      });
+    }
 
-      // Запускаем кэширование в фоне с idle timeout
+    // Для остальных (CSS/JS/картинки): раздваиваем stream
+    const [clientStream, cacheStream] = webStream.tee();
+
+    // Запускаем кэширование в фоне с idle timeout
     if (nodeFetchResponse.ok) {
-        WindowSetup.readAndCacheStream(
-            cacheStream,
+      WindowSetup.readAndCacheStream(
+        cacheStream,
         url,
         headersObj,
         nodeFetchResponse.status,
@@ -856,8 +865,8 @@ export class WindowSetup {
       ).catch(console.error);
     }
 
-      // Возвращаем raw stream клиенту СРАЗУ (без блокировки)
-      return new Response(clientStream, {
+    // Возвращаем raw stream клиенту СРАЗУ (без блокировки)
+    return new Response(clientStream, {
       status: nodeFetchResponse.status,
       statusText: nodeFetchResponse.statusText,
       headers: responseHeaders,
@@ -868,128 +877,128 @@ export class WindowSetup {
    * Кэширует ресурс в фоне с помощью повторного запроса (ТОЛЬКО для медиа-стримов)
    */
   private static async cacheInBackground(
-      url: string,
-      headers: Record<string, string>,
-      status: number,
-      statusText: string,
-      assetCache: AssetCache,
-      requestOptions: {
-          shouldProxy: boolean;
-          method: string;
-          headers: Record<string, string>;
-          body: Buffer | null;
-      }
+    url: string,
+    headers: Record<string, string>,
+    status: number,
+    statusText: string,
+    assetCache: AssetCache,
+    requestOptions: {
+      shouldProxy: boolean;
+      method: string;
+      headers: Record<string, string>;
+      body: Buffer | null;
+    }
   ): Promise<void> {
-      try {
-          // Проверяем, нужно ли кэшировать
-          const isStatic = assetCache.isStaticAsset(url);
-          const isCacheable = assetCache.isCacheableResponse(headers);
+    try {
+      // Проверяем, нужно ли кэшировать
+      const isStatic = assetCache.isStaticAsset(url);
+      const isCacheable = assetCache.isCacheableResponse(headers);
 
-          if (!isStatic && !isCacheable) {
-              console.debug(`⏭️ Skipping cache for ${url} - not static and no cacheable headers`);
-              return;
-          }
-
-          console.debug(`🔄 Starting background cache for media stream: ${url}`);
-
-          // Делаем повторный запрос для кэширования
-          let response: any;
-
-          if (requestOptions.shouldProxy) {
-              const proxyManager = ProxyManager.getInstance();
-              response = await proxyManager.sendRequest(url, {
-                  method: requestOptions.method,
-                  headers: requestOptions.headers,
-                  body: requestOptions.body,
-              });
-          } else {
-              response = await fetch(url, {
-                  method: requestOptions.method,
-                  headers: requestOptions.headers,
-                  body: requestOptions.body,
-              });
-          }
-
-          if (!response.ok || !response.body) {
-              console.debug(`⏭️ Skipping cache for ${url} - response not ok or no body`);
-              return;
-          }
-
-          // Собираем все данные в buffer
-          const chunks: Uint8Array[] = [];
-          const stream = response.body as any; // node-fetch возвращает Node.js Readable
-
-          await new Promise<void>((resolve, reject) => {
-              stream.on('data', (chunk: any) => {
-                  chunks.push(chunk);
-              });
-
-              stream.on('end', () => {
-                  resolve();
-              });
-
-              stream.on('error', (err: any) => {
-                  reject(err);
-              });
-          });
-
-          // Собираем все chunks в один Buffer
-          const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-          const buffer = Buffer.concat(
-              chunks.map((chunk) => Buffer.from(chunk)),
-              totalLength
-          );
-
-          // Сохраняем в кэш
-          await assetCache.set(url, buffer, headers, status, statusText);
-          console.info(`📦 Successfully cached media stream: ${url} (${totalLength} bytes)`);
-      } catch (error) {
-          console.debug(`⏭️ Failed to cache media stream ${url} in background:`, error);
+      if (!isStatic && !isCacheable) {
+        console.debug(`⏭️ Skipping cache for ${url} - not static and no cacheable headers`);
+        return;
       }
+
+      console.debug(`🔄 Starting background cache for media stream: ${url}`);
+
+      // Делаем повторный запрос для кэширования
+      let response: any;
+
+      if (requestOptions.shouldProxy) {
+        const proxyManager = ProxyManager.getInstance();
+        response = await proxyManager.sendRequest(url, {
+          method: requestOptions.method,
+          headers: requestOptions.headers,
+          body: requestOptions.body,
+        });
+      } else {
+        response = await fetch(url, {
+          method: requestOptions.method,
+          headers: requestOptions.headers,
+          body: requestOptions.body,
+        });
+      }
+
+      if (!response.ok || !response.body) {
+        console.debug(`⏭️ Skipping cache for ${url} - response not ok or no body`);
+        return;
+      }
+
+      // Собираем все данные в buffer
+      const chunks: Uint8Array[] = [];
+      const stream = response.body as any; // node-fetch возвращает Node.js Readable
+
+      await new Promise<void>((resolve, reject) => {
+        stream.on('data', (chunk: any) => {
+          chunks.push(chunk);
+        });
+
+        stream.on('end', () => {
+          resolve();
+        });
+
+        stream.on('error', (err: any) => {
+          reject(err);
+        });
+      });
+
+      // Собираем все chunks в один Buffer
+      const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+      const buffer = Buffer.concat(
+        chunks.map((chunk) => Buffer.from(chunk)),
+        totalLength
+      );
+
+      // Сохраняем в кэш
+      await assetCache.set(url, buffer, headers, status, statusText);
+      console.info(`📦 Successfully cached media stream: ${url} (${totalLength} bytes)`);
+    } catch (error) {
+      console.debug(`⏭️ Failed to cache media stream ${url} in background:`, error);
+    }
   }
 
-    /**
-     * Читает stream в фоне с idle timeout и кэширует результат
-     * Используется для tee() stream - не блокирует клиента
-     */
-    private static async readAndCacheStream(
-        stream: ReadableStream,
-        url: string,
-        headers: Record<string, string>,
-        status: number,
-        statusText: string,
-        assetCache: AssetCache
-    ): Promise<void> {
+  /**
+   * Читает stream в фоне с idle timeout и кэширует результат
+   * Используется для tee() stream - не блокирует клиента
+   */
+  private static async readAndCacheStream(
+    stream: ReadableStream,
+    url: string,
+    headers: Record<string, string>,
+    status: number,
+    statusText: string,
+    assetCache: AssetCache
+  ): Promise<void> {
     const IDLE_TIMEOUT = 10000; // 10 секунд без данных
     const chunks: Uint8Array[] = [];
     let idleTimer: NodeJS.Timeout | null = null;
 
-        try {
-            const reader = stream.getReader();
+    try {
+      const reader = stream.getReader();
 
-            const resetIdleTimer = () => {
-                if (idleTimer) clearTimeout(idleTimer);
-                idleTimer = setTimeout(() => {
-                    console.warn(`⏰ Idle timeout detected for ${url}`);
-                    reader.cancel('Idle timeout');
-                }, IDLE_TIMEOUT);
-            };
+      const resetIdleTimer = () => {
+        if (idleTimer) clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+          console.warn(`⏰ Idle timeout detected for ${url}`);
+          reader.cancel('Idle timeout');
+        }, IDLE_TIMEOUT);
+      };
 
-            resetIdleTimer();
+      resetIdleTimer();
 
-            while (true) {
-                const {done, value} = await reader.read();
+      while (true) {
+        const { done, value } = await reader.read();
 
-                if (done) {
-                    if (idleTimer) clearTimeout(idleTimer);
-                    break;
-                }
+        if (done) {
+          if (idleTimer) clearTimeout(idleTimer);
+          break;
+        }
 
-                // Получили данные - сбрасываем таймер
-                resetIdleTimer();
+        // Получили данные - сбрасываем таймер
+        resetIdleTimer();
 
-                // Собираем для кэша
-                chunks.push(value);
+        // Собираем для кэша
+        chunks.push(value);
       }
 
       // Собираем все chunks в один Buffer
@@ -1003,8 +1012,8 @@ export class WindowSetup {
       await assetCache.set(url, buffer, headers, status, statusText);
       console.info(`📦 Successfully cached ${url} (${totalLength} bytes)`);
     } catch (error) {
-            if (idleTimer) clearTimeout(idleTimer);
-            console.debug(`⏭️ Failed to cache ${url}:`, error);
+      if (idleTimer) clearTimeout(idleTimer);
+      console.debug(`⏭️ Failed to cache ${url}:`, error);
     }
   }
 }
