@@ -1,6 +1,4 @@
 {
-  // Proxy configuration will be loaded from config.proxy.json5 or config.proxy.js
-  proxy: [],
   // Auto-update settings
   autoUpdate: true,
   // Localization settings

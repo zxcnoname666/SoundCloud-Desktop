@@ -298,10 +298,9 @@ To configure the language, create a `config.json5` file in the app directory:
 
 ```json5
 {
-  // Proxy settings (loaded from config.proxy.json5)
-  proxy: [],
   // Automatic updates
   autoUpdate: true,
+
   // Localization settings
   translations: {
     // Russian (also used for kk, ky, be locales)
@@ -313,7 +312,14 @@ To configure the language, create a `config.json5` file in the app directory:
 }
 ```
 
-> **Note:** If the file exists, it takes priority over built-in settings from the build.
+**Configuration Priority:**
+
+1. **User folder** (highest priority): `%APPDATA%\soundcloud\config.json5` (Windows) or
+   `~/.config/soundcloud/config.json5` (Linux/macOS)
+2. **App folder** (built-in): `config.json5` in the directory with the executable
+
+> **Note:** Proxy settings are loaded from a **separate file** `config.proxy.json5` (see "Proxy Configuration" section
+> below).
 
 ### 🔒 Proxy Configuration (for bypassing geo-restrictions)
 
@@ -346,16 +352,20 @@ Collection of domain usage statistics in development mode
 
 #### Creating Configuration
 
-**Create a file** `config.proxy.json5` in one of the directories (by priority):
+**Create a file** `config.proxy.json5` in one of the directories:
 
-1. **User folder** (recommended):
+**Configuration Loading Priority:**
+
+1. **User folder** (highest priority):
     - Windows: `%APPDATA%\soundcloud\config.proxy.json5`
     - Linux/macOS: `~/.config/soundcloud/config.proxy.json5`
 
-2. **App folder:** `config.proxy.json5` in the directory with the executable
+2. **App folder** (built-in): `config.proxy.json5` in the directory with the executable
 
-> **Important:** If the file exists in the user folder, it takes priority over the file in the app folder. The built-in
-> configuration from the build is not used if a custom file exists.
+3. **No file**: If no file is found, an empty proxy array `{ proxy: [] }` is used
+
+> **Important:** Proxy configuration is completely independent from `config.json5`. The application searches for
+`config.proxy.json5` in the specified order and uses the first one found.
 
 #### Configuration Format:
 
@@ -366,6 +376,14 @@ Collection of domain usage statistics in development mode
     "http://proxy.example.com:8080",
     "https://backup-proxy.example.com"
   ]
+}
+```
+
+**Disabling Proxy:** To completely disable proxy usage, specify an empty array:
+
+```json5
+{
+  "proxy": []
 }
 ```
 
@@ -385,7 +403,6 @@ The easiest and free way to set up a proxy:
 
 - `http://host:port`
 - `https://host:port`
-- `socks5://host:port` (coming soon)
 
 </details>
 
