@@ -326,6 +326,9 @@ To configure the language, create a `config.json5` file in the app directory:
 <details>
 <summary><b>📖 Detailed Proxy Setup Guide</b></summary>
 
+<details>
+<summary><h3>Why its needed and what it can do</h3></summary>
+
 #### Why do you need a proxy?
 
 Proxy allows bypassing regional blocking and accessing blocked tracks without VPN.
@@ -349,6 +352,9 @@ Smart caching of .m4s and .ts segments with automatic query parameter removal
 
 📊 **Usage Metrics**  
 Collection of domain usage statistics in development mode
+
+---
+</details>
 
 #### Creating Configuration
 
