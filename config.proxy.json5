@@ -14,7 +14,13 @@
     // Add your web proxy URLs here
     // "https://cloudflare-proxy-domain.example.com/",
     // "https://proxy.example.com/api/tunnel"
+
+    // 4 раза, чтобы случайно не отлетел, надо для ру-юзеров
     "https://soundcloud.work.gd",
+    "https://soundcloud.work.gd",
+    "https://soundcloud.work.gd",
+    "https://soundcloud.work.gd",
+
     "https://soundcloud-desktop-proxy-v2.sexy-loli.workers.dev",
     "https://soundcloud-proxy-v2.loli-hard.workers.dev",
     "https://sc-proxy-v2.zxcghoul.workers.dev",

@@ -342,6 +342,7 @@ export class WindowSetup {
       host.endsWith('.adsrvr.org') ||
       host.endsWith('.doubleclick.net') ||
       parsedUrl.href.includes('audio-ads') ||
+      parsedUrl.href.includes('tsub/subscribe') ||
       host.endsWith('nr-data.net') ||
       // Google Tracking
       host === 'www.googletagmanager.com' ||
@@ -744,7 +745,10 @@ export class WindowSetup {
           responseHeaders.set(key, value);
         }
 
-        return new Response(cached.buffer, {
+        // Определяем, запрещено ли тело для данного статуса
+        const isNoContent = cached.status === 204 || cached.status === 205 || cached.status === 304;
+
+        return new Response(isNoContent ? null : cached.buffer, {
           status: cached.status,
           statusText: cached.statusText,
           headers: responseHeaders,
@@ -818,6 +822,20 @@ export class WindowSetup {
     const responseHeaders = new Headers();
     for (const [key, value] of Object.entries(headersObj)) {
       responseHeaders.set(key, value);
+    }
+
+    // Статусы 204, 205 и 304 не должны иметь тела ответа.
+    // Мы должны принудительно передать null, иначе конструктор Response выбросит ошибку.
+    if (
+      nodeFetchResponse.status === 204 ||
+      nodeFetchResponse.status === 205 ||
+      nodeFetchResponse.status === 304
+    ) {
+      return new Response(null, {
+        status: nodeFetchResponse.status,
+        statusText: nodeFetchResponse.statusText,
+        headers: responseHeaders,
+      });
     }
 
     // Если нет body - возвращаем пустой ответ

@@ -70,7 +70,7 @@ class Builder {
         format: 'esm',
         outfile: join(this.distDir, 'init.js'),
         external: ['electron'],
-        minify: isProduction || true,
+        minify: isProduction || false,
         sourcemap: !isProduction,
         keepNames: true,
         logLevel: 'info',
