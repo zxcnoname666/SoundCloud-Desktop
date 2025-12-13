@@ -331,7 +331,7 @@ To configure the language, create a `config.json5` file in the app directory:
 
 #### Why do you need a proxy?
 
-Proxy allows bypassing regional blocking and accessing blocked tracks without VPN.
+Proxy allows bypassing regional blocking and accessing blocked tracks without *other programms*.
 
 #### Smart Proxy Features:
 
