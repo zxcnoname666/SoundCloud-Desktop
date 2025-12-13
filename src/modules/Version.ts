@@ -534,30 +534,47 @@ export class Version {
 
           if (currentAppImage) {
             const fs = require('node:fs');
+            const path = require('node:path');
+            const os = require('node:os');
 
             // Делаем новый AppImage исполняемым
             fs.chmodSync(filePath, '755');
 
-            // Копируем новый AppImage на место старого
-            const backupPath = `${currentAppImage}.backup`;
-            fs.copyFileSync(currentAppImage, backupPath);
+            // Создаем временный скрипт для замены
+            const tempDir = os.tmpdir();
+            const scriptPath = path.join(tempDir, `replace-appimage-${Date.now()}.sh`);
 
-            try {
-              fs.copyFileSync(filePath, currentAppImage);
+            // Содержимое bash-скрипта
+            const scriptContent = `#!/bin/sh
+# Ждем завершения текущего процесса
+sleep 2
 
-              // Запускаем новый AppImage
-              spawn(currentAppImage, [], {
-                detached: true,
-                stdio: 'ignore',
-              });
+# Заменяем файл
+cp -f "${filePath}" "${currentAppImage}"
 
-              app.quit();
-              return true;
-            } catch (error) {
-              // Восстанавливаем из бэкапа в случае ошибки
-              fs.copyFileSync(backupPath, currentAppImage);
-              throw error;
-            }
+# Делаем исполняемым
+chmod +x "${currentAppImage}"
+
+# Запускаем новую версию
+"${currentAppImage}" &
+
+# Удаляем временный скрипт
+rm -f "${scriptPath}"
+rm -f "${filePath}"`;
+
+            // Сохраняем скрипт
+            fs.writeFileSync(scriptPath, scriptContent);
+            fs.chmodSync(scriptPath, '755');
+
+            // Запускаем скрипт в фоне
+            spawn('sh', [scriptPath], {
+              detached: true,
+              stdio: 'ignore',
+            });
+
+            app.quit();
+            return true;
+            // biome-ignore lint/style/noUselessElse: усложняет чтение
           } else {
             // Если не можем определить текущий AppImage, запускаем новый
             require('node:fs').chmodSync(filePath, '755');
@@ -568,6 +585,7 @@ export class Version {
             app.quit();
             return true;
           }
+          // biome-ignore lint/style/noUselessElse: усложняет чтение
         } else if (filePath.endsWith('.deb')) {
           // DEB - показываем инструкцию с командой установки
           const fileName = require('node:path').basename(filePath);
@@ -586,6 +604,7 @@ export class Version {
           }
 
           return false;
+          // biome-ignore lint/style/noUselessElse: <explanation>
         } else if (filePath.endsWith('.rpm')) {
           // RPM - показываем инструкцию с командой установки
           const fileName = require('node:path').basename(filePath);
