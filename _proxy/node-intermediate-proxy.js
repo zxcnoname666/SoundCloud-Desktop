@@ -296,6 +296,16 @@ const server = http.createServer(async (req, res) => {
 
   const targetUrl = req.headers['x-target'];
   const decodedUrl = decodeTargetUrl(targetUrl);
+
+  if (!decodedUrl) {
+    res.writeHead(400, {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    });
+    res.end('Missing headers');
+    return;
+  }
+
   console.log('Streaming request:', req.method, 'to', decodedUrl);
 
   try {
@@ -325,6 +335,7 @@ const server = http.createServer(async (req, res) => {
     let response = null;
     let lastError = null;
     let usedProxyUrl = null;
+    let usedProxyIndex = -1; // Keep track of which proxy index in the snapshot was used
 
     // Get a snapshot of current global proxy queue with its version
     // This request works with this snapshot and version
@@ -338,7 +349,8 @@ const server = http.createServer(async (req, res) => {
 
     // Try each proxy from the snapshot
     // Failed proxies are moved to end of GLOBAL queue (if version hasn't changed)
-    for (const proxyUrl of proxyList) {
+    for (let i = 0; i < proxyList.length; i++) {
+      const proxyUrl = proxyList[i];
       try {
         console.log(`  Trying proxy: ${proxyUrl}`);
         response = await fetch(proxyUrl, requestOptions);
@@ -356,6 +368,7 @@ const server = http.createServer(async (req, res) => {
 
         // Success! Use this response
         usedProxyUrl = proxyUrl;
+        usedProxyIndex = i; // Save index for potential failover later
         console.log(`  ✓ Success via ${proxyUrl}`);
         markProxySuccess(proxyUrl);
         break;
@@ -394,25 +407,156 @@ const server = http.createServer(async (req, res) => {
 
     res.writeHead(response.status, responseHeaders);
 
-    // Stream response directly
+    // Stream response directly with FAILOVER PROTECTION
     if (response.body) {
-      const reader = response.body.getReader();
+      let reader = response.body.getReader();
+      let totalBytesWritten = 0;
+      let isStreamActive = true;
+
+      // Determine if this request is eligible for recovery (GET + Caching Headers)
+      // Check for common cache headers or explicit cache-control as requested
+      const hasCacheHeaders =
+        req.headers['cache-control'] ||
+        req.headers['pragma'] ||
+        req.headers['if-none-match'] ||
+        req.headers['if-modified-since'] ||
+        // Also allow recovery if it looks like a media request (often implies static/cacheable)
+        (response.headers.get('content-type') || '').startsWith('audio/') ||
+        (response.headers.get('content-type') || '').startsWith('video/');
+
+      const canRecover = req.method === 'GET' && hasCacheHeaders;
 
       try {
-        while (true) {
-          const { done, value } = await reader.read();
+        while (isStreamActive) {
+          try {
+            const { done, value } = await reader.read();
 
-          if (done) {
-            break;
+            if (done) {
+              isStreamActive = false;
+              break;
+            }
+
+            // Write chunk directly without any transformation
+            res.write(value);
+            totalBytesWritten += value.length;
+          } catch (streamError) {
+            console.error(
+              `  ⚠️ Stream error on ${usedProxyUrl} after ${totalBytesWritten} bytes:`,
+              streamError.message
+            );
+
+            // If we can't recover or have no proxies left, re-throw
+            if (!canRecover) {
+              throw streamError;
+            }
+
+            console.log(
+              `  🔄 Attempting seamless stream recovery (GET + Cache detected). Resume at byte ${totalBytesWritten}`
+            );
+
+            // Mark current proxy as failed since it dropped connection
+            markProxyError(usedProxyUrl);
+            await moveProxyToEnd(usedProxyUrl, snapshotVersion);
+
+            let recoverySuccess = false;
+
+            // Try remaining proxies in the snapshot
+            for (let j = usedProxyIndex + 1; j < proxyList.length; j++) {
+              const nextProxyUrl = proxyList[j];
+              console.log(`  🔄 Recovery: Trying next proxy ${nextProxyUrl}`);
+
+              try {
+                // Construct recovery request with Range header
+                const recoveryHeaders = { ...requestOptions.headers };
+                recoveryHeaders['Range'] = `bytes=${totalBytesWritten}-`;
+
+                // Remove headers that might conflict with Range or caching during retry
+                delete recoveryHeaders['if-none-match'];
+                delete recoveryHeaders['if-modified-since'];
+
+                const recoveryResponse = await fetch(nextProxyUrl, {
+                  ...requestOptions,
+                  headers: recoveryHeaders,
+                });
+
+                // Expect 206 Partial Content or 200 OK (some servers ignore Range but send full, which we handle)
+                if (recoveryResponse.status === 206 || recoveryResponse.status === 200) {
+                  // If server returned 200 (ignored Range), we must skip the bytes we already sent
+                  // Note: Fetch standard doesn't make skipping easy without reading,
+                  // but most CDNs respect Range. If 200, we technically receive full file again.
+                  // For strict correctness with Range: 206 is expected.
+
+                  console.log(
+                    `  ✓ Recovery connection established with ${nextProxyUrl} (${recoveryResponse.status})`
+                  );
+
+                  // Release lock on old reader
+                  try {
+                    reader.releaseLock();
+                  } catch (e) {}
+
+                  // Switch to new reader
+                  reader = recoveryResponse.body.getReader();
+
+                  // If we got 200 OK (server ignored Range), we ideally should skip `totalBytesWritten`.
+                  // Implementing manual skip for safety:
+                  if (recoveryResponse.status === 200 && totalBytesWritten > 0) {
+                    console.log(
+                      `  ⚠️ Server returned 200 OK (Range ignored). Skipping ${totalBytesWritten} bytes manually...`
+                    );
+                    let skipped = 0;
+                    while (skipped < totalBytesWritten) {
+                      const { done: sDone, value: sValue } = await reader.read();
+                      if (sDone) break;
+                      const remainingToSkip = totalBytesWritten - skipped;
+                      if (sValue.length <= remainingToSkip) {
+                        skipped += sValue.length;
+                      } else {
+                        // We skipped part of this chunk, write the rest
+                        const keepPart = sValue.subarray(remainingToSkip);
+                        res.write(keepPart);
+                        totalBytesWritten += keepPart.length;
+                        skipped += sValue.length; // Complete the skip logic
+                      }
+                    }
+                  }
+
+                  usedProxyUrl = nextProxyUrl;
+                  usedProxyIndex = j;
+                  markProxySuccess(nextProxyUrl);
+                  recoverySuccess = true;
+                  break; // Exit inner loop, continue main streaming loop with new reader
+                } else {
+                  console.log(
+                    `  ❌ Recovery failed: ${nextProxyUrl} returned status ${recoveryResponse.status}`
+                  );
+                  markProxyError(nextProxyUrl);
+                }
+              } catch (retryErr) {
+                console.log(
+                  `  ❌ Recovery connection failed to ${nextProxyUrl}:`,
+                  retryErr.message
+                );
+                markProxyError(nextProxyUrl);
+              }
+            }
+
+            if (!recoverySuccess) {
+              console.log('  ❌ All recovery attempts failed. Aborting stream.');
+              throw streamError; // Give up
+            }
           }
-
-          // Write chunk directly without any transformation
-          res.write(value);
         }
       } catch (streamError) {
-        console.error('Stream error:', streamError);
+        console.error('Stream error (fatal):', streamError);
+        // Ensure we end the response so client knows stream died (if not already ended)
+        if (!res.finished) res.end();
       } finally {
-        reader.releaseLock();
+        try {
+          reader.releaseLock();
+        } catch (e) {
+          console.debug('Cant to release lock', e);
+        }
       }
     }
 
@@ -420,13 +564,18 @@ const server = http.createServer(async (req, res) => {
   } catch (error) {
     console.error('Proxy error:', error);
 
-    res.writeHead(500, {
-      'Content-Type': 'text/plain',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': '*',
-    });
-    res.end(`Proxy Error: ${error.message}`);
+    // Only write headers if they haven't been sent yet
+    if (!res.headersSent) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': '*',
+      });
+      res.end(`Proxy Error: ${error.message}`);
+    } else {
+      res.end();
+    }
   }
 });
 
