@@ -393,7 +393,8 @@ export class WindowSetup {
       host === 'prodregistryv2.org' ||
       host === 'beyondwickedmapping.org' ||
       // Cookie Consent banners
-      host === 'cdn.cookielaw.org'
+      // host === 'cdn.cookielaw.org' || без нее не грузит настройки
+      false
     );
   }
 
