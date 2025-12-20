@@ -115,7 +115,10 @@ export class ProxyManager implements ProxyManagerInterface {
         const response = await fetch(proxyUrl, proxyOptions);
 
         // Проверяем успешность ответа
-        if (!response.ok && (response.status === 429 || response.status === 500)) {
+        if (
+          !response.ok &&
+          (response.status === 429 || response.status === 500 || response.status === 503)
+        ) {
           console.warn(
             `⚠️ Proxy ${proxy.domain} returned ${response.status}: ${response.statusText}`
           );
