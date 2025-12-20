@@ -195,7 +195,7 @@ jobs:
           path: artifacts
 
       - name: Auto Release
-        uses: loli669/release-helper@main
+        uses: zxcloli666/release-helper@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION_TYPE: ${{ github.event.inputs.version_type }}
