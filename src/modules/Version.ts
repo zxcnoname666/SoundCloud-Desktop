@@ -72,7 +72,7 @@ export class Version {
   private static async fetchUpdateInfo(): Promise<any> {
     try {
       const response = await fetch(
-        'https://api.github.com/repos/zxcnoname666/SoundCloud-Desktop/releases/latest',
+        'https://api.github.com/repos/loli669/SoundCloud-Desktop/releases/latest',
         { signal: AbortSignal.timeout(15000) } // 15 second timeout to prevent hanging
       );
 

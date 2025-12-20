@@ -3,7 +3,7 @@ name: Bug report
 about: Нашли баг? Создайте баг-репорт. Это позволит нам улучшить приложение
 title: "[BUG]"
 labels: bug, help wanted
-assignees: zxcnoname666
+assignees: loli669
 
 ---
 
