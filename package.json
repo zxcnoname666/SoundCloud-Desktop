@@ -27,14 +27,14 @@
   "packageManager": "pnpm@10.23.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/loli669/SoundCloud-Desktop.git"
+    "url": "git+https://github.com/zxcloli666/SoundCloud-Desktop.git"
   },
-  "author": "loli669",
+  "author": "zxcloli666",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/loli669/SoundCloud-Desktop/issues"
+    "url": "https://github.com/zxcloli666/SoundCloud-Desktop/issues"
   },
-  "homepage": "https://github.com/loli669/SoundCloud-Desktop#readme",
+  "homepage": "https://github.com/zxcloli666/SoundCloud-Desktop#readme",
   "simple-git-hooks": {
     "pre-commit": "pnpm run format"
   },

@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://soundcloud.com">
-<img src="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png" width="180px" style="border-radius: 50%;" />
+<img src="https://raw.githubusercontent.com/zxcloli666/SoundCloud-Desktop/main/icons/appLogo.png" width="180px" style="border-radius: 50%;" />
 </a>
 </p>
 
@@ -12,31 +12,31 @@ Listen to music without ads and geo-restrictions
 </p>
 
 <p align="center">
-<a href="https://github.com/loli669/SoundCloud-Desktop/releases/latest">
-<img src="https://img.shields.io/github/v/release/loli669/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Version" alt="Latest Release"/>
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest">
+<img src="https://img.shields.io/github/v/release/zxcloli666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Version" alt="Latest Release"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/releases">
-<img src="https://img.shields.io/github/downloads/loli669/SoundCloud-Desktop/total?style=for-the-badge&logo=download&color=FF5500&label=Downloads" alt="Downloads"/>
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/releases">
+<img src="https://img.shields.io/github/downloads/zxcloli666/SoundCloud-Desktop/total?style=for-the-badge&logo=download&color=FF5500&label=Downloads" alt="Downloads"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/stargazers">
-<img src="https://img.shields.io/github/stars/loli669/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Stars" alt="Stars"/>
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/stargazers">
+<img src="https://img.shields.io/github/stars/zxcloli666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Stars" alt="Stars"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/blob/main/LICENSE">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/blob/main/LICENSE">
 <img src="https://img.shields.io/badge/License-MIT-FF5500?style=for-the-badge" alt="License"/>
 </a>
 </p>
 
 <p align="center">
-<a href="https://github.com/loli669/SoundCloud-Desktop/releases/latest">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest">
 <img src="https://img.shields.io/badge/⬇️_Download-Latest_Release-FF5500?style=for-the-badge&logo=download" alt="Download"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/blob/main/README.md">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/blob/main/README.md">
 <img src="https://img.shields.io/badge/🇷🇺_Русский-README-0066FF?style=for-the-badge" alt="Russian"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/discussions">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/discussions">
 <img src="https://img.shields.io/badge/💬_Community-Discussions-00CC66?style=for-the-badge&logo=github" alt="Discussions"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/issues">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/issues">
 <img src="https://img.shields.io/badge/🐛_Bugs-Issues-FF3333?style=for-the-badge&logo=github" alt="Issues"/>
 </a>
 </p>
@@ -135,7 +135,7 @@ Built-in blocking of **39+ tracking and advertising domains**:
 <details>
 <summary><b>Expand Windows Installation Guide</b></summary>
 
-1. Go to the [releases page](https://github.com/loli669/SoundCloud-Desktop/releases/latest)
+1. Go to the [releases page](https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest)
 2. Download **`SoundCloudInstaller.exe`** (universal installer)
 3. Run the installer
 4. Follow the setup wizard instructions
@@ -154,7 +154,7 @@ Built-in blocking of **39+ tracking and advertising domains**:
 <details>
 <summary><b>Expand Linux Installation Guide</b></summary>
 
-1. Go to the [releases page](https://github.com/loli669/SoundCloud-Desktop/releases/latest)
+1. Go to the [releases page](https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest)
 2. Download **`soundcloud-{version}.AppImage`** (e.g., `soundcloud-3.2.0.AppImage`)
 3. Make it executable:
 
@@ -181,7 +181,7 @@ chmod +x soundcloud-*.AppImage
 <details>
 <summary><b>Expand macOS Installation Guide</b></summary>
 
-1. Go to the [releases page](https://github.com/loli669/SoundCloud-Desktop/releases/latest)
+1. Go to the [releases page](https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest)
 2. Download the file for your processor:
     - **Apple Silicon (M1/M2/M3):** `soundcloud-{version}-arm64.dmg`
     - **Intel:** `soundcloud-{version}.dmg`
@@ -432,7 +432,7 @@ The easiest and free way to set up a proxy:
 npm install -g pnpm
 
 # 2. Clone the repository
-git clone https://github.com/loli669/SoundCloud-Desktop.git
+git clone https://github.com/zxcloli666/SoundCloud-Desktop.git
 cd SoundCloud-Desktop
 
 # 3. Install dependencies
@@ -473,12 +473,12 @@ If you like SoundCloud Desktop — give this repository a ⭐!
 
 ### 🐛 Found a Bug?
 
-[Create an issue](https://github.com/loli669/SoundCloud-Desktop/issues/new) with a detailed description of the
+[Create an issue](https://github.com/zxcloli666/SoundCloud-Desktop/issues/new) with a detailed description of the
 problem.
 
 ### 💡 Have an Idea?
 
-[Open a discussion](https://github.com/loli669/SoundCloud-Desktop/discussions/new) and share your suggestions!
+[Open a discussion](https://github.com/zxcloli666/SoundCloud-Desktop/discussions/new) and share your suggestions!
 
 ### 🔧 Want to Contribute?
 
@@ -489,11 +489,11 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 ## 📊 Statistics
 
 <p align="center">
-<img src="https://api.star-history.com/svg?repos=loli669/SoundCloud-Desktop&type=Date" alt="Star History Chart" />
+<img src="https://api.star-history.com/svg?repos=zxcloli666/SoundCloud-Desktop&type=Date" alt="Star History Chart" />
 </p>
 
 <p align="center">
-<img src="https://loli669.github.io/download-history/loli669_SoundCloud-Desktop.svg" alt="Downloads Chart" />
+<img src="https://zxcloli666.github.io/download-history/zxcloli666_SoundCloud-Desktop.svg" alt="Downloads Chart" />
 </p>
 
 <p align="center">
@@ -525,7 +525,7 @@ SoundCloud Ltd.
 </p>
 
 <p align="center">
-<a href="https://github.com/loli669/SoundCloud-Desktop/releases/latest">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest">
 <img src="https://img.shields.io/badge/⬇️_Download_Now-FF5500?style=for-the-badge&logo=download&logoColor=white" alt="Download Now" height="50"/>
 </a>
 </p>

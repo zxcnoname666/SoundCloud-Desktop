@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://soundcloud.com">
-<img src="https://raw.githubusercontent.com/zxcnoname666/SoundCloud-Desktop/main/icons/appLogo.png" width="180px" style="border-radius: 50%;" />
+<img src="https://raw.githubusercontent.com/zxcloli666/SoundCloud-Desktop/main/icons/appLogo.png" width="180px" style="border-radius: 50%;" />
 </a>
 </p>
 
@@ -12,31 +12,31 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/loli669/SoundCloud-Desktop/releases/latest">
-<img src="https://img.shields.io/github/v/release/loli669/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=VERSION" alt="Последний релиз"/>
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest">
+<img src="https://img.shields.io/github/v/release/zxcloli666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=VERSION" alt="Последний релиз"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/releases">
-<img src="https://img.shields.io/github/downloads/loli669/SoundCloud-Desktop/total?style=for-the-badge&logo=download&color=FF5500&label=Downloads" alt="Загрузки"/>
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/releases">
+<img src="https://img.shields.io/github/downloads/zxcloli666/SoundCloud-Desktop/total?style=for-the-badge&logo=download&color=FF5500&label=Downloads" alt="Загрузки"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/stargazers">
-<img src="https://img.shields.io/github/stars/loli669/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Stars" alt="Stars"/>
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/stargazers">
+<img src="https://img.shields.io/github/stars/zxcloli666/SoundCloud-Desktop?style=for-the-badge&logo=github&color=FF5500&label=Stars" alt="Stars"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/blob/main/LICENSE">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/blob/main/LICENSE">
 <img src="https://img.shields.io/badge/Лицензия-MIT-FF5500?style=for-the-badge" alt="License"/>
 </a>
 </p>
 
 <p align="center">
-<a href="https://github.com/loli669/SoundCloud-Desktop/releases/latest">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest">
 <img src="https://img.shields.io/badge/⬇️_Скачать-Последнюю_Версию-FF5500?style=for-the-badge&logo=download" alt="Download"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/blob/main/README-EN.md">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/blob/main/README-EN.md">
 <img src="https://img.shields.io/badge/🌍_English-README-0066FF?style=for-the-badge" alt="English"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/discussions">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/discussions">
 <img src="https://img.shields.io/badge/💬_Обсуждения-Форум-00CC66?style=for-the-badge&logo=github" alt="Discussions"/>
 </a>
-<a href="https://github.com/loli669/SoundCloud-Desktop/issues">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/issues">
 <img src="https://img.shields.io/badge/🐛_Баги-Issues-FF3333?style=for-the-badge&logo=github" alt="Issues"/>
 </a>
 </p>
@@ -135,7 +135,7 @@
 <details>
 <summary><b>Развернуть инструкцию для Windows</b></summary>
 
-1. Перейдите на [страницу релизов](https://github.com/loli669/SoundCloud-Desktop/releases/latest)
+1. Перейдите на [страницу релизов](https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest)
 2. Скачайте **`SoundCloudInstaller.exe`** (универсальный установщик)
 3. Запустите установщик
 4. Следуйте инструкциям мастера установки
@@ -154,7 +154,7 @@
 <details>
 <summary><b>Развернуть инструкцию для Linux</b></summary>
 
-1. Перейдите на [страницу релизов](https://github.com/loli669/SoundCloud-Desktop/releases/latest)
+1. Перейдите на [страницу релизов](https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest)
 2. Скачайте **`soundcloud-{version}.AppImage`** (например, `soundcloud-3.2.0.AppImage`)
 3. Сделайте файл исполняемым:
 
@@ -181,7 +181,7 @@ chmod +x soundcloud-*.AppImage
 <details>
 <summary><b>Развернуть инструкцию для macOS</b></summary>
 
-1. Перейдите на [страницу релизов](https://github.com/loli669/SoundCloud-Desktop/releases/latest)
+1. Перейдите на [страницу релизов](https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest)
 2. Скачайте файл для вашего процессора:
     - **Apple Silicon (M1/M2/M3):** `soundcloud-{version}-arm64.dmg`
     - **Intel:** `soundcloud-{version}.dmg`
@@ -432,7 +432,7 @@ SoundCloud Desktop включает мощный встроенный CSS ред
 npm install -g pnpm
 
 # 2. Клонируйте репозиторий
-git clone https://github.com/loli669/SoundCloud-Desktop.git
+git clone https://github.com/zxcloli666/SoundCloud-Desktop.git
 cd SoundCloud-Desktop
 
 # 3. Установите зависимости
@@ -473,11 +473,11 @@ pnpm build
 
 ### 🐛 Нашёл баг?
 
-[Создай issue](https://github.com/loli669/SoundCloud-Desktop/issues/new) с подробным описанием проблемы.
+[Создай issue](https://github.com/zxcloli666/SoundCloud-Desktop/issues/new) с подробным описанием проблемы.
 
 ### 💡 Есть идея?
 
-[Открой discussion](https://github.com/loli669/SoundCloud-Desktop/discussions/new) и поделись своими предложениями!
+[Открой discussion](https://github.com/zxcloli666/SoundCloud-Desktop/discussions/new) и поделись своими предложениями!
 
 ### 🔧 Хочешь помочь?
 
@@ -488,11 +488,11 @@ Pull requests приветствуются! Для больших изменен
 ## 📊 Статистика
 
 <p align="center">
-<img src="https://api.star-history.com/svg?repos=loli669/SoundCloud-Desktop&type=Date" alt="Star History Chart" />
+<img src="https://api.star-history.com/svg?repos=zxcloli666/SoundCloud-Desktop&type=Date" alt="Star History Chart" />
 </p>
 
 <p align="center">
-<img src="https://loli669.github.io/download-history/loli669_SoundCloud-Desktop.svg" alt="Downloads Chart" />
+<img src="https://zxcloli666.github.io/download-history/zxcloli666_SoundCloud-Desktop.svg" alt="Downloads Chart" />
 </p>
 
 <p align="center">
@@ -525,7 +525,7 @@ Pull requests приветствуются! Для больших изменен
 </p>
 
 <p align="center">
-<a href="https://github.com/loli669/SoundCloud-Desktop/releases/latest">
+<a href="https://github.com/zxcloli666/SoundCloud-Desktop/releases/latest">
 <img src="https://img.shields.io/badge/⬇️_Скачать_Сейчас-FF5500?style=for-the-badge&logo=download&logoColor=white" alt="Download Now" height="50"/>
 </a>
 </p>

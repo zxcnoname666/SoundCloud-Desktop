@@ -144,7 +144,7 @@ Cloudflare Workers заблокирован на территории РФ дл�
     "https://proxy.example.com",
 
     // URL с timestamp для обхода кэширования Deno Deploy
-    "https://share-hawk-52.zxcnoname666.deno.net/{date}/{target}"
+    "https://share-hawk-52.zxcloli666.deno.net/{date}/{target}"
   ]
 }
 ```
@@ -156,7 +156,7 @@ Cloudflare Workers заблокирован на территории РФ дл�
 **Результат:**
 ```
 Запрос к: https://soundcloud.com/discover
-Станет: https://share-hawk-52.loli669.deno.net/1732291234567/aHR0cHM6Ly9zb3VuZGNsb3VkLmNvbS9kaXNjb3Zlcg==
+Станет: https://share-hawk-52.zxcloli666.deno.net/1732291234567/aHR0cHM6Ly9zb3VuZGNsb3VkLmNvbS9kaXNjb3Zlcg==
 ```
 
 **Важно:** Прокси-сервер игнорирует path и продолжает работать по заголовку `X-Target` (основная логика без изменений).
