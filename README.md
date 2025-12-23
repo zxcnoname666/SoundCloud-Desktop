@@ -8,7 +8,7 @@
 
 <p align="center">
 <b>Неофициальный десктопный клиент SoundCloud для Windows, Linux и macOS</b><br>
-Слушай музыку без рекламы и блокировок РКН
+Слушай музыку без рекламы и блокировок
 </p>
 
 <p align="center">
@@ -321,7 +321,7 @@ SoundCloud Desktop включает мощный встроенный CSS ред
 > **Примечание:** Настройки прокси загружаются из **отдельного файла** `config.proxy.json5` (см. раздел "Настройка
 > прокси" ниже).
 
-### 🔒 Настройка прокси (для обхода блокировок)
+### 🔒 Настройка прокси (для обхода гео-блока)
 
 <details>
 <summary><b>📖 Подробная инструкция по настройке прокси</b></summary>
@@ -513,9 +513,9 @@ Pull requests приветствуются! Для больших изменен
 ## 📎 Связанные термины
 
 *Для улучшения поиска проекта:* `soundcloud desktop`, `soundcloud приложение`, `soundcloud клиент`,
-`soundcloud windows`, `soundcloud linux`, `soundcloud macos`, `soundcloud без рекламы`, `soundcloud обход блокировок`,
-`soundcloud ркн`, `soundcloud россия`, `soundcloud desktop client`, `soundcloud app`, `soundcloud player`,
-`unofficial soundcloud`, `soundcloud прокси`, `soundcloud vpn`, `музыкальный плеер`, `desktop music player`,
+`soundcloud windows`, `soundcloud linux`, `soundcloud macos`, `soundcloud без рекламы`, `soundcloud в России`,
+`soundcloud россия`, `soundcloud desktop client`, `soundcloud app`, `soundcloud player`,
+`unofficial soundcloud`, `soundcloud прокси`, `музыкальный плеер`, `desktop music player`,
 `soundcloud альтернатива`
 
 ---
