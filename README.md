@@ -48,7 +48,7 @@
 
 Вам помогут.
 
-### Не работает авторизация?
+### Не могу войти в аккаунт
 > Как авторизоваться тут: [#53](https://github.com/zxcloli666/SoundCloud-Desktop/discussions/53)
 
 ### Вижу "You have blocked"
