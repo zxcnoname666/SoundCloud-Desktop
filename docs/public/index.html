@@ -683,24 +683,13 @@
             document.getElementById('stars').textContent = data.stargazers_count || '0';
 
             // Fetch release downloads
-            const downloadsData = await fetch('https://img.shields.io/github/downloads/zxcloli666/SoundCloud-Desktop/total.json')
+            /** @type {{total: number}[]} */
+            const downloadsData = await fetch('https://raw.githubusercontent.com/zxcloli666/download-history/refs/heads/main/data/zxcloli666_SoundCloud-Desktop.json')
                 .then(res => res.json());
 
-            let value = downloadsData.value;
-            let multiplier = 1;
-            if (value.includes('k') || value.includes('K')) {
-                multiplier = 1000;
-                value = value.replace(/[kK]/g, '');
-            } else if (value.includes('M')) {
-                multiplier = 1000000;
-                value = value.replace(/M/g, '');
-            } else if (value.includes('B')) {
-                multiplier = 1000000000;
-                value = value.replace(/B/g, '');
-            }
-            const totalDownloads = Math.round(parseFloat(value) * multiplier) || 0;
+            const totalDownloads = Math.round(downloadsData.pop()?.total ?? 0) || 0;
 
-            document.getElementById('downloads').textContent = totalDownloads.toLocaleString();
+            document.getElementById('downloads').textContent = `${totalDownloads.toLocaleString()}+`;
         } catch (error) {
             console.error('Error fetching GitHub stats:', error);
             document.getElementById('stars').textContent = '—';
