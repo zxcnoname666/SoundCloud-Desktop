@@ -283,7 +283,7 @@ export class AssetCache {
     let cacheUrl = url;
 
     // Для медиа-сегментов отсекаем query параметры (подписи меняются, контент нет)
-    const hasMediaSegmentExt = this.MEDIA_SEGMENT_EXTENSIONS.some((ext) => url.includes(ext));
+    const hasMediaSegmentExt = false; // this.MEDIA_SEGMENT_EXTENSIONS.some((ext) => url.includes(ext)); // TODO: возможно вызывает зависания
 
     if (hasMediaSegmentExt) {
       // Убираем всё после ? (включая подпись)
