@@ -41,7 +41,11 @@
   "pnpm": {
     "overrides": {
       "js-yaml@<4.1.1": ">=4.1.1",
-      "glob@>=10.2.0 <10.5.0": ">=10.5.0"
+      "glob@>=10.2.0 <10.5.0": ">=10.5.0",
+      "tmp@<=0.2.3": ">=0.2.4",
+      "tar@<=7.5.2": ">=7.5.3",
+      "tar@<=7.5.3": ">=7.5.4",
+      "lodash@>=4.0.0 <=4.17.22": ">=4.17.23"
     },
     "ignoredBuiltDependencies": [
       "@biomejs/biome",
@@ -56,24 +60,24 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
-    "@electron-forge/cli": "^7.10.2",
-    "@electron-forge/maker-appx": "^7.10.2",
-    "@electron-forge/maker-deb": "^7.10.2",
-    "@electron-forge/maker-dmg": "^7.10.2",
-    "@electron-forge/maker-rpm": "^7.10.2",
-    "@electron-forge/maker-squirrel": "^7.10.2",
-    "@electron-forge/maker-zip": "^7.10.2",
-    "@eslint/js": "^9.39.1",
-    "@reforged/maker-appimage": "^5.1.0",
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/maker-appx": "^7.11.1",
+    "@electron-forge/maker-deb": "^7.11.1",
+    "@electron-forge/maker-dmg": "^7.11.1",
+    "@electron-forge/maker-rpm": "^7.11.1",
+    "@electron-forge/maker-squirrel": "^7.11.1",
+    "@electron-forge/maker-zip": "^7.11.1",
+    "@eslint/js": "^9.39.2",
+    "@reforged/maker-appimage": "^5.1.1",
     "@types/discord-rpc": "^4.0.10",
     "@types/node": "^24.10.1",
-    "@typescript-eslint/eslint-plugin": "^8.47.0",
-    "@typescript-eslint/parser": "^8.47.0",
-    "electron": "^38.7.1",
-    "esbuild": "^0.27.0",
-    "eslint": "^9.39.1",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
+    "electron": "^40.0.0",
+    "esbuild": "^0.27.2",
+    "eslint": "^9.39.2",
     "simple-git-hooks": "^2.13.1",
-    "tsx": "^4.20.6",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {

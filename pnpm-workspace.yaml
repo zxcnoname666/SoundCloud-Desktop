@@ -1,1 +1,4 @@
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - lodash@4.17.23
+  - tar@7.5.4
