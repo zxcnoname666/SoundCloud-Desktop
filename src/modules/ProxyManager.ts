@@ -29,6 +29,7 @@ export class ProxyManager implements ProxyManagerInterface {
   private notifyManager: NotificationManager | null = null;
   private httpsAgent: https.Agent;
   private httpAgent: http.Agent;
+  private allProxy: boolean;
 
   // Конфигурация системы strikes
   private readonly MAX_STRIKES = 10; // Максимум ошибок подряд
@@ -46,6 +47,12 @@ export class ProxyManager implements ProxyManagerInterface {
     this.httpAgent = new http.Agent({
       keepAlive: true,
     });
+
+    this.allProxy = false;
+  }
+
+  static isAllProxy(): boolean {
+    return ProxyManager.getInstance().allProxy;
   }
 
   static getInstance(): ProxyManager {
@@ -103,6 +110,10 @@ export class ProxyManager implements ProxyManagerInterface {
           headers: {
             ...proxy.headers,
             ...headers,
+            'user-agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-ch-ua': '"Google Chrome";v="140", "Chromium";v="140", "Not_A Brand";v="24"',
             'X-Target': encodedTargetUrl,
           },
           agent: proxy.protocol === 'https:' ? this.httpsAgent : this.httpAgent,
@@ -157,6 +168,7 @@ export class ProxyManager implements ProxyManagerInterface {
       const configManager = ConfigManager.getInstance();
       const proxyConfig = configManager.loadProxyConfig();
 
+      this.allProxy = proxyConfig.allProxy;
       this.allProxies = this.parseProxies(proxyConfig.proxy || []);
       this.activeProxies = [...this.allProxies]; // Копируем полный список в активные
 
@@ -279,7 +291,7 @@ export class ProxyManager implements ProxyManagerInterface {
             domain: `${url.protocol}//${url.host}`,
             path: url.pathname !== '/' ? url.pathname : undefined,
             headers: url.searchParams.has('headers')
-              ? JSON.parse(decodeURIComponent(url.searchParams.get('headers')!))
+              ? JSON.parse(decodeURIComponent(url.searchParams.get('headers') ?? ''))
               : undefined,
             protocol: url.protocol as 'http:' | 'https:',
             // Инициализируем систему strikes

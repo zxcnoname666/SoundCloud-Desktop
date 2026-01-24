@@ -10,6 +10,10 @@
   //   User-Agent: SoundCloud-Desktop/1.0
   //   [other headers copied as-is]
 
+  // проксировать вообще ВСЕ запросы?
+  // ставьте true если свою проксю юзаете
+  allProxy: false,
+
   proxy: [
     // Add your web proxy URLs here
     // "https://cloudflare-proxy-domain.example.com/",

@@ -176,8 +176,9 @@ export class WindowSetup {
 
         // Устанавливаем User-Agent для всех запросов
         headers['User-Agent'] =
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36';
-        headers['sec-ch-ua'] = '"Google Chrome";v="136", "Chromium";v="136", "Not_A Brand";v="24"';
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
+        headers['sec-ch-ua'] = '"Google Chrome";v="140", "Chromium";v="140", "Not_A Brand";v="24"';
+        headers['sec-ch-ua-platform'] = '"Windows"';
 
         callback({ requestHeaders: headers });
       } catch (error) {
@@ -190,7 +191,7 @@ export class WindowSetup {
   static hookNewWindow(contents: Electron.WebContents): void {
     contents.setWindowOpenHandler(({ url }) => {
       if (url.startsWith('http')) {
-        shell.openExternal(url);
+        void shell.openExternal(url);
         return { action: 'deny' };
       }
       return { action: 'allow' };
@@ -696,6 +697,10 @@ export class WindowSetup {
     hostname: string
   ): Promise<{ shouldProxy: boolean; reason: string }> {
     console.debug('shouldProxyDomain.hostname', hostname);
+
+    if (ProxyManager.isAllProxy()) {
+      return { shouldProxy: true, reason: 'enabled all proxying in config' };
+    }
 
     // Если домен соответствует маскам - сразу проксируем
     if (WindowSetup.matchesDomainMask(hostname)) {

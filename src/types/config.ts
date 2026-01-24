@@ -49,6 +49,7 @@ export interface AppConfig {
 }
 
 export interface ProxyConfig {
+  allProxy: boolean;
   proxy: string[];
 }
 

@@ -124,7 +124,7 @@ export class ConfigManager {
     }
 
     if (!configPath) {
-      return { proxy: [] };
+      return { proxy: [], allProxy: false };
     }
 
     try {
@@ -140,7 +140,7 @@ export class ConfigManager {
       return JSON.parse(configContent);
     } catch (error) {
       console.warn(`Failed to parse proxy config: ${error}`);
-      return { proxy: [] };
+      return { proxy: [], allProxy: false };
     }
   }
 
