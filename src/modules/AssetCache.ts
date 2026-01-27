@@ -197,6 +197,10 @@ export class AssetCache {
       return false;
     }
 
+    if (headers['content-type'] === 'text/html') {
+      return false;
+    }
+
     // Vary: Accept-Encoding - нормально для статики, кэшируем
     // Другие Vary тоже OK для статических ассетов
     return true;
@@ -280,20 +284,7 @@ export class AssetCache {
    * Для медиа-сегментов (.m4s, .ts) отсекает query параметры
    */
   private getCacheKey(url: string): string {
-    let cacheUrl = url;
-
-    // Для медиа-сегментов отсекаем query параметры (подписи меняются, контент нет)
-    const hasMediaSegmentExt = false; // this.MEDIA_SEGMENT_EXTENSIONS.some((ext) => url.includes(ext)); // TODO: возможно вызывает зависания
-
-    if (hasMediaSegmentExt) {
-      // Убираем всё после ? (включая подпись)
-      const questionMarkIndex = url.indexOf('?');
-      if (questionMarkIndex !== -1) {
-        cacheUrl = url.substring(0, questionMarkIndex);
-      }
-    }
-
-    return createHash('sha1').update(cacheUrl).digest('hex');
+    return createHash('sha1').update(url).digest('hex');
   }
 
   /**

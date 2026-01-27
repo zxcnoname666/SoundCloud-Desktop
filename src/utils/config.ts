@@ -45,6 +45,10 @@ export class ConfigManager {
         join(app.getPath('appData'), 'soundcloud', 'config.js'),
         join(app.getPath('appData'), 'soundcloud', 'config.json'),
 
+        join(app.getPath('appData'), 'SoundCloud', 'config.json5'),
+        join(app.getPath('appData'), 'SoundCloud', 'config.js'),
+        join(app.getPath('appData'), 'SoundCloud', 'config.json'),
+
         join(appPath, 'config.json5'),
         join(appPath, 'config.js'),
         join(appPath, 'config.json'),
@@ -60,6 +64,8 @@ export class ConfigManager {
           break;
         }
       }
+
+      console.info(`⚙️ Config path: ${actualConfigPath ?? 'undefined'}`);
 
       if (!actualConfigPath) {
         throw new Error(
@@ -106,6 +112,10 @@ export class ConfigManager {
       join(appDataPath, 'soundcloud', 'config.proxy.js'),
       join(appDataPath, 'soundcloud', 'config.proxy.json'),
 
+      join(appDataPath, 'SoundCloud', 'config.proxy.json5'),
+      join(appDataPath, 'SoundCloud', 'config.proxy.js'),
+      join(appDataPath, 'SoundCloud', 'config.proxy.json'),
+
       join(actualFallbackPath, 'config.proxy.json5'),
       join(actualFallbackPath, 'config.proxy.js'),
       join(actualFallbackPath, 'config.proxy.json'),
@@ -122,6 +132,8 @@ export class ConfigManager {
         break;
       }
     }
+
+    console.info(`⚙️ Config path for proxy: ${configPath ?? 'undefined'}`);
 
     if (!configPath) {
       return { proxy: [], allProxy: false };
